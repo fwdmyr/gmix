@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.14...3.26)
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(
-  ModernCMakeExample
+  GMSAM
   VERSION 0.1
-  DESCRIPTION "An example project with CMake"
+  DESCRIPTION "WIP"
   LANGUAGES CXX)
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
@@ -23,40 +23,21 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   # Note this needs to be done in the main CMakeLists
   # since it calls enable_testing, which must be in the
   # main CMakeLists.
-  include(CTest)
-
-  # Docs only available if this is the main app
-  find_package(Doxygen)
-  if(Doxygen_FOUND)
-    add_subdirectory(docs)
-  else()
-    message(STATUS "Doxygen not found, not building docs")
-  endif()
+  option(GMSAM_ENABLE_TESTS "Build tests" ON)
 endif()
 
-# FetchContent added in CMake 3.11, downloads during the configure step
-# FetchContent_MakeAvailable was added in CMake 3.14; simpler usage
-include(FetchContent)
-
-# Accumulator library
-# This is header only, so could be replaced with git submodules or FetchContent
 find_package(Boost REQUIRED)
-# Adds Boost::boost
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
-# Formatting library
-FetchContent_Declare(
-  fmtlib
-  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 5.3.0)
-FetchContent_MakeAvailable(fmtlib)
-# Adds fmt::fmt
-
-# The compiled library code is here
-add_subdirectory(src)
+add_library(gmsam INTERFACE)
+target_sources(gmsam INTERFACE include/Common.hpp, include/GaussianComponent.hpp, include/GaussianMixture.hpp)
+target_include_directories(gmsam INTERFACE include)
+target_compile_features(gmsam INTERFACE cxx_std_17)
 
 # Testing only available if this is the main app
 # Emergency override MODERN_CMAKE_BUILD_TESTING provided as well
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)
-   AND BUILD_TESTING)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND GMSAM_ENABLE_TESTS)
+  enable_testing()
+  include(GoogleTest)
   add_subdirectory(test)
 endif()

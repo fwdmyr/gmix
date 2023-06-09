@@ -1,21 +1,42 @@
-# Testing library
-FetchContent_Declare(
-  catch
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG v2.13.6)
-FetchContent_MakeAvailable(catch)
-# Adds Catch2::Catch2
+add_subdirectory("${PROJECT_SOURCE_DIR}/third_party/googletest" "third_party/googletest")
 
-# Tests need to be added as executables first
-add_executable(testlib testlib.cpp)
+mark_as_advanced(
+    BUILD_GMOCK BUILD_GTEST BUILD_SHARED_LIBS
+    gmock_build_tests gtest_build_samples gtest_build_tests
+    gtest_disable_pthreads gtest_force_shared_crt gtest_hide_internal_symbols
+)
 
-# I'm using C++17 in the test
-target_compile_features(testlib PRIVATE cxx_std_17)
+set_target_properties(gtest PROPERTIES FOLDER third_party)
+set_target_properties(gtest_main PROPERTIES FOLDER third_party)
+set_target_properties(gmock PROPERTIES FOLDER third_party)
+set_target_properties(gmock_main PROPERTIES FOLDER third_party)
 
-# Should be linked to the main library, as well as the Catch2 testing library
-target_link_libraries(testlib PRIVATE modern_library Catch2::Catch2)
+macro(package_add_test TESTNAME TESTFILE)
+    # create an executable in which the tests will be stored
+    add_executable(${TESTNAME} ${TESTFILE}) 
+    # link the Google test infrastructure, mocking library, and a default main function to
+    # the test executable.  Remove g_test_main if writing your own main function.
+    target_link_libraries(${TESTNAME} gtest gmock gtest_main ${ARGN})
+    # gtest_discover_tests replaces gtest_add_tests,
+    # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more options to pass to it
+    gtest_discover_tests(${TESTNAME}
+        # set a working directory so your project root so that you can find test data via paths relative to the project root
+        WORKING_DIRECTORY ${PROJECT_DIR}
+        PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_DIR}"
+    )
+    set_target_properties(${TESTNAME} PROPERTIES FOLDER test)
+endmacro()
 
-# If you register a test, then ctest and make test will run it.
-# You can also run examples and check the output, as well.
-add_test(NAME testlibtest COMMAND testlib) # Command can be a target
+
+macro(package_add_test_with_libraries TESTNAME FILES LIBRARIES TEST_WORKING_DIRECTORY)
+    add_executable(${TESTNAME} ${FILES})
+    target_link_libraries(${TESTNAME} gtest gmock gtest_main ${LIBRARIES})
+    gtest_discover_tests(${TESTNAME}
+        WORKING_DIRECTORY ${TEST_WORKING_DIRECTORY}
+        PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${TEST_WORKING_DIRECTORY}"
+    )
+    set_target_properties(${TESTNAME} PROPERTIES FOLDER test)
+endmacro()
+
+package_add_test(test_sampling test_sampling.cpp Eigen3::Eigen)
 
