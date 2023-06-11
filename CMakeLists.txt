@@ -29,8 +29,19 @@ endif()
 find_package(Boost REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
+set(HEADERS_LIST
+  include/Common.hpp
+  include/Statistics.hpp
+  include/GaussianComponent.hpp
+  include/GaussianMixture.hpp
+  include/FittingStrategy.hpp
+  include/KMeansStrategy.hpp
+  include/ExpectationMaximizationStrategy.hpp
+  include/VariationalBayesianInferenceStrategy.hpp
+  )
+
 add_library(gmsam INTERFACE)
-target_sources(gmsam INTERFACE include/Common.hpp, include/GaussianComponent.hpp, include/GaussianMixture.hpp)
+target_sources(gmsam INTERFACE HEADERS_LIST)
 target_include_directories(gmsam INTERFACE include)
 target_compile_features(gmsam INTERFACE cxx_std_17)
 
