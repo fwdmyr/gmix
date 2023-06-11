@@ -36,6 +36,8 @@ public:
     components_.emplace_back(component);
   }
 
+  void reset() { components_.clear(); }
+
 private:
   std::vector<GaussianComponent<Dim>> components_;
 };

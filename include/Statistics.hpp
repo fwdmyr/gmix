@@ -37,6 +37,20 @@ draw_from_gaussian_mixture(const GaussianMixture<Dim> &gmm, size_t n_samples) {
 }
 
 template <int Dim>
+std::vector<std::vector<Vector<Dim>>>
+partition_samples(const std::vector<Vector<Dim>> &samples,
+                  size_t n_partitions) {
+  // TODO: Continue here!
+  static std::mt19937 gen{std::random_device{}()};
+  static std::normal_distribution<> nd;
+
+  std::vector<std::vector<Vector<Dim>>> partitions{n_partitions};
+  std::vector<double> discrete_probabilities(n_partitions, 1.0 / n_partitions);
+  std::discrete_distribution<> dd(discrete_probabilities.begin(),
+                                  discrete_probabilities.end());
+}
+
+template <int Dim>
 Vector<Dim> sample_mean(const std::vector<Vector<Dim>> &samples) {
   const size_t n = samples.size();
   const auto mu =
