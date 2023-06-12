@@ -40,10 +40,13 @@ set(HEADERS_LIST
   include/VariationalBayesianInferenceStrategy.hpp
   )
 
-add_library(gmsam INTERFACE)
-target_sources(gmsam INTERFACE HEADERS_LIST)
-target_include_directories(gmsam INTERFACE include)
-target_compile_features(gmsam INTERFACE cxx_std_17)
+set(TARGET_NAME gmsam)
+
+add_library(${TARGET_NAME} INTERFACE)
+target_sources(${TARGET_NAME} INTERFACE HEADERS_LIST)
+target_include_directories(${TARGET_NAME} INTERFACE include)
+target_compile_features(${TARGET_NAME} INTERFACE cxx_std_17)
+target_compile_options(${TARGET_NAME} INTERFACE -Wall -Wextra -Wpedantic -Werror)
 
 # Testing only available if this is the main app
 # Emergency override MODERN_CMAKE_BUILD_TESTING provided as well

@@ -39,4 +39,4 @@ macro(package_add_test_with_libraries TESTNAME FILES LIBRARIES TEST_WORKING_DIRE
 endmacro()
 
 package_add_test(test_sampling test_sampling.cpp Eigen3::Eigen)
-
+package_add_test(test_fitting test_fitting.cpp Eigen3::Eigen)

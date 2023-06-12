@@ -1,18 +1,25 @@
-#include "GaussianMixture.hpp"
+#ifndef GMSAM_FITTING_STRATEGY_HPP
+#define GMSAM_FITTING_STRATEGY_HPP
+
+#include "GaussianComponent.hpp"
+#include "Statistics.hpp"
+#include <vector>
 
 namespace gm {
 
-struct FittingStrategyParameters {};
-
 template <int Dim> class FittingStrategy {
 public:
-  explicit FittingStrategy(const FittingStrategyParameters &parameters)
-      : parameters_(parameters) {}
   virtual ~FittingStrategy();
-  virtual void fit(GaussianMixture<Dim> &) const = 0;
+  virtual void fit(std::vector<GaussianComponent<Dim>> &,
+                   const std::vector<Vector<Dim>> &) const;
+};
 
-protected:
-  FittingStrategyParameters parameters_;
+template <int Dim> class NoneStrategy final : public FittingStrategy<Dim> {
+public:
+  virtual ~NoneStrategy();
+  virtual void fit(std::vector<GaussianComponent<Dim>> &,
+                   const std::vector<Vector<Dim>> &) const override;
 };
 
 } // namespace gm
+#endif // !GMSAM_FITTING_STRATEGY_HPP

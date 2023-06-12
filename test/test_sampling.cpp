@@ -1,3 +1,5 @@
+#include "../include/GaussianMixture.hpp"
+#include "../include/KMeansStrategy.hpp"
 #include "../include/Statistics.hpp"
 #include <gtest/gtest.h>
 #include <numeric>

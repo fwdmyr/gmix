@@ -1,3 +1,6 @@
+#ifndef GMSAM_GAUSSIAN_COMPONENT_HPP
+
+#endif // !GMSAM_GAUSSIAN_COMPONENT_HPP
 #include "Common.hpp"
 
 namespace gm {

@@ -1,54 +1,12 @@
+#ifndef GMSAM_STATISTICS_HPP
+#define GMSAM_STATISTICS_HPP
+
 #include "Common.hpp"
-#include "GaussianMixture.hpp"
 #include <iostream>
 #include <numeric>
 #include <random>
 
 namespace gm {
-
-template <int Dim>
-std::vector<Vector<Dim>>
-draw_from_gaussian_mixture(const GaussianMixture<Dim> &gmm, size_t n_samples) {
-
-  static std::mt19937 gen{std::random_device{}()};
-  static std::normal_distribution<> nd;
-
-  std::vector<Vector<Dim>> samples;
-  samples.reserve(n_samples);
-
-  std::vector<double> weights;
-  weights.reserve(gmm.get_size());
-  for (auto it = gmm.cbegin(); it < gmm.cend(); ++it)
-    weights.push_back(it->get_weight());
-  std::discrete_distribution<> dd(weights.begin(), weights.end());
-
-  for (size_t i = 0; i < n_samples; ++i) {
-    const auto &component = gmm[dd(gen)];
-    Eigen::SelfAdjointEigenSolver<Matrix<Dim, Dim>> eigen_solver(
-        component.get_covariance());
-    const auto transform = eigen_solver.eigenvectors() *
-                           eigen_solver.eigenvalues().cwiseSqrt().asDiagonal();
-    const auto sample =
-        component.get_mean() +
-        transform * Vector<Dim>{}.unaryExpr([](auto x) { return nd(gen); });
-    samples.push_back(sample);
-  }
-  return samples;
-}
-
-template <int Dim>
-std::vector<std::vector<Vector<Dim>>>
-partition_samples(const std::vector<Vector<Dim>> &samples,
-                  size_t n_partitions) {
-  // TODO: Continue here!
-  static std::mt19937 gen{std::random_device{}()};
-  static std::normal_distribution<> nd;
-
-  std::vector<std::vector<Vector<Dim>>> partitions{n_partitions};
-  std::vector<double> discrete_probabilities(n_partitions, 1.0 / n_partitions);
-  std::discrete_distribution<> dd(discrete_probabilities.begin(),
-                                  discrete_probabilities.end());
-}
 
 template <int Dim>
 Vector<Dim> sample_mean(const std::vector<Vector<Dim>> &samples) {
@@ -76,3 +34,4 @@ Matrix<Dim, Dim> sample_covariance(const std::vector<Vector<Dim>> &samples,
 }
 
 } // namespace gm
+#endif // !GMSAM_STATISTICS_HPP

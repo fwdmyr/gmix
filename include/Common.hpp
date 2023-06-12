@@ -1,3 +1,6 @@
+#ifndef GMSAM_COMMON_HPP
+#define GMSAM_COMMON_HPP
+
 #include <Eigen/Dense>
 
 namespace gm {
@@ -15,3 +18,4 @@ template <int Rows> using Vector = Eigen::Matrix<double, Rows, 1>;
 using VectorX = Eigen::Matrix<double, Eigen::Dynamic, 1>;
 
 } // namespace gm
+#endif // !GMSAM_COMMON_HPP
