@@ -2,25 +2,30 @@
 #define GMSAM_GAUSSIAN_MIXTURE_HPP
 
 #include "BaseStrategy.hpp"
+#include "KMeansStrategy.hpp"
 #include <initializer_list>
+#include <memory>
 #include <random>
 #include <vector>
 
 namespace gm {
 
-template <int Dim> class GaussianMixture {
+template <typename Strategy, typename Parameters, int Dim>
+class GaussianMixture {
 
 public:
   using container_type = std::vector<GaussianComponent<Dim>>;
   using iterator = typename container_type::iterator;
   using const_iterator = typename container_type::const_iterator;
 
-  GaussianMixture() : strategy_(BaseStrategy<Dim>{}){};
+  GaussianMixture() = default;
   GaussianMixture(std::initializer_list<GaussianComponent<Dim>>);
-  GaussianMixture(const GaussianMixture<Dim> &) = default;
-  GaussianMixture(GaussianMixture<Dim> &&) = default;
-  GaussianMixture<Dim> &operator=(const GaussianMixture<Dim> &) = default;
-  GaussianMixture<Dim> &operator=(GaussianMixture<Dim> &&) = default;
+  GaussianMixture(const GaussianMixture<Strategy, Parameters, Dim> &) = default;
+  GaussianMixture(GaussianMixture<Strategy, Parameters, Dim> &&) = default;
+  GaussianMixture<Strategy, Parameters, Dim> &
+  operator=(const GaussianMixture<Strategy, Parameters, Dim> &) = default;
+  GaussianMixture<Strategy, Parameters, Dim> &
+  operator=(GaussianMixture<Strategy, Parameters, Dim> &&) = default;
 
   inline iterator begin() noexcept { return components_.begin(); }
   inline const_iterator cbegin() const noexcept { return components_.cbegin(); }
@@ -41,15 +46,22 @@ public:
 
   void reset() { components_.resize(0); }
 
-  void set_strategy(const BaseStrategy<Dim> &strategy) { strategy_ = strategy; }
-  void set_strategy(BaseStrategy<Dim> &&strategy) { strategy_ = strategy; }
-
-  void fit(const std::vector<Vector<Dim>> &samples) {
-    strategy_.fit(components_, samples);
+  void set_strategy(const Parameters &params) {
+    p_strategy_ = std::make_unique<Strategy>(params);
   }
 
-  friend std::ostream &operator<<(std::ostream &os,
-                                  const GaussianMixture<Dim> &gmm) {
+  void set_strategy(Parameters &&params) {
+    p_strategy_ = std::make_unique<Strategy>(params);
+  }
+
+  void fit(const std::vector<Vector<Dim>> &samples) {
+    if (p_strategy_)
+      p_strategy_->fit(components_, samples);
+  }
+
+  friend std::ostream &
+  operator<<(std::ostream &os,
+             const GaussianMixture<Strategy, Parameters, Dim> &gmm) {
     os << "GaussianMixture<" << Dim << ">\n";
     for (const auto &component : gmm.components_)
       os << component << '\n';
@@ -58,13 +70,12 @@ public:
 
 private:
   std::vector<GaussianComponent<Dim>> components_;
-  // TODO: Implement dispatch so derived classes fit gets called instead of base
-  BaseStrategy<Dim> strategy_;
+  std::unique_ptr<Strategy> p_strategy_;
 };
 
-template <int Dim>
-std::vector<Vector<Dim>>
-draw_from_gaussian_mixture(const GaussianMixture<Dim> &gmm, size_t n_samples) {
+template <typename Strategy, typename Parameters, int Dim>
+std::vector<Vector<Dim>> draw_from_gaussian_mixture(
+    const GaussianMixture<Strategy, Parameters, Dim> &gmm, size_t n_samples) {
 
   static std::mt19937 gen{std::random_device{}()};
   static std::normal_distribution<> nd;

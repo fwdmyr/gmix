@@ -12,7 +12,9 @@ TEST(FittingTest, kMeansStrategyFittingTest) {
 
   constexpr int DIM = 2;
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixture<DIM> gmm;
+  gm::GaussianMixture<gm::KMeansStrategy<DIM>, gm::KMeansStrategyParameters,
+                      DIM>
+      gmm;
   gmm.add_component(
       {0.5, (gm::Vector<DIM>() << 2.0, 9.0).finished(),
        (gm::Matrix<DIM, DIM>() << 1.0, 0.0, 0.0, 1.0).finished()});
@@ -25,8 +27,7 @@ TEST(FittingTest, kMeansStrategyFittingTest) {
   gm::KMeansStrategyParameters parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
-  gm::KMeansStrategy<DIM> k_means{parameters};
-  gmm.set_strategy(std::move(k_means));
+  gmm.set_strategy(parameters);
   gmm.fit(samples);
   GTEST_COUT << gmm << '\n';
 

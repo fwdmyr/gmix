@@ -12,9 +12,7 @@ template <int Dim> class BaseStrategy {
 public:
   virtual ~BaseStrategy() = default;
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const std::vector<Vector<Dim>> &) const {
-    throw std::runtime_error("BaseStrategy::fit");
-  };
+                   const std::vector<Vector<Dim>> &) const = 0;
 };
 
 } // namespace gm
