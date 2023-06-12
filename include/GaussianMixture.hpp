@@ -1,7 +1,7 @@
 #ifndef GMSAM_GAUSSIAN_MIXTURE_HPP
 #define GMSAM_GAUSSIAN_MIXTURE_HPP
 
-#include "FittingStrategy.hpp"
+#include "BaseStrategy.hpp"
 #include <initializer_list>
 #include <random>
 #include <vector>
@@ -15,7 +15,7 @@ public:
   using iterator = typename container_type::iterator;
   using const_iterator = typename container_type::const_iterator;
 
-  GaussianMixture() : strategy_(NoneStrategy<Dim>{}){};
+  GaussianMixture() : strategy_(BaseStrategy<Dim>{}){};
   GaussianMixture(std::initializer_list<GaussianComponent<Dim>>);
   GaussianMixture(const GaussianMixture<Dim> &) = default;
   GaussianMixture(GaussianMixture<Dim> &&) = default;
@@ -39,20 +39,27 @@ public:
     components_.emplace_back(component);
   }
 
-  void reset() { components_.clear(); }
+  void reset() { components_.resize(0); }
 
-  void set_strategy(const FittingStrategy<Dim> &strategy) {
-    strategy_ = strategy;
-  }
-  void set_strategy(FittingStrategy<Dim> &&strategy) { strategy_ = strategy; }
+  void set_strategy(const BaseStrategy<Dim> &strategy) { strategy_ = strategy; }
+  void set_strategy(BaseStrategy<Dim> &&strategy) { strategy_ = strategy; }
 
   void fit(const std::vector<Vector<Dim>> &samples) {
     strategy_.fit(components_, samples);
   }
 
+  friend std::ostream &operator<<(std::ostream &os,
+                                  const GaussianMixture<Dim> &gmm) {
+    os << "GaussianMixture<" << Dim << ">\n";
+    for (const auto &component : gmm.components_)
+      os << component << '\n';
+    return os;
+  }
+
 private:
   std::vector<GaussianComponent<Dim>> components_;
-  FittingStrategy<Dim> strategy_;
+  // TODO: Implement dispatch so derived classes fit gets called instead of base
+  BaseStrategy<Dim> strategy_;
 };
 
 template <int Dim>

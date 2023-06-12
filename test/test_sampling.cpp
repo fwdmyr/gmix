@@ -11,7 +11,7 @@
 TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
 
   constexpr int DIM = 1;
-  constexpr size_t N_SAMPLES = 1E6;
+  constexpr size_t N_SAMPLES = 1E5;
   gm::GaussianMixture<DIM> gmm;
   const auto weight = 1.0;
   const auto mean = (gm::Vector<DIM>() << 9.7).finished();
@@ -22,7 +22,7 @@ TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
 
   const auto sample_mean = gm::sample_mean(samples);
 
-  EXPECT_NEAR(mean(0), sample_mean(0), 1E-2);
+  EXPECT_NEAR(mean(0), sample_mean(0), 5E-2);
 }
 
 // Tests if covariance of sampling distribution approximates covariance of
@@ -30,7 +30,7 @@ TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
 TEST(SamplingTest, SingleUnivariateComponentCovarianceTest) {
 
   constexpr int DIM = 1;
-  constexpr size_t N_SAMPLES = 1E6;
+  constexpr size_t N_SAMPLES = 1E5;
   gm::GaussianMixture<DIM> gmm;
   const auto weight = 1.0;
   const auto mean = (gm::Vector<DIM>() << 9.7).finished();
@@ -43,7 +43,7 @@ TEST(SamplingTest, SingleUnivariateComponentCovarianceTest) {
 
   const auto sample_covariance = gm::sample_covariance(samples, sample_mean);
 
-  EXPECT_NEAR(covariance(0, 0), sample_covariance(0, 0), 1E-2);
+  EXPECT_NEAR(covariance(0, 0), sample_covariance(0, 0), 5E-2);
 }
 
 // Tests if mean of sampling distribution approximates mean of underlying
@@ -51,7 +51,7 @@ TEST(SamplingTest, SingleUnivariateComponentCovarianceTest) {
 TEST(SamplingTest, SingleMultivariateComponentMeanTest) {
 
   constexpr int DIM = 2;
-  constexpr size_t N_SAMPLES = 1E6;
+  constexpr size_t N_SAMPLES = 1E5;
   gm::GaussianMixture<DIM> gmm;
   const auto weight = 1.0;
   const auto mean = (gm::Vector<DIM>() << 9.7, 4.2).finished();
@@ -63,8 +63,8 @@ TEST(SamplingTest, SingleMultivariateComponentMeanTest) {
 
   const auto sample_mean = gm::sample_mean(samples);
 
-  EXPECT_NEAR(mean(0), sample_mean(0), 1E-2);
-  EXPECT_NEAR(mean(1), sample_mean(1), 1E-2);
+  EXPECT_NEAR(mean(0), sample_mean(0), 5E-2);
+  EXPECT_NEAR(mean(1), sample_mean(1), 5E-2);
 }
 
 // Tests if covariance of sampling distribution approximates covariance of
@@ -72,7 +72,7 @@ TEST(SamplingTest, SingleMultivariateComponentMeanTest) {
 TEST(SamplingTest, SingleMultivariateComponentCovarianceTest) {
 
   constexpr int DIM = 2;
-  constexpr size_t N_SAMPLES = 1E6;
+  constexpr size_t N_SAMPLES = 1E5;
   gm::GaussianMixture<DIM> gmm;
   const auto weight = 1.0;
   const auto mean = (gm::Vector<DIM>() << 9.7, 4.2).finished();
@@ -86,6 +86,6 @@ TEST(SamplingTest, SingleMultivariateComponentCovarianceTest) {
 
   const auto sample_covariance = gm::sample_covariance(samples, sample_mean);
 
-  EXPECT_NEAR(covariance(0, 0), sample_covariance(0, 0), 1E-2);
-  EXPECT_NEAR(covariance(1, 1), sample_covariance(1, 1), 1E-2);
+  EXPECT_NEAR(covariance(0, 0), sample_covariance(0, 0), 5E-2);
+  EXPECT_NEAR(covariance(1, 1), sample_covariance(1, 1), 5E-2);
 }

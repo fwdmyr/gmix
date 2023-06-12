@@ -1,7 +1,8 @@
 #ifndef GMSAM_K_MEANS_STRATEGY_HPP
 #define GMSAM_K_MEANS_STRATEGY_HPP
 
-#include "FittingStrategy.hpp"
+#include "BaseStrategy.hpp"
+#include "Statistics.hpp"
 #include <limits>
 #include <random>
 
@@ -53,11 +54,10 @@ struct KMeansStrategyParameters {
   int n_iterations;
 };
 
-template <int Dim> class KMeansStrategy final : public FittingStrategy<Dim> {
+template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {
 public:
   explicit KMeansStrategy(const KMeansStrategyParameters &parameters)
       : parameters_(parameters) {}
-  virtual ~KMeansStrategy();
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
                    const std::vector<Vector<Dim>> &) const override;
 
@@ -76,9 +76,12 @@ template <int Dim>
 void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
                               const std::vector<Vector<Dim>> &samples) const {
   initialize(components, samples);
-  for (size_t i = 0; i < parameters_.n_components; ++i) {
-    const auto partitions = partition_samples_responsibly(components, samples);
+  std::vector<std::vector<Vector<Dim>>> partitions;
+  for (size_t i = 0; i < parameters_.n_iterations; ++i) {
+    partitions = partition_samples_responsibly(components, samples);
+    update_mean(components, partitions);
   }
+  update_covariance(components, partitions);
 }
 
 template <int Dim>
@@ -88,7 +91,7 @@ void KMeansStrategy<Dim>::initialize(
   const auto n_components = parameters_.n_components;
   if (components.size() == n_components)
     return;
-  components.clear();
+  components.resize(0);
   const auto partitions = partition_samples_randomly(samples, n_components);
   for (const auto &partition : partitions) {
     const auto mu = sample_mean(partition);

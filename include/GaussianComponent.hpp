@@ -8,7 +8,9 @@ namespace gm {
 template <int Dim> class GaussianComponent {
 
 public:
-  GaussianComponent() = delete;
+  GaussianComponent()
+      : weight_(0.0), mean_(static_cast<Vector<Dim>>(Vector<Dim>::Zero())),
+        covariance_(static_cast<Matrix<Dim, Dim>>(Matrix<Dim, Dim>::Zero())){};
   GaussianComponent(double, const Vector<Dim> &, const Matrix<Dim, Dim> &);
   GaussianComponent(const GaussianComponent<Dim> &) = default;
   GaussianComponent(GaussianComponent<Dim> &&) = default;
@@ -25,6 +27,15 @@ public:
   void set_mean(const Vector<Dim> &mean) { mean_ = mean; }
   void set_covariance(const Matrix<Dim, Dim> &covariance) {
     covariance_ = covariance;
+  }
+
+  friend std::ostream &operator<<(std::ostream &os,
+                                  const GaussianComponent<Dim> &component) {
+    os << "Component<" << Dim << ">" << '\n';
+    os << "Weight:\n" << component.weight_ << '\n';
+    os << "Mean:\n" << component.mean_ << '\n';
+    os << "Covariance:\n" << component.covariance_ << '\n';
+    return os;
   }
 
 private:
