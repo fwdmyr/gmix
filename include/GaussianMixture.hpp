@@ -73,6 +73,10 @@ private:
   std::unique_ptr<Strategy> p_strategy_;
 };
 
+template <int Dim>
+using GaussianMixtureKMeans =
+    GaussianMixture<gm::KMeansStrategy<Dim>, gm::KMeansStrategyParameters, Dim>;
+
 template <typename Strategy, typename Parameters, int Dim>
 std::vector<Vector<Dim>> draw_from_gaussian_mixture(
     const GaussianMixture<Strategy, Parameters, Dim> &gmm, size_t n_samples) {
