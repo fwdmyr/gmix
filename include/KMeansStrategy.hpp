@@ -4,6 +4,7 @@
 #include "BaseStrategy.hpp"
 #include "Statistics.hpp"
 #include <limits>
+#include <numeric>
 #include <random>
 
 namespace gm {
@@ -64,6 +65,8 @@ public:
 private:
   void initialize(std::vector<GaussianComponent<Dim>> &,
                   const std::vector<Vector<Dim>> &) const;
+  void update_weight(std::vector<GaussianComponent<Dim>> &,
+                     const std::vector<std::vector<Vector<Dim>>> &) const;
   void update_mean(std::vector<GaussianComponent<Dim>> &,
                    const std::vector<std::vector<Vector<Dim>>> &) const;
   void update_covariance(std::vector<GaussianComponent<Dim>> &,
@@ -81,6 +84,7 @@ void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
     partitions = partition_samples_responsibly(components, samples);
     update_mean(components, partitions);
   }
+  update_weight(components, partitions);
   update_covariance(components, partitions);
 }
 
@@ -89,14 +93,28 @@ void KMeansStrategy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
     const std::vector<Vector<Dim>> &samples) const {
   const auto n_components = parameters_.n_components;
-  if (components.size() == n_components)
-    return;
   components.resize(0);
   const auto partitions = partition_samples_randomly(samples, n_components);
   for (const auto &partition : partitions) {
     const auto mu = sample_mean(partition);
     const auto sigma = sample_covariance(partition, mu);
     components.push_back({1.0 / n_components, mu, sigma});
+  }
+}
+
+template <int Dim>
+void KMeansStrategy<Dim>::update_weight(
+    std::vector<GaussianComponent<Dim>> &components,
+    const std::vector<std::vector<Vector<Dim>>> &partitions) const {
+  const auto n_samples = std::accumulate(
+      partitions.begin(), partitions.end(), 0,
+      [](auto acc, const auto &rhs) { return acc + rhs.size(); });
+  const auto n_components = parameters_.n_components;
+  for (size_t i = 0; i < n_components; ++i) {
+    auto &component = components[i];
+    auto &partition = partitions[i];
+    const auto weight = static_cast<double>(partition.size()) / n_samples;
+    component.set_weight(weight);
   }
 }
 
