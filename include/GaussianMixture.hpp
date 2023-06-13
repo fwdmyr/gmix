@@ -10,8 +10,7 @@
 
 namespace gm {
 
-template <typename Strategy, typename Parameters, int Dim>
-class GaussianMixture {
+template <typename Strategy, int Dim> class GaussianMixture {
 
 public:
   using container_type = std::vector<GaussianComponent<Dim>>;
@@ -20,12 +19,12 @@ public:
 
   GaussianMixture() = default;
   GaussianMixture(std::initializer_list<GaussianComponent<Dim>>);
-  GaussianMixture(const GaussianMixture<Strategy, Parameters, Dim> &) = default;
-  GaussianMixture(GaussianMixture<Strategy, Parameters, Dim> &&) = default;
-  GaussianMixture<Strategy, Parameters, Dim> &
-  operator=(const GaussianMixture<Strategy, Parameters, Dim> &) = default;
-  GaussianMixture<Strategy, Parameters, Dim> &
-  operator=(GaussianMixture<Strategy, Parameters, Dim> &&) = default;
+  GaussianMixture(const GaussianMixture<Strategy, Dim> &) = default;
+  GaussianMixture(GaussianMixture<Strategy, Dim> &&) = default;
+  GaussianMixture<Strategy, Dim> &
+  operator=(const GaussianMixture<Strategy, Dim> &) = default;
+  GaussianMixture<Strategy, Dim> &
+  operator=(GaussianMixture<Strategy, Dim> &&) = default;
 
   inline iterator begin() noexcept { return components_.begin(); }
   inline const_iterator cbegin() const noexcept { return components_.cbegin(); }
@@ -46,11 +45,11 @@ public:
 
   void reset() { components_.resize(0); }
 
-  void set_strategy(const Parameters &params) {
+  void set_strategy(const typename Strategy::Parameters &params) {
     p_strategy_ = std::make_unique<Strategy>(params);
   }
 
-  void set_strategy(Parameters &&params) {
+  void set_strategy(typename Strategy::Parameters &&params) {
     p_strategy_ = std::make_unique<Strategy>(params);
   }
 
@@ -59,9 +58,8 @@ public:
       p_strategy_->fit(components_, samples);
   }
 
-  friend std::ostream &
-  operator<<(std::ostream &os,
-             const GaussianMixture<Strategy, Parameters, Dim> &gmm) {
+  friend std::ostream &operator<<(std::ostream &os,
+                                  const GaussianMixture<Strategy, Dim> &gmm) {
     os << "GaussianMixture<" << Dim << ">\n";
     for (const auto &component : gmm.components_)
       os << component << '\n';
@@ -74,12 +72,12 @@ private:
 };
 
 template <int Dim>
-using GaussianMixtureKMeans =
-    GaussianMixture<gm::KMeansStrategy<Dim>, gm::KMeansStrategyParameters, Dim>;
+using GaussianMixtureKMeans = GaussianMixture<gm::KMeansStrategy<Dim>, Dim>;
 
-template <typename Strategy, typename Parameters, int Dim>
-std::vector<Vector<Dim>> draw_from_gaussian_mixture(
-    const GaussianMixture<Strategy, Parameters, Dim> &gmm, size_t n_samples) {
+template <typename Strategy, int Dim>
+std::vector<Vector<Dim>>
+draw_from_gaussian_mixture(const GaussianMixture<Strategy, Dim> &gmm,
+                           size_t n_samples) {
 
   static std::mt19937 gen{std::random_device{}()};
   static std::normal_distribution<> nd;

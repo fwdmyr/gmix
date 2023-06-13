@@ -22,7 +22,7 @@ TEST(FittingTest, kMeansStrategyFittingTest) {
   const auto samples = gm::draw_from_gaussian_mixture(gmm, N_SAMPLES);
 
   gmm.reset();
-  gm::KMeansStrategyParameters parameters;
+  gm::KMeansStrategy<DIM>::Parameters parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   gmm.set_strategy(parameters);

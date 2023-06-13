@@ -12,8 +12,7 @@ TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
 
   constexpr int DIM = 1;
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixture<gm::BaseStrategy<DIM>, gm::KMeansStrategyParameters, DIM>
-      gmm;
+  gm::GaussianMixtureKMeans<DIM> gmm;
   const auto weight = 1.0;
   const auto mean = (gm::Vector<DIM>() << 9.7).finished();
   const auto covariance = (gm::Matrix<DIM, DIM>() << 1.7).finished();
@@ -32,8 +31,7 @@ TEST(SamplingTest, SingleUnivariateComponentCovarianceTest) {
 
   constexpr int DIM = 1;
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixture<gm::BaseStrategy<DIM>, gm::KMeansStrategyParameters, DIM>
-      gmm;
+  gm::GaussianMixtureKMeans<DIM> gmm;
   const auto weight = 1.0;
   const auto mean = (gm::Vector<DIM>() << 9.7).finished();
   const auto covariance = (gm::Matrix<DIM, DIM>() << 1.7).finished();
@@ -54,8 +52,7 @@ TEST(SamplingTest, SingleMultivariateComponentMeanTest) {
 
   constexpr int DIM = 2;
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixture<gm::BaseStrategy<DIM>, gm::KMeansStrategyParameters, DIM>
-      gmm;
+  gm::GaussianMixtureKMeans<DIM> gmm;
   const auto weight = 1.0;
   const auto mean = (gm::Vector<DIM>() << 9.7, 4.2).finished();
   const auto covariance =
@@ -76,8 +73,7 @@ TEST(SamplingTest, SingleMultivariateComponentCovarianceTest) {
 
   constexpr int DIM = 2;
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixture<gm::BaseStrategy<DIM>, gm::KMeansStrategyParameters, DIM>
-      gmm;
+  gm::GaussianMixtureKMeans<DIM> gmm;
   const auto weight = 1.0;
   const auto mean = (gm::Vector<DIM>() << 9.7, 4.2).finished();
   const auto covariance =

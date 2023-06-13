@@ -49,14 +49,14 @@ std::vector<std::vector<Vector<Dim>>> partition_samples_responsibly(
 
 } // namespace
 
-struct KMeansStrategyParameters {
-  int n_components;
-  int n_iterations;
-};
-
 template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {
 public:
-  explicit KMeansStrategy(const KMeansStrategyParameters &parameters)
+  struct Parameters {
+    int n_components;
+    int n_iterations;
+  };
+
+  explicit KMeansStrategy(const Parameters &parameters)
       : parameters_(parameters) {}
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
                    const std::vector<Vector<Dim>> &) const override;
@@ -69,7 +69,7 @@ private:
   void update_covariance(std::vector<GaussianComponent<Dim>> &,
                          const std::vector<std::vector<Vector<Dim>>> &) const;
 
-  KMeansStrategyParameters parameters_;
+  Parameters parameters_;
 };
 
 template <int Dim>
