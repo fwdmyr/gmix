@@ -12,21 +12,6 @@ namespace gm {
 namespace {
 
 template <int Dim>
-std::vector<std::vector<Vector<Dim>>>
-partition_samples_randomly(const std::vector<Vector<Dim>> &samples,
-                           size_t n_partitions) {
-  static std::mt19937 gen{std::random_device{}()};
-
-  std::vector<std::vector<Vector<Dim>>> partitions{n_partitions};
-  std::vector<double> discrete_probabilities(n_partitions, 1.0 / n_partitions);
-  std::discrete_distribution<> dd(discrete_probabilities.begin(),
-                                  discrete_probabilities.end());
-  for (const auto &sample : samples)
-    partitions[dd(gen)].push_back(sample);
-  return partitions;
-}
-
-template <int Dim>
 std::vector<std::vector<Vector<Dim>>> partition_samples_responsibly(
     const std::vector<GaussianComponent<Dim>> &components,
     const std::vector<Vector<Dim>> &samples) {
@@ -63,8 +48,6 @@ public:
                    const std::vector<Vector<Dim>> &) const override;
 
 private:
-  void initialize(std::vector<GaussianComponent<Dim>> &,
-                  const std::vector<Vector<Dim>> &) const;
   void update_weight(std::vector<GaussianComponent<Dim>> &,
                      const std::vector<std::vector<Vector<Dim>>> &) const;
   void update_mean(std::vector<GaussianComponent<Dim>> &,
@@ -78,7 +61,8 @@ private:
 template <int Dim>
 void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
                               const std::vector<Vector<Dim>> &samples) const {
-  initialize(components, samples);
+  const auto n_components = parameters_.n_components;
+  this->initialize(components, samples, n_components);
   std::vector<std::vector<Vector<Dim>>> partitions;
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
     partitions = partition_samples_responsibly(components, samples);
@@ -86,20 +70,6 @@ void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
   }
   update_weight(components, partitions);
   update_covariance(components, partitions);
-}
-
-template <int Dim>
-void KMeansStrategy<Dim>::initialize(
-    std::vector<GaussianComponent<Dim>> &components,
-    const std::vector<Vector<Dim>> &samples) const {
-  const auto n_components = parameters_.n_components;
-  components.resize(0);
-  const auto partitions = partition_samples_randomly(samples, n_components);
-  for (const auto &partition : partitions) {
-    const auto mu = sample_mean(partition);
-    const auto sigma = sample_covariance(partition, mu);
-    components.push_back({1.0 / n_components, mu, sigma});
-  }
 }
 
 template <int Dim>

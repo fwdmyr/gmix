@@ -17,6 +17,7 @@ macro(package_add_test TESTNAME TESTFILE)
     # link the Google test infrastructure, mocking library, and a default main function to
     # the test executable.  Remove g_test_main if writing your own main function.
     target_link_libraries(${TESTNAME} gtest gmock gtest_main ${ARGN})
+    target_compile_features(${TESTNAME} PRIVATE cxx_std_17)
     # gtest_discover_tests replaces gtest_add_tests,
     # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more options to pass to it
     gtest_discover_tests(${TESTNAME}
@@ -31,6 +32,7 @@ endmacro()
 macro(package_add_test_with_libraries TESTNAME FILES LIBRARIES TEST_WORKING_DIRECTORY)
     add_executable(${TESTNAME} ${FILES})
     target_link_libraries(${TESTNAME} gtest gmock gtest_main ${LIBRARIES})
+    target_compile_features(${TESTNAME} PRIVATE cxx_std_17)
     gtest_discover_tests(${TESTNAME}
         WORKING_DIRECTORY ${TEST_WORKING_DIRECTORY}
         PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${TEST_WORKING_DIRECTORY}"

@@ -31,7 +31,7 @@ public:
   inline iterator end() noexcept { return components_.end(); }
   inline const_iterator cend() const noexcept { return components_.cend(); }
 
-  const GaussianComponent<Dim> &operator[](size_t idx) const {
+  const GaussianComponent<Dim> &get_component(size_t idx) const {
     return components_[idx];
   }
   size_t get_size() const { return components_.size(); }
@@ -92,7 +92,7 @@ draw_from_gaussian_mixture(const GaussianMixture<Strategy, Dim> &gmm,
   std::discrete_distribution<> dd(weights.begin(), weights.end());
 
   for (size_t i = 0; i < n_samples; ++i) {
-    const auto &component = gmm[dd(gen)];
+    const auto &component = gmm.get_component(dd(gen));
     Eigen::SelfAdjointEigenSolver<Matrix<Dim, Dim>> eigen_solver(
         component.get_covariance());
     const auto transform = eigen_solver.eigenvectors() *

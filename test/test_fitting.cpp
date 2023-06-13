@@ -28,8 +28,8 @@ TEST(FittingTest, kMeansStrategyWeightFittingTest) {
   gmm.set_strategy(parameters);
   gmm.fit(samples);
 
-  EXPECT_NEAR(gmm[0].get_weight(), 0.5, 5E-2);
-  EXPECT_NEAR(gmm[1].get_weight(), 0.5, 5E-2);
+  EXPECT_NEAR(gmm.get_component(0).get_weight(), 0.5, 5E-2);
+  EXPECT_NEAR(gmm.get_component(1).get_weight(), 0.5, 5E-2);
 }
 
 // Tests if kMeans algorithm approximates the underlying Gaussian mixture
@@ -54,10 +54,10 @@ TEST(FittingTest, kMeansStrategyMeanFittingTest) {
   gmm.set_strategy(parameters);
   gmm.fit(samples);
 
-  EXPECT_NEAR(gmm[0].get_mean()(0), 2.0, 5E-2);
-  EXPECT_NEAR(gmm[0].get_mean()(1), 9.0, 5E-2);
-  EXPECT_NEAR(gmm[1].get_mean()(0), -5.0, 5E-2);
-  EXPECT_NEAR(gmm[1].get_mean()(1), 4.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(0).get_mean()(0), 2.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(0).get_mean()(1), 9.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(1).get_mean()(0), -5.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(1).get_mean()(1), 4.0, 5E-2);
 }
 
 // Tests if kMeans algorithm approximates the underlying Gaussian mixture
@@ -82,12 +82,12 @@ TEST(FittingTest, kMeansStrategyCovarianceFittingTest) {
   gmm.set_strategy(parameters);
   gmm.fit(samples);
 
-  EXPECT_NEAR(gmm[0].get_covariance()(0, 0), 1.0, 5E-2);
-  EXPECT_NEAR(gmm[0].get_covariance()(1, 0), 0.0, 5E-2);
-  EXPECT_NEAR(gmm[0].get_covariance()(0, 1), 0.0, 5E-2);
-  EXPECT_NEAR(gmm[0].get_covariance()(1, 1), 1.0, 5E-2);
-  EXPECT_NEAR(gmm[1].get_covariance()(0, 0), 1.0, 5E-2);
-  EXPECT_NEAR(gmm[1].get_covariance()(1, 0), 0.0, 5E-2);
-  EXPECT_NEAR(gmm[1].get_covariance()(0, 1), 0.0, 5E-2);
-  EXPECT_NEAR(gmm[1].get_covariance()(1, 1), 1.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(0).get_covariance()(0, 0), 1.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(0).get_covariance()(1, 0), 0.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(0).get_covariance()(0, 1), 0.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(0).get_covariance()(1, 1), 1.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(1).get_covariance()(0, 0), 1.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(1).get_covariance()(1, 0), 0.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(1).get_covariance()(0, 1), 0.0, 5E-2);
+  EXPECT_NEAR(gmm.get_component(1).get_covariance()(1, 1), 1.0, 5E-2);
 }
