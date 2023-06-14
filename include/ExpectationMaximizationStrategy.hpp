@@ -2,6 +2,7 @@
 #define GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
 
 #include "BaseStrategy.hpp"
+#include "Common.hpp"
 #include "Statistics.hpp"
 #include <limits>
 #include <random>
@@ -19,22 +20,22 @@ public:
   explicit ExpectationMaximizationStrategy(const Parameters &parameters)
       : parameters_(parameters) {}
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const std::vector<Vector<Dim>> &) const override;
+                   const StaticRowsMatrix<Dim> &) const override;
 
 private:
-  std::vector<VectorX>
+  std::vector<double>
   evaluate_responsibilities(const std::vector<GaussianComponent<Dim>> &,
-                            const std::vector<Vector<Dim>> &);
+                            const StaticRowsMatrix<Dim> &);
   void estimate_parameters(std::vector<GaussianComponent<Dim>> &,
-                           const std::vector<Vector<Dim>> &,
-                           const std::vector<VectorX> &);
+                           const StaticRowsMatrix<Dim> &,
+                           const std::vector<double> &);
   Parameters parameters_;
 };
 
 template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::fit(
     std::vector<GaussianComponent<Dim>> &components,
-    const std::vector<Vector<Dim>> &samples) const {
+    const StaticRowsMatrix<Dim> &samples) const {
   const auto n_components = parameters_.n_components;
   this->initialize(components, samples, n_components);
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
@@ -45,32 +46,18 @@ void ExpectationMaximizationStrategy<Dim>::fit(
 }
 
 template <int Dim>
-std::vector<VectorX>
+std::vector<double>
 ExpectationMaximizationStrategy<Dim>::evaluate_responsibilities(
     const std::vector<GaussianComponent<Dim>> &components,
-    const std::vector<Vector<Dim>> &samples) {
-  const auto n_samples = samples.size();
-  std::vector<VectorX> responsibilities;
-  responsibilities.reserve(n_samples);
-  for (size_t i = 0; i < n_samples; ++i) {
-    const auto sample = samples[i];
-    auto responsibility = VectorX::Zero(parameters_.n_components);
-    for (size_t j = 0; j < parameters_.n_components; ++j) {
-      auto &component = components[j];
-      responsibility(j) = component(sample);
-    }
-    const auto normalizer = responsibility.sum();
-    responsibility = 1.0 / normalizer * responsibility;
-    responsibilities.push_back(responsibility);
-  }
+    const StaticRowsMatrix<Dim> &samples) {
   return {};
 }
 
 template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::estimate_parameters(
     std::vector<GaussianComponent<Dim>> &components,
-    const std::vector<Vector<Dim>> &samples,
-    const std::vector<VectorX> &responsibilities) {
+    const StaticRowsMatrix<Dim> &samples,
+    const std::vector<double> &responsibilities) {
   return;
 }
 

@@ -2,6 +2,7 @@
 #define GMSAM_VARIATIONAL_BAYESIAN_INFERENCE_HPP
 
 #include "BaseStrategy.hpp"
+#include "Common.hpp"
 #include "Statistics.hpp"
 #include <limits>
 #include <random>
@@ -19,7 +20,7 @@ public:
   explicit VariationalBayesianInferenceStrategy(const Parameters &parameters)
       : parameters_(parameters) {}
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const std::vector<Vector<Dim>> &) const override;
+                   const StaticRowsMatrix<Dim> &) const override;
 
 private:
   Parameters parameters_;

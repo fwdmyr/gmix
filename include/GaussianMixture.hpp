@@ -2,7 +2,9 @@
 #define GMSAM_GAUSSIAN_MIXTURE_HPP
 
 #include "BaseStrategy.hpp"
+#include "ExpectationMaximizationStrategy.hpp"
 #include "KMeansStrategy.hpp"
+#include "VariationalBayesianInferenceStrategy.hpp"
 #include <initializer_list>
 #include <memory>
 #include <random>
@@ -73,6 +75,14 @@ private:
 
 template <int Dim>
 using GaussianMixtureKMeans = GaussianMixture<gm::KMeansStrategy<Dim>, Dim>;
+
+template <int Dim>
+using GaussianMixtureExpectationMaximization =
+    GaussianMixture<gm::ExpectationMaximizationStrategy<Dim>, Dim>;
+
+template <int Dim>
+using GaussianMixtureVariationalBayesianInference =
+    GaussianMixture<gm::VariationalBayesianInferenceStrategy<Dim>, Dim>;
 
 template <typename Strategy, int Dim>
 StaticRowsMatrix<Dim>
