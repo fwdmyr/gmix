@@ -9,28 +9,23 @@
 namespace gm {
 
 template <int Dim>
-Vector<Dim> sample_mean(const std::vector<Vector<Dim>> &samples) {
-  const size_t n = samples.size();
-  const auto mu =
-      1.0 / n *
-      std::accumulate(samples.begin(), samples.end(),
-                      static_cast<Vector<Dim>>(Vector<Dim>::Zero()),
-                      [](auto acc, const auto &rhs) { return acc + rhs; });
-  return mu;
+Vector<Dim> sample_mean(const StaticRowsMatrix<Dim> &samples) {
+  return samples.rowwise().mean();
 }
 
 template <int Dim>
-Matrix<Dim, Dim> sample_covariance(const std::vector<Vector<Dim>> &samples,
-                                   const Vector<Dim> &mean) {
-  const size_t n = samples.size();
-  const auto covariance =
-      1.0 / (n - 1) *
-      std::accumulate(samples.begin(), samples.end(),
-                      static_cast<Matrix<Dim, Dim>>(Matrix<Dim, Dim>::Zero()),
-                      [mu = mean](auto acc, const auto &rhs) {
-                        return acc + (rhs - mu) * (rhs - mu).transpose();
-                      });
-  return covariance;
+Matrix<Dim, Dim> sample_covariance(const StaticRowsMatrix<Dim> &samples) {
+  const auto centered_samples = samples.colwise() - samples.rowwise().mean();
+  return (centered_samples * centered_samples.adjoint()) /
+         static_cast<double>(samples.cols() - 1);
+}
+
+template <int Dim>
+Matrix<Dim, Dim> sample_covariance(const StaticRowsMatrix<Dim> &samples,
+                                   const Vector<Dim> &mu) {
+  const auto centered_samples = samples.colwise() - mu;
+  return (centered_samples * centered_samples.adjoint()) /
+         static_cast<double>(samples.cols() - 1);
 }
 
 } // namespace gm

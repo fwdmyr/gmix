@@ -53,7 +53,7 @@ public:
     p_strategy_ = std::make_unique<Strategy>(params);
   }
 
-  void fit(const std::vector<Vector<Dim>> &samples) {
+  void fit(const StaticRowsMatrix<Dim> &samples) {
     if (p_strategy_)
       p_strategy_->fit(components_, samples);
   }
@@ -75,21 +75,19 @@ template <int Dim>
 using GaussianMixtureKMeans = GaussianMixture<gm::KMeansStrategy<Dim>, Dim>;
 
 template <typename Strategy, int Dim>
-std::vector<Vector<Dim>>
+StaticRowsMatrix<Dim>
 draw_from_gaussian_mixture(const GaussianMixture<Strategy, Dim> &gmm,
                            size_t n_samples) {
 
   static std::mt19937 gen{std::random_device{}()};
   static std::normal_distribution<> nd;
 
-  std::vector<Vector<Dim>> samples;
-  samples.reserve(n_samples);
-
   std::vector<double> weights;
   weights.reserve(gmm.get_size());
   for (auto it = gmm.cbegin(); it < gmm.cend(); ++it)
     weights.push_back(it->get_weight());
   std::discrete_distribution<> dd(weights.begin(), weights.end());
+  auto samples = StaticRowsMatrix<Dim>::Zero(Dim, n_samples).eval();
 
   for (size_t i = 0; i < n_samples; ++i) {
     const auto &component = gmm.get_component(dd(gen));
@@ -97,10 +95,9 @@ draw_from_gaussian_mixture(const GaussianMixture<Strategy, Dim> &gmm,
         component.get_covariance());
     const auto transform = eigen_solver.eigenvectors() *
                            eigen_solver.eigenvalues().cwiseSqrt().asDiagonal();
-    const auto sample =
+    samples.col(i) =
         component.get_mean() +
         transform * Vector<Dim>{}.unaryExpr([](auto x) { return nd(gen); });
-    samples.push_back(sample);
   }
   return samples;
 }

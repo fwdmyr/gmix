@@ -8,7 +8,7 @@ namespace gm {
 
 namespace {
 
-constexpr double GAUSSIAN_SCALER(int Dim) {
+static constexpr double GAUSSIAN_SCALER(int Dim) {
   return 1.0 / std::pow(2 * M_PI, 0.5 * Dim);
 }
 
