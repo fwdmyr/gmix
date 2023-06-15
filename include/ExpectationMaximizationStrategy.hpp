@@ -23,12 +23,11 @@ public:
                    const StaticRowsMatrix<Dim> &) const override;
 
 private:
-  std::vector<double>
-  evaluate_responsibilities(const std::vector<GaussianComponent<Dim>> &,
-                            const StaticRowsMatrix<Dim> &);
+  MatrixX evaluate_responsibilities(const std::vector<GaussianComponent<Dim>> &,
+                                    const StaticRowsMatrix<Dim> &) const;
   void estimate_parameters(std::vector<GaussianComponent<Dim>> &,
                            const StaticRowsMatrix<Dim> &,
-                           const std::vector<double> &);
+                           const MatrixX &) const;
   Parameters parameters_;
 };
 
@@ -46,19 +45,46 @@ void ExpectationMaximizationStrategy<Dim>::fit(
 }
 
 template <int Dim>
-std::vector<double>
-ExpectationMaximizationStrategy<Dim>::evaluate_responsibilities(
+MatrixX ExpectationMaximizationStrategy<Dim>::evaluate_responsibilities(
     const std::vector<GaussianComponent<Dim>> &components,
-    const StaticRowsMatrix<Dim> &samples) {
-  return {};
+    const StaticRowsMatrix<Dim> &samples) const {
+  const auto n_samples = samples.cols();
+  const auto n_components = parameters_.n_components;
+  auto responsibilities = MatrixX::Zero(Dim, n_samples).eval();
+  for (size_t i = 0; i < n_samples; ++i) {
+    const Vector<Dim> sample = samples.col(i);
+    auto responsibility = VectorX::Zero(parameters_.n_components).eval();
+    for (size_t j = 0; j < parameters_.n_components; ++j) {
+      auto &component = components[j];
+      responsibility(j) = component(sample);
+    }
+    responsibilities.col(i) = responsibility;
+  }
+  responsibilities.colwise().normalize();
+  return responsibilities;
 }
 
 template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::estimate_parameters(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples,
-    const std::vector<double> &responsibilities) {
-  return;
+    const MatrixX &responsibilities) const {
+  // TODO: Continue here. Prefer vectorized code!
+  const auto n_samples = samples.cols();
+  const auto n_samples_responsible = responsibilities.rowwise().sum();
+  for (size_t i = 0; i < parameters_.n_components; ++i) {
+    auto &component = components[i];
+    component.set_weight(1.0 / n_samples * n_samples_responsible(i));
+    const auto mu = 1.0 / n_samples_responsible(i) *
+                    (samples.transpose().array().colwise() *
+                     responsibilities.row(i).transpose().array())
+                        .matrix()
+                        .colwise()
+                        .sum()
+                        .eval();
+    component.set_mean(mu);
+    const auto centered_samples = samples.colwise() - mu;
+  }
 }
 
 } // namespace gm

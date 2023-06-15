@@ -71,7 +71,7 @@ public:
   }
 
 private:
-  std::optional<double> cache_{};
+  mutable std::optional<double> cache_{};
   double weight_{};
   Vector<Dim> mean_{};
   Matrix<Dim, Dim> covariance_{};
@@ -93,7 +93,7 @@ GaussianComponent<Dim>::GaussianComponent(double weight,
 template <int Dim>
 double GaussianComponent<Dim>::operator()(const Vector<Dim> &x) const {
   if (!cache_)
-    cache_ = GAUSSIAN_SCALER(Dim) * sqrt_information_.determinant();
+    cache_.emplace(GAUSSIAN_SCALER(Dim) * sqrt_information_.determinant());
   return *cache_ *
          std::exp(-0.5 * (llt_.matrixL().solve(x - mean_)).squaredNorm());
 }
