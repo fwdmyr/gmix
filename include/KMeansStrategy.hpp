@@ -90,8 +90,9 @@ void update_covariance(std::vector<GaussianComponent<Dim>> &components,
 template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {
 public:
   struct Parameters {
-    int n_components;
-    int n_iterations;
+    int n_components{0};
+    int n_iterations{0};
+    bool warm_start{false};
   };
 
   explicit KMeansStrategy(const Parameters &parameters)
@@ -107,7 +108,8 @@ template <int Dim>
 void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
                               const StaticRowsMatrix<Dim> &samples) const {
   const auto n_components = parameters_.n_components;
-  this->initialize(components, samples, n_components);
+  if (!parameters_.warm_start)
+    this->initialize(components, samples, n_components);
   std::vector<StaticRowsMatrix<Dim>> partitions;
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
     partitions = partition_samples_responsibly(components, samples);

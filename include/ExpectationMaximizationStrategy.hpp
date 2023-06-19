@@ -1,8 +1,8 @@
 #ifndef GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
 #define GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
 
-#include "BaseStrategy.hpp"
 #include "Common.hpp"
+#include "KMeansStrategy.hpp"
 #include "Statistics.hpp"
 #include <limits>
 #include <random>
@@ -26,9 +26,8 @@ evaluate_responsibilities(const std::vector<GaussianComponent<Dim>> &components,
       auto &component = components[j];
       responsibility(j) = component(sample);
     }
-    responsibilities.col(i) = responsibility;
+    responsibilities.col(i) = 1.0 / responsibility.sum() * responsibility;
   }
-  responsibilities.colwise().normalize();
   return responsibilities;
 }
 
@@ -53,7 +52,7 @@ void estimate_parameters(std::vector<GaussianComponent<Dim>> &components,
     const auto centered_samples = static_cast<StaticRowsMatrix<Dim>>(
         samples.colwise() - component.get_mean());
     const auto weighted_centered_samples = static_cast<StaticRowsMatrix<Dim>>(
-        (samples.transpose().array().colwise() *
+        (centered_samples.transpose().array().colwise() *
          responsibilities.row(i).transpose().array())
             .transpose());
     // TODO: Can Eigen's reductions handle the sum over the outer products?
@@ -74,8 +73,9 @@ template <int Dim>
 class ExpectationMaximizationStrategy final : public BaseStrategy<Dim> {
 public:
   struct Parameters {
-    int n_components;
-    int n_iterations;
+    int n_components{0};
+    int n_iterations{0};
+    bool warm_start{false};
   };
 
   explicit ExpectationMaximizationStrategy(const Parameters &parameters)
@@ -84,15 +84,31 @@ public:
                    const StaticRowsMatrix<Dim> &) const override;
 
 private:
+  virtual void initialize(std::vector<GaussianComponent<Dim>> &,
+                          const StaticRowsMatrix<Dim> &, size_t) const override;
+
   Parameters parameters_;
 };
+
+template <int Dim>
+void ExpectationMaximizationStrategy<Dim>::initialize(
+    std::vector<GaussianComponent<Dim>> &components,
+    const StaticRowsMatrix<Dim> &samples, size_t n_components) const {
+
+  const typename KMeansStrategy<Dim>::Parameters initialization_parameters = {
+      parameters_.n_components, 1, parameters_.warm_start};
+  const auto initialization_strategy =
+      KMeansStrategy<Dim>{initialization_parameters};
+  initialization_strategy.fit(components, samples);
+}
 
 template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::fit(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
   const auto n_components = parameters_.n_components;
-  this->initialize(components, samples, n_components);
+  if (!parameters_.warm_start)
+    initialize(components, samples, n_components);
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
     const auto responsibilities =
         evaluate_responsibilities(components, samples);

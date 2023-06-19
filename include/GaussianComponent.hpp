@@ -9,7 +9,7 @@ namespace gm {
 namespace {
 
 static constexpr double GAUSSIAN_SCALER(int Dim) {
-  return 1.0 / std::pow(2 * M_PI, 0.5 * Dim);
+  return 1.0 / std::pow(2.0 * M_PI, 0.5 * Dim);
 }
 
 } // namespace
@@ -36,18 +36,8 @@ public:
   const Vector<Dim> &get_mean() const { return mean_; }
   const Matrix<Dim, Dim> &get_covariance() const { return covariance_; }
 
-  void set_weight(double weight) {
-    if (weight_ == weight)
-      return;
-    weight_ = weight;
-    cache_.reset();
-  }
-  void set_mean(const Vector<Dim> &mean) {
-    if (mean_ == mean)
-      return;
-    mean_ = mean;
-    cache_.reset();
-  }
+  void set_weight(double weight) { weight_ = weight; }
+  void set_mean(const Vector<Dim> &mean) { mean_ = mean; }
   void set_covariance(const Matrix<Dim, Dim> &covariance) {
     if (covariance_ == covariance)
       return;
@@ -94,7 +84,7 @@ template <int Dim>
 double GaussianComponent<Dim>::operator()(const Vector<Dim> &x) const {
   if (!cache_)
     cache_.emplace(GAUSSIAN_SCALER(Dim) * sqrt_information_.determinant());
-  return *cache_ *
+  return weight_ * (*cache_) *
          std::exp(-0.5 * (llt_.matrixL().solve(x - mean_)).squaredNorm());
 }
 

@@ -22,6 +22,7 @@ TEST(FittingTest, kMeansStrategyFittingTest) {
   gm::KMeansStrategy<DIM>::Parameters parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
+  parameters.warm_start = false;
   gmm.set_strategy(parameters);
   gmm.fit(samples);
 
@@ -48,6 +49,7 @@ TEST(FittingTest, ExpectationMaximizationStrategyFittingTest) {
   gm::ExpectationMaximizationStrategy<DIM>::Parameters parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
+  parameters.warm_start = false;
   gmm.set_strategy(parameters);
   gmm.fit(samples);
 

@@ -38,8 +38,8 @@ public:
                    const StaticRowsMatrix<Dim> &) const = 0;
 
 protected:
-  void initialize(std::vector<GaussianComponent<Dim>> &,
-                  const StaticRowsMatrix<Dim> &, size_t) const;
+  virtual void initialize(std::vector<GaussianComponent<Dim>> &,
+                          const StaticRowsMatrix<Dim> &, size_t) const;
 };
 
 template <int Dim>

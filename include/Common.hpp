@@ -3,6 +3,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
+#include <iostream>
 
 #define GTEST_COUT std::cerr << "[          ] [ INFO ] "
 
