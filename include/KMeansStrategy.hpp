@@ -18,6 +18,7 @@ std::vector<StaticRowsMatrix<Dim>> partition_samples_responsibly(
     const StaticRowsMatrix<Dim> &samples) {
   const auto n_components = components.size();
   std::vector<std::vector<int>> responsibilities{n_components};
+  // TODO: Probably also not vectorizable as we need to access the components
   for (size_t i = 0; i < samples.cols(); ++i) {
     auto squared_l2_min = std::numeric_limits<double>::max();
     size_t dominant_mode = 0;
@@ -36,13 +37,52 @@ std::vector<StaticRowsMatrix<Dim>> partition_samples_responsibly(
   partitions.reserve(n_components);
   for (size_t i = 0; i < n_components; ++i) {
     const auto partition_size = responsibilities[i].size();
-    auto partition = StaticRowsMatrix<Dim>::Zero(Dim, partition_size).eval();
+    auto partition = static_cast<StaticRowsMatrix<Dim>>(
+        StaticRowsMatrix<Dim>::Zero(Dim, partition_size));
     for (size_t j = 0; j < partition_size; ++j) {
       partition.col(j) = samples.col(responsibilities[i][j]);
     }
     partitions.push_back(partition);
   }
   return partitions;
+}
+
+template <int Dim>
+void update_weight(std::vector<GaussianComponent<Dim>> &components,
+                   const std::vector<StaticRowsMatrix<Dim>> &partitions) {
+  const auto n_samples = std::accumulate(
+      partitions.begin(), partitions.end(), 0,
+      [](auto acc, const auto &rhs) { return acc + rhs.cols(); });
+  const auto n_components = components.size();
+  for (size_t i = 0; i < n_components; ++i) {
+    auto &component = components[i];
+    auto &partition = partitions[i];
+    const auto weight = static_cast<double>(partition.cols()) / n_samples;
+    component.set_weight(weight);
+  }
+}
+
+template <int Dim>
+void update_mean(std::vector<GaussianComponent<Dim>> &components,
+                 const std::vector<StaticRowsMatrix<Dim>> &partitions) {
+  const auto n_components = components.size();
+  for (size_t i = 0; i < n_components; ++i) {
+    auto &component = components[i];
+    const auto mu = sample_mean(partitions[i]);
+    component.set_mean(mu);
+  }
+}
+
+template <int Dim>
+void update_covariance(std::vector<GaussianComponent<Dim>> &components,
+                       const std::vector<StaticRowsMatrix<Dim>> &partitions) {
+  const auto n_components = components.size();
+  for (size_t i = 0; i < n_components; ++i) {
+    auto &component = components[i];
+    const auto mu = component.get_mean();
+    const auto sigma = sample_covariance(partitions[i], mu);
+    component.set_covariance(sigma);
+  }
 }
 
 } // namespace
@@ -60,13 +100,6 @@ public:
                    const StaticRowsMatrix<Dim> &) const override;
 
 private:
-  void update_weight(std::vector<GaussianComponent<Dim>> &,
-                     const std::vector<StaticRowsMatrix<Dim>> &) const;
-  void update_mean(std::vector<GaussianComponent<Dim>> &,
-                   const std::vector<StaticRowsMatrix<Dim>> &) const;
-  void update_covariance(std::vector<GaussianComponent<Dim>> &,
-                         const std::vector<StaticRowsMatrix<Dim>> &) const;
-
   Parameters parameters_;
 };
 
@@ -82,47 +115,6 @@ void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
   }
   update_weight(components, partitions);
   update_covariance(components, partitions);
-}
-
-template <int Dim>
-void KMeansStrategy<Dim>::update_weight(
-    std::vector<GaussianComponent<Dim>> &components,
-    const std::vector<StaticRowsMatrix<Dim>> &partitions) const {
-  const auto n_samples = std::accumulate(
-      partitions.begin(), partitions.end(), 0,
-      [](auto acc, const auto &rhs) { return acc + rhs.cols(); });
-  const auto n_components = parameters_.n_components;
-  for (size_t i = 0; i < n_components; ++i) {
-    auto &component = components[i];
-    auto &partition = partitions[i];
-    const auto weight = static_cast<double>(partition.cols()) / n_samples;
-    component.set_weight(weight);
-  }
-}
-
-template <int Dim>
-void KMeansStrategy<Dim>::update_mean(
-    std::vector<GaussianComponent<Dim>> &components,
-    const std::vector<StaticRowsMatrix<Dim>> &partitions) const {
-  const auto n_components = parameters_.n_components;
-  for (size_t i = 0; i < n_components; ++i) {
-    auto &component = components[i];
-    const auto mu = sample_mean(partitions[i]);
-    component.set_mean(mu);
-  }
-}
-
-template <int Dim>
-void KMeansStrategy<Dim>::update_covariance(
-    std::vector<GaussianComponent<Dim>> &components,
-    const std::vector<StaticRowsMatrix<Dim>> &partitions) const {
-  const auto n_components = parameters_.n_components;
-  for (size_t i = 0; i < n_components; ++i) {
-    auto &component = components[i];
-    const auto mu = component.get_mean();
-    const auto sigma = sample_covariance(partitions[i], mu);
-    component.set_covariance(sigma);
-  }
 }
 
 } // namespace gm
