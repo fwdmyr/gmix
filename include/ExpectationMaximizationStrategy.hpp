@@ -17,8 +17,7 @@ evaluate_responsibilities(const std::vector<GaussianComponent<Dim>> &components,
                           const StaticRowsMatrix<Dim> &samples) {
   const auto n_samples = samples.cols();
   const auto n_components = components.size();
-  auto responsibilities = static_cast<StaticRowsMatrix<Dim>>(
-      StaticRowsMatrix<Dim>::Zero(Dim, n_samples));
+  auto responsibilities = static_cast<MatrixX>(MatrixX::Zero(Dim, n_samples));
   for (size_t i = 0; i < n_samples; ++i) {
     const auto sample = static_cast<Vector<Dim>>(samples.col(i));
     auto responsibility = static_cast<VectorX>(VectorX::Zero(n_components));

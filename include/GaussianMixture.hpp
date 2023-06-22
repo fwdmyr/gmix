@@ -36,6 +36,7 @@ public:
   const GaussianComponent<Dim> &get_component(size_t idx) const {
     return components_[idx];
   }
+
   size_t get_size() const { return components_.size(); }
 
   void add_component(const GaussianComponent<Dim> &component) {
