@@ -23,38 +23,46 @@ public:
     Vector<Dim> normal_prior_mean;
     double normal_prior_covariance_scaling;
     double wishart_prior_degrees_of_freedom;
-    Matrix<Dim, Dim> wishart_prior_covariance;
+    Matrix<Dim, Dim> wishart_prior_information;
   };
 
   explicit VariationalBayesianInferenceStrategy(const Parameters &parameters)
-      : parameters_(parameters) {}
+      : parameters_(parameters),
+        dirichlet_weight_(parameters.dirichlet_prior_weight.replicate(
+            1, parameters.n_components)),
+        normal_mean_(
+            parameters.normal_prior_mean.replicate(1, parameters.n_components)),
+        normal_covariance_scaling_(
+            parameters.normal_prior_covariance_scaling.replicate(
+                1, parameters.n_components)),
+        wishart_information_(parameters.wishart_prior_information.replicate(
+            1, parameters.n_components)),
+        wishart_degrees_of_freedom_(
+            parameters.wishart_prior_degrees_of_freedom.replicate(
+                1, parameters.n_components)) {}
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
                    const StaticRowsMatrix<Dim> &) const override;
 
 private:
   Parameters parameters_{};
 
-  // Expectations
-  StaticRowsMatrix<Dim> e_responsibilities_{};
-  StaticRowsMatrix<Dim> e_mean_{};
-  StaticRowsMatrix<Dim> e_meanmeantransposed_{};
-  StaticRowsMatrix<Dim> e_covariance_{};
-  VectorX e_logdetcovariance_{};
-
   // Random variables
   VectorX dirichlet_weight_{};
   StaticRowsMatrix<Dim> normal_mean_{};
   VectorX normal_covariance_scaling_{};
-  StaticRowsMatrix<Dim> wishart_covariance_{};
+  StaticRowsMatrix<Dim> wishart_information_{};
   VectorX wishart_degrees_of_freedom_{};
+
+  void iterate(const StaticRowsMatrix<Dim> &);
 };
 
 template <int Dim>
 void VariationalBayesianInferenceStrategy<Dim>::fit(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
+  // TODO: Move this body into the iterate function and loop in this function
   const auto n_samples = samples.cols();
-  //
+
   // Compute Responsibilities
   auto responsibilities =
       static_cast<MatrixX>(MatrixX::Zero(parameters_.n_components, n_samples));
@@ -63,7 +71,9 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
                              Eigen::numext::digamma(dirichlet_weight_.sum());
     auto e_logdetcovariance =
         Dim * std::log(2) +
-        std::log(wishart_covariance_.block(0, i * Dim, Dim, Dim).determinant());
+        std::log(
+            1.0 /
+            wishart_information_.block(0, i * Dim, Dim, Dim).determinant());
     for (size_t d = 1; d <= Dim; ++d) {
       e_logdetcovariance += Eigen::numext::digamma(
           0.5 * (wishart_degrees_of_freedom_(i) + 1 - d));
@@ -73,7 +83,8 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
       const auto e_squaredmahalanobisdistance =
           static_cast<double>(Dim) / normal_covariance_scaling_(i) +
           wishart_degrees_of_freedom_(i) * distance.transpose() *
-              wishart_covariance_.block(0, i * Dim, Dim, Dim) * distance;
+              wishart_information_.block(0, i * Dim, Dim, Dim).inverse() *
+              distance;
       const auto logresponsibility = e_logweight + 0.5 * e_logdetcovariance -
                                      0.5 * Dim * std::log(2.0 * M_PI) -
                                      0.5 * e_squaredmahalanobisdistance;
@@ -81,7 +92,7 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
     }
   }
   responsibilities.colwise().normalize();
-  //
+
   // Compute Statistics
   const auto n_samples_responsible =
       static_cast<VectorX>(responsibilities.rowwise().sum());
@@ -109,7 +120,28 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
     }
     sigma.block(0, i * Dim, Dim, Dim) *= 1.0 / n_samples_responsible(i);
   }
-}
+
+  // Update Random Variables
+  normal_covariance_scaling_ =
+      parameters_.normal_prior_covariance_scaling + n_samples_responsible;
+  for (size_t i = 0; i < parameters_.n_components; ++i) {
+    normal_mean_.col(i) = 1.0 / normal_covariance_scaling_(i) *
+                          (parameters_.normal_prior_covariance_scaling *
+                               parameters_.normal_prior_mean +
+                           n_samples_responsible(i) * mu.col(i));
+    wishart_information_.block(0, i * Dim, Dim, Dim) =
+        parameters_.wishart_prior_information +
+        n_samples_responsible(i) * sigma.block(0, i * Dim, Dim, Dim) +
+        parameters_.normal_prior_covariance_scaling * n_samples_responsible(i) /
+            (parameters_.normal_prior_covariance_scaling +
+             n_samples_responsible(i)) *
+            (mu.col(i) - parameters_.normal_prior_mean) *
+            (mu.col(i) - parameters_.normal_prior_mean).transpose();
+    wishart_degrees_of_freedom_ =
+        parameters_.wishart_prior_degrees_of_freedom + n_samples_responsible(i);
+  }
+  // TODO: After converging, assign the expectation of the random variables to
+  // the parameters of the Gaussian mixture model
 }
 
 } // namespace gm
