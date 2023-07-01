@@ -101,7 +101,7 @@ public:
                    const StaticRowsMatrix<Dim> &) const override;
 
 private:
-  Parameters parameters_;
+  Parameters parameters_{};
 };
 
 template <int Dim>

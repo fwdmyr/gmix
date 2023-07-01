@@ -70,8 +70,8 @@ public:
   }
 
 private:
-  std::vector<GaussianComponent<Dim>> components_;
-  std::unique_ptr<Strategy> p_strategy_;
+  std::vector<GaussianComponent<Dim>> components_{};
+  std::unique_ptr<Strategy> p_strategy_{nullptr};
 };
 
 template <int Dim>

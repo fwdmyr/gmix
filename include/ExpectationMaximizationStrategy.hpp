@@ -56,7 +56,7 @@ void estimate_parameters(std::vector<GaussianComponent<Dim>> &components,
             .transpose());
     // TODO: Can Eigen's reductions handle the sum over the outer products?
     // Maybe user-defined redux?
-    auto sigma = static_cast<Matrix<Dim, Dim>>(Matrix<Dim, Dim>::Zero().eval());
+    auto sigma = static_cast<Matrix<Dim, Dim>>(Matrix<Dim, Dim>::Zero());
     for (size_t j = 0; j < n_samples; ++j) {
       sigma += weighted_centered_samples.col(j) *
                centered_samples.transpose().row(j);
@@ -86,7 +86,7 @@ private:
   virtual void initialize(std::vector<GaussianComponent<Dim>> &,
                           const StaticRowsMatrix<Dim> &, size_t) const override;
 
-  Parameters parameters_;
+  Parameters parameters_{};
 };
 
 template <int Dim>
