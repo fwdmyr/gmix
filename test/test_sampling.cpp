@@ -4,6 +4,8 @@
 #include <gtest/gtest.h>
 #include <numeric>
 
+// TODO: Increase test coverage, use parametric tests, use test fixtures
+
 // Tests if univariate sampling distribution approximates underlying
 // univeriate distribution.
 TEST(SamplingTest, SingleUnivariateComponentMeanTest) {

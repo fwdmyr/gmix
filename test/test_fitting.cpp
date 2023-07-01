@@ -1,7 +1,11 @@
+#include "../include/ExpectationMaximizationStrategy.hpp"
 #include "../include/KMeansStrategy.hpp"
 #include "../include/Statistics.hpp"
+#include "../include/VariationalBayesianInferenceStrategy.hpp"
 #include "TestHelpers.hpp"
 #include <numeric>
+
+// TODO: Increase test coverage, use parametric tests, use test fixtures
 
 // Tests if kMeans algorithm approximates the underlying Gaussian mixture
 // distribution correctly.
