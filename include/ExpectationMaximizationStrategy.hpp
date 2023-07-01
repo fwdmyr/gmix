@@ -9,6 +9,27 @@
 
 namespace gm {
 
+template <int Dim>
+class ExpectationMaximizationStrategy final : public BaseStrategy<Dim> {
+public:
+  struct Parameters {
+    int n_components{0};
+    int n_iterations{0};
+    bool warm_start{false};
+  };
+
+  explicit ExpectationMaximizationStrategy(const Parameters &parameters)
+      : parameters_(parameters) {}
+  virtual void fit(std::vector<GaussianComponent<Dim>> &,
+                   const StaticRowsMatrix<Dim> &) const override;
+
+private:
+  virtual void initialize(std::vector<GaussianComponent<Dim>> &,
+                          const StaticRowsMatrix<Dim> &) const;
+
+  Parameters parameters_{};
+};
+
 namespace {
 
 template <int Dim>
@@ -69,30 +90,9 @@ void estimate_parameters(std::vector<GaussianComponent<Dim>> &components,
 } // namespace
 
 template <int Dim>
-class ExpectationMaximizationStrategy final : public BaseStrategy<Dim> {
-public:
-  struct Parameters {
-    int n_components{0};
-    int n_iterations{0};
-    bool warm_start{false};
-  };
-
-  explicit ExpectationMaximizationStrategy(const Parameters &parameters)
-      : parameters_(parameters) {}
-  virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const StaticRowsMatrix<Dim> &) const override;
-
-private:
-  virtual void initialize(std::vector<GaussianComponent<Dim>> &,
-                          const StaticRowsMatrix<Dim> &, size_t) const override;
-
-  Parameters parameters_{};
-};
-
-template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
-    const StaticRowsMatrix<Dim> &samples, size_t n_components) const {
+    const StaticRowsMatrix<Dim> &samples) const {
 
   const typename KMeansStrategy<Dim>::Parameters initialization_parameters = {
       parameters_.n_components, 1, parameters_.warm_start};
@@ -105,9 +105,8 @@ template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::fit(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
-  const auto n_components = parameters_.n_components;
   if (!parameters_.warm_start)
-    initialize(components, samples, n_components);
+    initialize(components, samples);
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
     const auto responsibilities =
         evaluate_responsibilities(components, samples);

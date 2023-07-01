@@ -10,6 +10,23 @@
 
 namespace gm {
 
+template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {
+public:
+  struct Parameters {
+    int n_components{0};
+    int n_iterations{0};
+    bool warm_start{false};
+  };
+
+  explicit KMeansStrategy(const Parameters &parameters)
+      : parameters_(parameters) {}
+  virtual void fit(std::vector<GaussianComponent<Dim>> &,
+                   const StaticRowsMatrix<Dim> &) const override;
+
+private:
+  Parameters parameters_{};
+};
+
 namespace {
 
 template <int Dim>
@@ -86,23 +103,6 @@ void update_covariance(std::vector<GaussianComponent<Dim>> &components,
 }
 
 } // namespace
-
-template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {
-public:
-  struct Parameters {
-    int n_components{0};
-    int n_iterations{0};
-    bool warm_start{false};
-  };
-
-  explicit KMeansStrategy(const Parameters &parameters)
-      : parameters_(parameters) {}
-  virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const StaticRowsMatrix<Dim> &) const override;
-
-private:
-  Parameters parameters_{};
-};
 
 template <int Dim>
 void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,

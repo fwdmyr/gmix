@@ -35,6 +35,9 @@ public:
   double get_weight() const { return weight_; }
   const Vector<Dim> &get_mean() const { return mean_; }
   const Matrix<Dim, Dim> &get_covariance() const { return covariance_; }
+  const Matrix<Dim, Dim> &get_sqrt_information() const {
+    return sqrt_information_;
+  }
 
   void set_weight(double weight) { weight_ = weight; }
   void set_mean(const Vector<Dim> &mean) { mean_ = mean; }
