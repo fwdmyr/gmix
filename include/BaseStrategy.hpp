@@ -9,7 +9,7 @@
 
 namespace gm {
 
-namespace {
+namespace internal {
 
 template <int Dim>
 std::vector<StaticRowsMatrix<Dim>>
@@ -29,7 +29,7 @@ partition_samples_randomly(const StaticRowsMatrix<Dim> &samples,
   return partitions;
 }
 
-} // namespace
+} // namespace internal
 
 template <int Dim> class BaseStrategy {
 public:
@@ -47,7 +47,8 @@ void BaseStrategy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples, size_t n_components) const {
   components.resize(0);
-  const auto partitions = partition_samples_randomly(samples, n_components);
+  const auto partitions =
+      internal::partition_samples_randomly(samples, n_components);
   for (const auto &partition : partitions) {
     const auto mu = sample_mean(partition);
     const auto sigma = sample_covariance(partition, mu);

@@ -30,31 +30,29 @@ private:
   Parameters parameters_{};
 };
 
-namespace {
+namespace internal {
 
 template <int Dim>
-MatrixX
-evaluate_responsibilities(const std::vector<GaussianComponent<Dim>> &components,
-                          const StaticRowsMatrix<Dim> &samples) {
+void evaluate_responsibilities(
+    const std::vector<GaussianComponent<Dim>> &components,
+    const StaticRowsMatrix<Dim> &samples, MatrixX &responsibilities) {
   const auto n_samples = samples.cols();
   const auto n_components = components.size();
-  auto responsibilities = static_cast<MatrixX>(MatrixX::Zero(Dim, n_samples));
   for (size_t i = 0; i < n_samples; ++i) {
     const auto sample = static_cast<Vector<Dim>>(samples.col(i));
-    auto responsibility = static_cast<VectorX>(VectorX::Zero(n_components));
+    auto responsibility = static_cast<VectorX>(VectorX::Zero(n_components, 1));
     for (size_t j = 0; j < n_components; ++j) {
-      auto &component = components[j];
+      const auto &component = components[j];
       responsibility(j) = component(sample);
     }
     responsibilities.col(i) = 1.0 / responsibility.sum() * responsibility;
   }
-  return responsibilities;
 }
 
 template <int Dim>
-void estimate_parameters(std::vector<GaussianComponent<Dim>> &components,
-                         const StaticRowsMatrix<Dim> &samples,
-                         const MatrixX &responsibilities) {
+void estimate_parameters(const StaticRowsMatrix<Dim> &samples,
+                         const MatrixX &responsibilities,
+                         std::vector<GaussianComponent<Dim>> &components) {
   const auto n_samples = samples.cols();
   const auto n_samples_responsible =
       static_cast<VectorX>(responsibilities.rowwise().sum());
@@ -87,7 +85,7 @@ void estimate_parameters(std::vector<GaussianComponent<Dim>> &components,
   }
 }
 
-} // namespace
+} // namespace internal
 
 template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::initialize(
@@ -105,12 +103,13 @@ template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::fit(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
-  if (!parameters_.warm_start)
+  if (!parameters_.warm_start || components.size() != parameters_.n_components)
     initialize(components, samples);
+  auto responsibilities =
+      static_cast<MatrixX>(MatrixX::Zero(components.size(), samples.cols()));
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
-    const auto responsibilities =
-        evaluate_responsibilities(components, samples);
-    estimate_parameters(components, samples, responsibilities);
+    internal::evaluate_responsibilities(components, samples, responsibilities);
+    internal::estimate_parameters(samples, responsibilities, components);
   }
 }
 

@@ -39,7 +39,7 @@ private:
                   const StaticRowsMatrix<Dim> &) const;
 };
 
-namespace {
+namespace internal {
 
 template <int Dim>
 using Parameters =
@@ -58,12 +58,11 @@ void evaluate_responsibilities(const VectorX &dirichlet_weight,
   for (size_t i = 0; i < parameters.n_components; ++i) {
     const auto e_logweight = Eigen::numext::digamma(dirichlet_weight(i)) -
                              Eigen::numext::digamma(dirichlet_weight.sum());
-    auto e_logdetcovariance =
+    auto e_logdetinformation =
         Dim * std::log(2) +
-        std::log(1.0 /
-                 wishart_information.block(0, i * Dim, Dim, Dim).determinant());
+        std::log(wishart_information.block(0, i * Dim, Dim, Dim).determinant());
     for (size_t d = 1; d <= Dim; ++d) {
-      e_logdetcovariance +=
+      e_logdetinformation +=
           Eigen::numext::digamma(0.5 * (wishart_degrees_of_freedom(i) + 1 - d));
     }
     for (size_t j = 0; j < n_samples; ++j) {
@@ -71,15 +70,18 @@ void evaluate_responsibilities(const VectorX &dirichlet_weight,
       const auto e_squaredmahalanobisdistance =
           static_cast<double>(Dim) / normal_covariance_scaling(i) +
           wishart_degrees_of_freedom(i) * distance.transpose() *
-              wishart_information.block(0, i * Dim, Dim, Dim).inverse() *
-              distance;
-      const auto logresponsibility = e_logweight + 0.5 * e_logdetcovariance -
-                                     0.5 * Dim * std::log(2.0 * M_PI) -
-                                     0.5 * e_squaredmahalanobisdistance;
+              wishart_information.block(0, i * Dim, Dim, Dim) * distance;
+      const auto logresponsibility =
+          e_logweight + 0.5 * e_logdetinformation -
+          0.5 * static_cast<double>(Dim) * std::log(2.0 * M_PI) -
+          0.5 * e_squaredmahalanobisdistance;
       responsibilities(i, j) = std::exp(logresponsibility);
     }
   }
-  responsibilities.colwise().normalize();
+  // TODO: This can certainly be vectorized
+  for (size_t j = 0; j < n_samples; ++j)
+    responsibilities.col(j) =
+        1.0 / responsibilities.col(j).sum() * responsibilities.col(j);
 }
 
 template <int Dim>
@@ -90,6 +92,8 @@ void compute_statistics(const MatrixX &responsibilities,
                         StaticRowsMatrix<Dim> &mu,
                         StaticRowsMatrix<Dim> &sigma) {
   const auto n_samples = samples.cols();
+  n_samples_responsible =
+      static_cast<VectorX>(responsibilities.rowwise().sum());
   for (size_t i = 0; i < parameters.n_components; ++i) {
     mu.col(i) =
         1.0 / n_samples_responsible(i) *
@@ -123,6 +127,9 @@ void update_random_variables(const VectorX &n_samples_responsible,
                              StaticRowsMatrix<Dim> &wishart_information,
                              VectorX &wishart_degrees_of_freedom) {
 
+  dirichlet_weight = VectorX::Constant(parameters.n_components, 1,
+                                       parameters.dirichlet_prior_weight) +
+                     n_samples_responsible;
   normal_covariance_scaling =
       VectorX::Constant(parameters.n_components, 1,
                         parameters.normal_prior_covariance_scaling) +
@@ -133,19 +140,20 @@ void update_random_variables(const VectorX &n_samples_responsible,
                               parameters.normal_prior_mean +
                           n_samples_responsible(i) * mu.col(i));
     wishart_information.block(0, i * Dim, Dim, Dim) =
-        parameters.wishart_prior_information +
-        n_samples_responsible(i) * sigma.block(0, i * Dim, Dim, Dim) +
-        parameters.normal_prior_covariance_scaling * n_samples_responsible(i) /
-            (parameters.normal_prior_covariance_scaling +
-             n_samples_responsible(i)) *
-            (mu.col(i) - parameters.normal_prior_mean) *
-            (mu.col(i) - parameters.normal_prior_mean).transpose();
+        (parameters.wishart_prior_information.inverse() +
+         n_samples_responsible(i) * sigma.block(0, i * Dim, Dim, Dim) +
+         parameters.normal_prior_covariance_scaling * n_samples_responsible(i) /
+             (parameters.normal_prior_covariance_scaling +
+              n_samples_responsible(i)) *
+             (mu.col(i) - parameters.normal_prior_mean) *
+             (mu.col(i) - parameters.normal_prior_mean).transpose())
+            .inverse();
     wishart_degrees_of_freedom(i) =
         parameters.wishart_prior_degrees_of_freedom + n_samples_responsible(i);
   }
 }
 
-} // namespace
+} // namespace internal
 
 template <int Dim>
 void VariationalBayesianInferenceStrategy<Dim>::initialize(
@@ -202,26 +210,27 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
 
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
 
-    evaluate_responsibilities(dirichlet_weight, normal_mean,
-                              normal_covariance_scaling, wishart_information,
-                              wishart_degrees_of_freedom, samples, parameters_,
-                              responsibilities);
+    internal::evaluate_responsibilities(
+        dirichlet_weight, normal_mean, normal_covariance_scaling,
+        wishart_information, wishart_degrees_of_freedom, samples, parameters_,
+        responsibilities);
 
-    compute_statistics(responsibilities, samples, parameters_,
-                       n_samples_responsible, mu, sigma);
+    internal::compute_statistics(responsibilities, samples, parameters_,
+                                 n_samples_responsible, mu, sigma);
 
-    update_random_variables(n_samples_responsible, mu, sigma, parameters_,
-                            dirichlet_weight, normal_mean,
-                            normal_covariance_scaling, wishart_information,
-                            wishart_degrees_of_freedom);
+    internal::update_random_variables(
+        n_samples_responsible, mu, sigma, parameters_, dirichlet_weight,
+        normal_mean, normal_covariance_scaling, wishart_information,
+        wishart_degrees_of_freedom);
   }
 
   for (size_t i = 0; i < n_components; ++i) {
     auto &component = components[i];
-    component.set_weight(dirichlet_weight(i));
+    component.set_weight(dirichlet_weight(i) / dirichlet_weight.sum());
     component.set_mean(normal_mean.col(i));
-    component.set_covariance(
-        wishart_information.block(0, i * Dim, Dim, Dim).inverse());
+    component.set_covariance((wishart_degrees_of_freedom(i) *
+                              wishart_information.block(0, i * Dim, Dim, Dim))
+                                 .inverse());
   }
 }
 

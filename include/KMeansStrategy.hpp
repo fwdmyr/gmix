@@ -27,7 +27,7 @@ private:
   Parameters parameters_{};
 };
 
-namespace {
+namespace internal {
 
 template <int Dim>
 std::vector<StaticRowsMatrix<Dim>> partition_samples_responsibly(
@@ -35,6 +35,11 @@ std::vector<StaticRowsMatrix<Dim>> partition_samples_responsibly(
     const StaticRowsMatrix<Dim> &samples) {
   const auto n_components = components.size();
   std::vector<std::vector<int>> responsibilities{n_components};
+  std::for_each(
+      responsibilities.begin(), responsibilities.end(),
+      [n_samples = samples.cols()](auto &component_responsibilities) -> void {
+        component_responsibilities.reserve(n_samples);
+      });
   // TODO: Probably also not vectorizable as we need to access the components
   for (size_t i = 0; i < samples.cols(); ++i) {
     auto squared_l2_min = std::numeric_limits<double>::max();
@@ -102,21 +107,21 @@ void update_covariance(std::vector<GaussianComponent<Dim>> &components,
   }
 }
 
-} // namespace
+} // namespace internal
 
 template <int Dim>
 void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
                               const StaticRowsMatrix<Dim> &samples) const {
   const auto n_components = parameters_.n_components;
-  if (!parameters_.warm_start)
+  if (!parameters_.warm_start || components.size() != n_components)
     this->initialize(components, samples, n_components);
   std::vector<StaticRowsMatrix<Dim>> partitions;
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
-    partitions = partition_samples_responsibly(components, samples);
-    update_mean(components, partitions);
+    partitions = internal::partition_samples_responsibly(components, samples);
+    internal::update_mean(components, partitions);
   }
-  update_weight(components, partitions);
-  update_covariance(components, partitions);
+  internal::update_weight(components, partitions);
+  internal::update_covariance(components, partitions);
 }
 
 } // namespace gm

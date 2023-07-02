@@ -6,8 +6,6 @@
 
 // TODO: Increase test coverage, use parametric tests, use test fixtures
 
-// Tests if univariate sampling distribution approximates underlying
-// univeriate distribution.
 TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
 
   constexpr int DIM = 1;
@@ -27,8 +25,6 @@ TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
   EXPECT_TRUE(test::is_near(covariance, sample_covariance, test::THRESHOLD));
 }
 
-// Tests if multivariate sampling distribution approximates underlying
-// multivariate distribution.
 TEST(SamplingTest, SingleMultivariateComponentTest) {
 
   constexpr int DIM = 2;
