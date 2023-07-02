@@ -6,6 +6,8 @@
 #include <numeric>
 
 // TODO: Increase test coverage, use parametric tests, use test fixtures
+// TODO: Since helper functions now live in gm::internal, write unit tests for
+// them too
 
 TEST(FittingTest, kMeansStrategyFittingColdStartTest) {
 

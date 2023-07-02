@@ -7,6 +7,8 @@
 #include <limits>
 #include <random>
 
+// TODO: Implement early stopping
+
 namespace gm {
 
 template <int Dim>

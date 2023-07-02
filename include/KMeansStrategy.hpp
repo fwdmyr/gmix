@@ -8,6 +8,8 @@
 #include <numeric>
 #include <random>
 
+// TODO: Implement early stopping
+
 namespace gm {
 
 template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {

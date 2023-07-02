@@ -11,6 +11,10 @@
 #include <unsupported/Eigen/SpecialFunctions>
 #include <variant>
 
+// TODO: There is a lot of optimization to be done here, also think about
+// vectorizing more
+// TODO: Implement likelihood-based early stopping
+
 namespace gm {
 
 template <int Dim>
