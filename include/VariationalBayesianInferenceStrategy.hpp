@@ -17,13 +17,14 @@ template <int Dim>
 class VariationalBayesianInferenceStrategy final : public BaseStrategy<Dim> {
 public:
   struct Parameters {
-    int n_components;
-    int n_iterations;
-    double dirichlet_prior_weight;
-    Vector<Dim> normal_prior_mean;
-    double normal_prior_covariance_scaling;
-    double wishart_prior_degrees_of_freedom;
-    Matrix<Dim, Dim> wishart_prior_information;
+    int n_components{0};
+    int n_iterations{0};
+    bool warm_start{false};
+    double dirichlet_prior_weight{};
+    Vector<Dim> normal_prior_mean{};
+    double normal_prior_covariance_scaling{};
+    double wishart_prior_degrees_of_freedom{};
+    Matrix<Dim, Dim> wishart_prior_information{};
   };
 
   explicit VariationalBayesianInferenceStrategy(const Parameters &parameters)
@@ -36,7 +37,6 @@ private:
 
   void initialize(std::vector<GaussianComponent<Dim>> &,
                   const StaticRowsMatrix<Dim> &) const;
-  void iterate(const StaticRowsMatrix<Dim> &);
 };
 
 namespace {
@@ -46,13 +46,14 @@ using Parameters =
     typename VariationalBayesianInferenceStrategy<Dim>::Parameters;
 
 template <int Dim>
-void evaluate_responsibilities(
-    const VectorX &dirichlet_weight, const StaticRowsMatrix<Dim> &normal_mean,
-    const VectorX &normal_covariance_scaling,
-    const StaticRowsMatrix<Dim> &&wishart_information,
-    const VectorX &wishart_degrees_of_freedom,
-    const StaticRowsMatrix<Dim> &samples, const Parameters<Dim> &parameters,
-    MatrixX &responsibilities) {
+void evaluate_responsibilities(const VectorX &dirichlet_weight,
+                               const StaticRowsMatrix<Dim> &normal_mean,
+                               const VectorX &normal_covariance_scaling,
+                               const StaticRowsMatrix<Dim> &wishart_information,
+                               const VectorX &wishart_degrees_of_freedom,
+                               const StaticRowsMatrix<Dim> &samples,
+                               const Parameters<Dim> &parameters,
+                               MatrixX &responsibilities) {
   const auto n_samples = samples.cols();
   for (size_t i = 0; i < parameters.n_components; ++i) {
     const auto e_logweight = Eigen::numext::digamma(dirichlet_weight(i)) -
@@ -82,7 +83,7 @@ void evaluate_responsibilities(
 }
 
 template <int Dim>
-void compute_statistics(const StaticRowsMatrix<Dim> &responsibilities,
+void compute_statistics(const MatrixX &responsibilities,
                         const StaticRowsMatrix<Dim> &samples,
                         const Parameters<Dim> &parameters,
                         VectorX &n_samples_responsible,
@@ -119,11 +120,13 @@ void update_random_variables(const VectorX &n_samples_responsible,
                              VectorX &dirichlet_weight,
                              StaticRowsMatrix<Dim> &normal_mean,
                              VectorX &normal_covariance_scaling,
-                             StaticRowsMatrix<Dim> &&wishart_information,
+                             StaticRowsMatrix<Dim> &wishart_information,
                              VectorX &wishart_degrees_of_freedom) {
 
   normal_covariance_scaling =
-      parameters.normal_prior_covariance_scaling + n_samples_responsible;
+      VectorX::Constant(parameters.n_components, 1,
+                        parameters.normal_prior_covariance_scaling) +
+      n_samples_responsible;
   for (size_t i = 0; i < parameters.n_components; ++i) {
     normal_mean.col(i) = 1.0 / normal_covariance_scaling(i) *
                          (parameters.normal_prior_covariance_scaling *
@@ -137,7 +140,7 @@ void update_random_variables(const VectorX &n_samples_responsible,
              n_samples_responsible(i)) *
             (mu.col(i) - parameters.normal_prior_mean) *
             (mu.col(i) - parameters.normal_prior_mean).transpose();
-    wishart_degrees_of_freedom =
+    wishart_degrees_of_freedom(i) =
         parameters.wishart_prior_degrees_of_freedom + n_samples_responsible(i);
   }
 }
@@ -164,15 +167,17 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
   const auto n_components = parameters_.n_components;
 
   auto dirichlet_weight = static_cast<VectorX>(
-      parameters_.dirichlet_prior_weight.replicate(1, n_components));
+      parameters_.dirichlet_prior_weight * VectorX::Ones(n_components, 1));
   auto normal_mean = static_cast<StaticRowsMatrix<Dim>>(
       parameters_.normal_prior_mean.replicate(1, n_components));
-  auto normal_covariance_scaling = static_cast<VectorX>(
-      parameters_.normal_prior_covariance_scaling.replicate(1, n_components));
+  auto normal_covariance_scaling =
+      static_cast<VectorX>(parameters_.normal_prior_covariance_scaling *
+                           VectorX::Ones(n_components, 1));
   auto wishart_information = static_cast<StaticRowsMatrix<Dim>>(
       parameters_.wishart_prior_information.replicate(1, n_components));
-  auto wishart_degrees_of_freedom = static_cast<VectorX>(
-      parameters_.wishart_prior_degrees_of_freedom.replicate(1, n_components));
+  auto wishart_degrees_of_freedom =
+      static_cast<VectorX>(parameters_.wishart_prior_degrees_of_freedom *
+                           VectorX::Ones(n_components, 1));
 
   if (!parameters_.warm_start || components.size() != n_components)
     initialize(components, samples);
@@ -186,10 +191,14 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
         component.get_sqrt_information();
   }
 
-  auto responsibilities = MatrixX{n_components, n_samples};
-  auto n_samples_responsible = VectorX{n_components, 1};
-  auto mu = StaticRowsMatrix<Dim>{Dim, n_components};
-  auto sigma = StaticRowsMatrix<Dim>{Dim, Dim * n_components};
+  auto responsibilities =
+      static_cast<MatrixX>(MatrixX::Zero(n_components, n_samples));
+  auto n_samples_responsible =
+      static_cast<VectorX>(VectorX::Zero(n_components, 1));
+  auto mu = static_cast<StaticRowsMatrix<Dim>>(
+      StaticRowsMatrix<Dim>::Zero(Dim, n_components));
+  auto sigma = static_cast<StaticRowsMatrix<Dim>>(
+      StaticRowsMatrix<Dim>::Zero(Dim, Dim * n_components));
 
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
 
@@ -208,7 +217,7 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
   }
 
   for (size_t i = 0; i < n_components; ++i) {
-    const auto &component = components[i];
+    auto &component = components[i];
     component.set_weight(dirichlet_weight(i));
     component.set_mean(normal_mean);
     component.set_covariance(wishart_information.inverse());
