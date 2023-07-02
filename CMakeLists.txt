@@ -17,7 +17,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   option(GMSAM_ENABLE_TESTS "Build tests" ON)
 endif()
 
-find_package(Boost REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(HEADERS_LIST

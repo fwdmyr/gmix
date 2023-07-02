@@ -219,8 +219,9 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
   for (size_t i = 0; i < n_components; ++i) {
     auto &component = components[i];
     component.set_weight(dirichlet_weight(i));
-    component.set_mean(normal_mean);
-    component.set_covariance(wishart_information.inverse());
+    component.set_mean(normal_mean.col(i));
+    component.set_covariance(
+        wishart_information.block(0, i * Dim, Dim, Dim).inverse());
   }
 }
 
