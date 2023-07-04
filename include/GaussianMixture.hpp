@@ -12,7 +12,8 @@
 
 namespace gm {
 
-template <typename Strategy, int Dim> class GaussianMixture {
+template <int Dim, typename Strategy = BaseStrategy<Dim>>
+class GaussianMixture {
 
 public:
   using container_type = std::vector<GaussianComponent<Dim>>;
@@ -21,12 +22,12 @@ public:
 
   GaussianMixture() = default;
   GaussianMixture(std::initializer_list<GaussianComponent<Dim>>);
-  GaussianMixture(const GaussianMixture<Strategy, Dim> &) = default;
-  GaussianMixture(GaussianMixture<Strategy, Dim> &&) = default;
-  GaussianMixture<Strategy, Dim> &
-  operator=(const GaussianMixture<Strategy, Dim> &) = default;
-  GaussianMixture<Strategy, Dim> &
-  operator=(GaussianMixture<Strategy, Dim> &&) = default;
+  GaussianMixture(const GaussianMixture<Dim, Strategy> &) = default;
+  GaussianMixture(GaussianMixture<Dim, Strategy> &&) = default;
+  GaussianMixture<Dim, Strategy> &
+  operator=(const GaussianMixture<Dim, Strategy> &) = default;
+  GaussianMixture<Dim, Strategy> &
+  operator=(GaussianMixture<Dim, Strategy> &&) = default;
 
   inline iterator begin() noexcept { return components_.begin(); }
   inline const_iterator cbegin() const noexcept { return components_.cbegin(); }
@@ -62,7 +63,7 @@ public:
   }
 
   friend std::ostream &operator<<(std::ostream &os,
-                                  const GaussianMixture<Strategy, Dim> &gmm) {
+                                  const GaussianMixture<Dim, Strategy> &gmm) {
     os << "GaussianMixture<" << Dim << ">\n";
     for (const auto &component : gmm.components_)
       os << component << '\n';
@@ -75,19 +76,19 @@ private:
 };
 
 template <int Dim>
-using GaussianMixtureKMeans = GaussianMixture<gm::KMeansStrategy<Dim>, Dim>;
+using GaussianMixtureKMeans = GaussianMixture<Dim, gm::KMeansStrategy<Dim>>;
 
 template <int Dim>
 using GaussianMixtureExpectationMaximization =
-    GaussianMixture<gm::ExpectationMaximizationStrategy<Dim>, Dim>;
+    GaussianMixture<Dim, gm::ExpectationMaximizationStrategy<Dim>>;
 
 template <int Dim>
 using GaussianMixtureVariationalBayesianInference =
-    GaussianMixture<gm::VariationalBayesianInferenceStrategy<Dim>, Dim>;
+    GaussianMixture<Dim, gm::VariationalBayesianInferenceStrategy<Dim>>;
 
 template <typename Strategy, int Dim>
 StaticRowsMatrix<Dim>
-draw_from_gaussian_mixture(const GaussianMixture<Strategy, Dim> &gmm,
+draw_from_gaussian_mixture(const GaussianMixture<Dim, Strategy> &gmm,
                            size_t n_samples) {
 
   static std::mt19937 gen{std::random_device{}()};

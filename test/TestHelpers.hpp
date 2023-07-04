@@ -6,7 +6,7 @@
 
 namespace test {
 
-static constexpr double THRESHOLD = 5E-2;
+static constexpr double TOLERANCE = 5E-2;
 
 inline bool is_near(double lhs, double rhs, double tolerance) {
   return (lhs - tolerance <= rhs && rhs <= lhs + tolerance);
@@ -34,28 +34,31 @@ bool is_near(const gm::Matrix<Dim, Dim> &lhs, const gm::Matrix<Dim, Dim> &rhs,
   return true;
 }
 
+template <int Dim>
+bool is_near(const gm::GaussianComponent<Dim> &lhs,
+             const gm::GaussianComponent<Dim> &rhs, double tolerance) {
+  return is_near(lhs.get_weight(), rhs.get_weight(), tolerance) &&
+         is_near(lhs.get_mean(), rhs.get_mean(), tolerance) &&
+         is_near(lhs.get_covariance(), rhs.get_covariance(), tolerance);
+}
+
 template <typename Strategy, int Dim>
-bool is_near(const gm::GaussianMixture<Strategy, Dim> &lhs,
-             const gm::GaussianMixture<Strategy, Dim> &rhs, double tolerance) {
+bool is_near(const gm::GaussianMixture<Dim, Strategy> &lhs,
+             const gm::GaussianMixture<Dim, Strategy> &rhs, double tolerance) {
   if (lhs.get_size() != rhs.get_size())
     return false;
   for (int i = 0; i < lhs.get_size(); ++i) {
     const auto &lhs_component = lhs.get_component(i);
     const auto &rhs_component = rhs.get_component(i);
-    if (!is_near(lhs_component.get_weight(), rhs_component.get_weight(),
-                 tolerance) ||
-        !is_near(lhs_component.get_mean(), rhs_component.get_mean(),
-                 tolerance) ||
-        !is_near(lhs_component.get_covariance(), rhs_component.get_covariance(),
-                 tolerance))
+    if (!is_near(lhs_component, rhs_component, tolerance))
       return false;
   }
   return true;
 }
 
 template <typename Strategy, int Dim>
-bool compare_gaussian_mixtures(gm::GaussianMixture<Strategy, Dim> &lhs,
-                               gm::GaussianMixture<Strategy, Dim> &rhs,
+bool compare_gaussian_mixtures(gm::GaussianMixture<Dim, Strategy> &lhs,
+                               gm::GaussianMixture<Dim, Strategy> &rhs,
                                double tolerance) {
   if (lhs.get_size() != rhs.get_size())
     return false;

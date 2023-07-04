@@ -1,6 +1,6 @@
 #ifndef GMSAM_GAUSSIAN_COMPONENT_HPP
+#define GMSAM_GAUSSIAN_COMPONENT_HPP
 
-#endif // !GMSAM_GAUSSIAN_COMPONENT_HPP
 #include "Common.hpp"
 #include <optional>
 
@@ -93,3 +93,5 @@ double GaussianComponent<Dim>::operator()(const Vector<Dim> &x) const {
 }
 
 } // namespace gm
+
+#endif // !GMSAM_GAUSSIAN_COMPONENT_HPP

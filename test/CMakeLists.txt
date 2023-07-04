@@ -39,5 +39,7 @@ macro(package_add_test_with_libraries TESTNAME FILES LIBRARIES TEST_WORKING_DIRE
     set_target_properties(${TESTNAME} PROPERTIES FOLDER test)
 endmacro()
 
+package_add_test(test_statistics test_statistics.cpp Eigen3::Eigen)
+package_add_test(test_gaussian_component test_gaussian_component.cpp Eigen3::Eigen)
 package_add_test(test_sampling test_sampling.cpp Eigen3::Eigen)
 package_add_test(test_fitting test_fitting.cpp Eigen3::Eigen)

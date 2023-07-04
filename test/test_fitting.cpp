@@ -31,7 +31,7 @@ TEST(FittingTest, kMeansStrategyFittingColdStartTest) {
   gmm.fit(samples);
 
   EXPECT_TRUE(
-      test::compare_gaussian_mixtures(sample_gmm, gmm, test::THRESHOLD));
+      test::compare_gaussian_mixtures(sample_gmm, gmm, test::TOLERANCE));
 }
 
 TEST(FittingTest, kMeansStrategyFittingWarmStartTest) {
@@ -62,7 +62,7 @@ TEST(FittingTest, kMeansStrategyFittingWarmStartTest) {
   gmm.fit(samples);
 
   EXPECT_TRUE(
-      test::compare_gaussian_mixtures(sample_gmm, gmm, test::THRESHOLD));
+      test::compare_gaussian_mixtures(sample_gmm, gmm, test::TOLERANCE));
 }
 
 TEST(FittingTest, ExpectationMaximizationStrategyFittingColdStartTest) {
@@ -87,7 +87,7 @@ TEST(FittingTest, ExpectationMaximizationStrategyFittingColdStartTest) {
   gmm.fit(samples);
 
   EXPECT_TRUE(
-      test::compare_gaussian_mixtures(sample_gmm, gmm, test::THRESHOLD));
+      test::compare_gaussian_mixtures(sample_gmm, gmm, test::TOLERANCE));
 }
 
 TEST(FittingTest, ExpectationMaximizationStrategyFittingWarmStartTest) {
@@ -118,7 +118,7 @@ TEST(FittingTest, ExpectationMaximizationStrategyFittingWarmStartTest) {
   gmm.fit(samples);
 
   EXPECT_TRUE(
-      test::compare_gaussian_mixtures(sample_gmm, gmm, test::THRESHOLD));
+      test::compare_gaussian_mixtures(sample_gmm, gmm, test::TOLERANCE));
 }
 
 TEST(FittingTest, VariationalBayesianInferenceStrategyFittingColdStartTest) {
@@ -150,7 +150,7 @@ TEST(FittingTest, VariationalBayesianInferenceStrategyFittingColdStartTest) {
   gmm.fit(samples);
 
   EXPECT_TRUE(
-      test::compare_gaussian_mixtures(sample_gmm, gmm, test::THRESHOLD));
+      test::compare_gaussian_mixtures(sample_gmm, gmm, test::TOLERANCE));
 }
 
 TEST(FittingTest, VariationalBayesianInferenceStrategyFittingWarmStartTest) {
@@ -188,5 +188,5 @@ TEST(FittingTest, VariationalBayesianInferenceStrategyFittingWarmStartTest) {
   gmm.fit(samples);
 
   EXPECT_TRUE(
-      test::compare_gaussian_mixtures(sample_gmm, gmm, test::THRESHOLD));
+      test::compare_gaussian_mixtures(sample_gmm, gmm, test::TOLERANCE));
 }

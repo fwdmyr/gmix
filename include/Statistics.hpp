@@ -15,7 +15,7 @@ Vector<Dim> sample_mean(const StaticRowsMatrix<Dim> &samples) {
 
 template <int Dim>
 Matrix<Dim, Dim> sample_covariance(const StaticRowsMatrix<Dim> &samples) {
-  const auto centered_samples = samples.colwise() - samples.rowwise().mean();
+  const auto centered_samples = samples.colwise() - sample_mean(samples);
   return (centered_samples * centered_samples.adjoint()) /
          static_cast<double>(samples.cols() - 1);
 }
@@ -29,4 +29,5 @@ Matrix<Dim, Dim> sample_covariance(const StaticRowsMatrix<Dim> &samples,
 }
 
 } // namespace gm
+
 #endif // !GMSAM_STATISTICS_HPP

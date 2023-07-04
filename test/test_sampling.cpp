@@ -23,8 +23,8 @@ TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
   const auto sample_mean = gm::sample_mean(samples);
   const auto sample_covariance = gm::sample_covariance(samples, sample_mean);
 
-  EXPECT_TRUE(test::is_near(mean, sample_mean, test::THRESHOLD));
-  EXPECT_TRUE(test::is_near(covariance, sample_covariance, test::THRESHOLD));
+  EXPECT_TRUE(test::is_near(mean, sample_mean, test::TOLERANCE));
+  EXPECT_TRUE(test::is_near(covariance, sample_covariance, test::TOLERANCE));
 }
 
 TEST(SamplingTest, SingleMultivariateComponentTest) {
@@ -43,6 +43,6 @@ TEST(SamplingTest, SingleMultivariateComponentTest) {
   const auto sample_mean = gm::sample_mean(samples);
   const auto sample_covariance = gm::sample_covariance(samples, sample_mean);
 
-  EXPECT_TRUE(test::is_near(mean, sample_mean, test::THRESHOLD));
-  EXPECT_TRUE(test::is_near(covariance, sample_covariance, test::THRESHOLD));
+  EXPECT_TRUE(test::is_near(mean, sample_mean, test::TOLERANCE));
+  EXPECT_TRUE(test::is_near(covariance, sample_covariance, test::TOLERANCE));
 }
