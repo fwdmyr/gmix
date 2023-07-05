@@ -13,7 +13,7 @@
 
 // TODO: There is a lot of optimization to be done here, also think about
 // vectorizing more
-// TODO: Implement likelihood-based early stopping
+// TODO: Implement early stopping based on variational lower bound
 
 namespace gm {
 
@@ -23,6 +23,7 @@ public:
   struct Parameters {
     int n_components{0};
     int n_iterations{0};
+    double early_stopping_threshold{0.0};
     bool warm_start{false};
     double dirichlet_prior_weight{};
     Vector<Dim> normal_prior_mean{};
@@ -164,7 +165,7 @@ void VariationalBayesianInferenceStrategy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
   const typename KMeansStrategy<Dim>::Parameters initialization_parameters = {
-      parameters_.n_components, 1, parameters_.warm_start};
+      parameters_.n_components, 1, 0.0, parameters_.warm_start};
   const auto initialization_strategy =
       KMeansStrategy<Dim>{initialization_parameters};
   initialization_strategy.fit(components, samples);
@@ -199,8 +200,7 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
     dirichlet_weight(i) = component.get_weight();
     normal_mean.col(i) = component.get_mean();
     wishart_information.block(0, i * Dim, Dim, Dim) =
-        component.get_sqrt_information().transpose() *
-        component.get_sqrt_information();
+        component.get_covariance().inverse();
   }
 
   auto responsibilities =

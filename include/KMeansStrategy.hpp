@@ -8,8 +8,6 @@
 #include <numeric>
 #include <random>
 
-// TODO: Implement early stopping
-
 namespace gm {
 
 template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {
@@ -17,6 +15,7 @@ public:
   struct Parameters {
     int n_components{0};
     int n_iterations{0};
+    double early_stopping_threshold{0.0};
     bool warm_start{false};
   };
 
@@ -109,6 +108,29 @@ void update_covariance(std::vector<GaussianComponent<Dim>> &components,
   }
 }
 
+template <int Dim>
+StaticRowsMatrix<Dim>
+get_mean_matrix(std::vector<GaussianComponent<Dim>> &components) {
+  const auto n_components = components.size();
+  auto mean_matrix = static_cast<StaticRowsMatrix<Dim>>(
+      StaticRowsMatrix<Dim>::Zero(Dim, n_components));
+  for (size_t i = 0; i < n_components; ++i) {
+    const auto &component = components[i];
+    mean_matrix.col(i) = component.get_mean();
+  }
+  return mean_matrix;
+}
+template <int Dim>
+bool is_early_stopping_condition_fulfilled(
+    const StaticRowsMatrix<Dim> &current_mean_matrix,
+    const StaticRowsMatrix<Dim> &new_mean_matrix,
+    double early_stopping_threshold) {
+  const auto squared_norms =
+      (current_mean_matrix - new_mean_matrix).colwise().squaredNorm();
+  return squared_norms.maxCoeff() <
+         early_stopping_threshold * early_stopping_threshold;
+}
+
 } // namespace internal
 
 template <int Dim>
@@ -118,9 +140,17 @@ void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
   if (!parameters_.warm_start || components.size() != n_components)
     this->initialize(components, samples, n_components);
   std::vector<StaticRowsMatrix<Dim>> partitions;
+  auto current_mean_matrix = internal::get_mean_matrix(components);
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
     partitions = internal::partition_samples_responsibly(components, samples);
     internal::update_mean(components, partitions);
+    const auto new_mean_matrix = internal::get_mean_matrix(components);
+    if (internal::is_early_stopping_condition_fulfilled(
+            current_mean_matrix, new_mean_matrix,
+            parameters_.early_stopping_threshold))
+      break;
+    else
+      current_mean_matrix = new_mean_matrix;
   }
   internal::update_weight(components, partitions);
   internal::update_covariance(components, partitions);

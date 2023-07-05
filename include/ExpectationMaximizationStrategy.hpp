@@ -7,8 +7,6 @@
 #include <limits>
 #include <random>
 
-// TODO: Implement early stopping
-
 namespace gm {
 
 template <int Dim>
@@ -17,6 +15,7 @@ public:
   struct Parameters {
     int n_components{0};
     int n_iterations{0};
+    double early_stopping_threshold{0.0};
     bool warm_start{false};
   };
 
@@ -35,11 +34,13 @@ private:
 namespace internal {
 
 template <int Dim>
-void evaluate_responsibilities(
-    const std::vector<GaussianComponent<Dim>> &components,
-    const StaticRowsMatrix<Dim> &samples, MatrixX &responsibilities) {
+double
+evaluate_responsibilities(const std::vector<GaussianComponent<Dim>> &components,
+                          const StaticRowsMatrix<Dim> &samples,
+                          MatrixX &responsibilities) {
   const auto n_samples = samples.cols();
   const auto n_components = components.size();
+  auto log_likelihood = 0.0;
   for (size_t i = 0; i < n_samples; ++i) {
     const auto sample = static_cast<Vector<Dim>>(samples.col(i));
     auto responsibility = static_cast<VectorX>(VectorX::Zero(n_components, 1));
@@ -47,8 +48,11 @@ void evaluate_responsibilities(
       const auto &component = components[j];
       responsibility(j) = component(sample);
     }
-    responsibilities.col(i) = 1.0 / responsibility.sum() * responsibility;
+    const auto responsibility_sum = responsibility.sum();
+    log_likelihood += std::log(responsibility_sum);
+    responsibilities.col(i) = 1.0 / responsibility_sum * responsibility;
   }
+  return log_likelihood;
 }
 
 template <int Dim>
@@ -95,7 +99,7 @@ void ExpectationMaximizationStrategy<Dim>::initialize(
     const StaticRowsMatrix<Dim> &samples) const {
 
   const typename KMeansStrategy<Dim>::Parameters initialization_parameters = {
-      parameters_.n_components, 1, parameters_.warm_start};
+      parameters_.n_components, 1, 0.0, parameters_.warm_start};
   const auto initialization_strategy =
       KMeansStrategy<Dim>{initialization_parameters};
   initialization_strategy.fit(components, samples);
@@ -109,9 +113,16 @@ void ExpectationMaximizationStrategy<Dim>::fit(
     initialize(components, samples);
   auto responsibilities =
       static_cast<MatrixX>(MatrixX::Zero(components.size(), samples.cols()));
+  auto current_log_likelihood = -1.0 * std::numeric_limits<double>::max();
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
-    internal::evaluate_responsibilities(components, samples, responsibilities);
+    const auto new_log_likelihood = internal::evaluate_responsibilities(
+        components, samples, responsibilities);
     internal::estimate_parameters(samples, responsibilities, components);
+    if (new_log_likelihood - current_log_likelihood <
+        parameters_.early_stopping_threshold)
+      break;
+    else
+      current_log_likelihood = new_log_likelihood;
   }
 }
 

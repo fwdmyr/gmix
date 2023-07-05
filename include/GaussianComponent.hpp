@@ -21,8 +21,6 @@ public:
       : cache_(std::nullopt), weight_(0.0),
         mean_(static_cast<Vector<Dim>>(Vector<Dim>::Zero())),
         covariance_(static_cast<Matrix<Dim, Dim>>(Matrix<Dim, Dim>::Zero())),
-        sqrt_information_(
-            static_cast<Matrix<Dim, Dim>>(Matrix<Dim, Dim>::Zero())),
         llt_(){};
   GaussianComponent(double, const Vector<Dim> &, const Matrix<Dim, Dim> &);
   GaussianComponent(const GaussianComponent<Dim> &) = default;
@@ -35,9 +33,6 @@ public:
   double get_weight() const { return weight_; }
   const Vector<Dim> &get_mean() const { return mean_; }
   const Matrix<Dim, Dim> &get_covariance() const { return covariance_; }
-  const Matrix<Dim, Dim> &get_sqrt_information() const {
-    return sqrt_information_;
-  }
 
   void set_weight(double weight) { weight_ = weight; }
   void set_mean(const Vector<Dim> &mean) { mean_ = mean; }
@@ -45,9 +40,6 @@ public:
     if (covariance_ == covariance)
       return;
     covariance_ = covariance;
-    sqrt_information_ =
-        Eigen::SelfAdjointEigenSolver<Matrix<Dim, Dim>>(covariance)
-            .operatorInverseSqrt();
     llt_ = covariance.llt();
     cache_.reset();
   }
@@ -68,7 +60,6 @@ private:
   double weight_{};
   Vector<Dim> mean_{};
   Matrix<Dim, Dim> covariance_{};
-  Matrix<Dim, Dim> sqrt_information_{};
   Eigen::LLT<Matrix<Dim, Dim>> llt_{};
 };
 
@@ -77,17 +68,14 @@ GaussianComponent<Dim>::GaussianComponent(double weight,
                                           const Vector<Dim> &mean,
                                           const Matrix<Dim, Dim> &covariance)
     : cache_(std::nullopt), weight_(weight), mean_(mean),
-      covariance_(covariance),
-      sqrt_information_(
-          Eigen::SelfAdjointEigenSolver<Matrix<Dim, Dim>>(covariance)
-              .operatorInverseSqrt()),
-      llt_(covariance.llt()) {}
+      covariance_(covariance), llt_(covariance.llt()) {}
 
 template <int Dim>
 double GaussianComponent<Dim>::operator()(const Vector<Dim> &x) const {
-  if (!cache_)
-    cache_.emplace(internal::GAUSSIAN_SCALER(Dim) *
-                   sqrt_information_.determinant());
+  if (!cache_) {
+    cache_.emplace(internal::GAUSSIAN_SCALER(Dim) /
+                   llt_.matrixL().determinant());
+  }
   return weight_ * (*cache_) *
          std::exp(-0.5 * (llt_.matrixL().solve(x - mean_)).squaredNorm());
 }

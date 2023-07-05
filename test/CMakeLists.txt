@@ -41,5 +41,5 @@ endmacro()
 
 package_add_test(test_statistics test_statistics.cpp Eigen3::Eigen)
 package_add_test(test_gaussian_component test_gaussian_component.cpp Eigen3::Eigen)
-package_add_test(test_sampling test_sampling.cpp Eigen3::Eigen)
+package_add_test(test_gaussian_mixture test_gaussian_mixture.cpp Eigen3::Eigen)
 package_add_test(test_fitting test_fitting.cpp Eigen3::Eigen)

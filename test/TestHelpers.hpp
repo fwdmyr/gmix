@@ -6,7 +6,8 @@
 
 namespace test {
 
-static constexpr double TOLERANCE = 5E-2;
+static constexpr double RANDOM_TOLERANCE = 5E-2;
+static constexpr double DETERMINISTIC_TOLERANCE = 1E-10;
 
 inline bool is_near(double lhs, double rhs, double tolerance) {
   return (lhs - tolerance <= rhs && rhs <= lhs + tolerance);
