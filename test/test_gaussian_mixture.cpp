@@ -11,7 +11,7 @@
 TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
 
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixtureKMeans<1U> gmm;
+  gm::GaussianMixture<1U> gmm;
   const auto weight = 1.0;
   const auto mean = (gm::Vector<1U>() << 9.7).finished();
   const auto covariance = (gm::Matrix<1U, 1U>() << 1.7).finished();
@@ -19,8 +19,9 @@ TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
 
   const auto samples = gm::draw_from_gaussian_mixture(gmm, N_SAMPLES);
 
-  const auto sample_mean = gm::sample_mean(samples);
-  const auto sample_covariance = gm::sample_covariance(samples, sample_mean);
+  const auto sample_mean = gm::internal::sample_mean(samples);
+  const auto sample_covariance =
+      gm::internal::sample_covariance(samples, sample_mean);
 
   EXPECT_TRUE(test::is_near(mean, sample_mean, test::RANDOM_TOLERANCE));
   EXPECT_TRUE(
@@ -30,7 +31,7 @@ TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
 TEST(SamplingTest, SingleMultivariateComponentTest) {
 
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixtureKMeans<2U> gmm;
+  gm::GaussianMixture<2U> gmm;
   const auto weight = 1.0;
   const auto mean = (gm::Vector<2U>() << 9.7, 4.2).finished();
   const auto covariance =
@@ -39,8 +40,9 @@ TEST(SamplingTest, SingleMultivariateComponentTest) {
 
   const auto samples = gm::draw_from_gaussian_mixture(gmm, N_SAMPLES);
 
-  const auto sample_mean = gm::sample_mean(samples);
-  const auto sample_covariance = gm::sample_covariance(samples, sample_mean);
+  const auto sample_mean = gm::internal::sample_mean(samples);
+  const auto sample_covariance =
+      gm::internal::sample_covariance(samples, sample_mean);
 
   EXPECT_TRUE(test::is_near(mean, sample_mean, test::RANDOM_TOLERANCE));
   EXPECT_TRUE(

@@ -43,9 +43,9 @@ bool is_near(const gm::GaussianComponent<Dim> &lhs,
          is_near(lhs.get_covariance(), rhs.get_covariance(), tolerance);
 }
 
-template <typename Strategy, int Dim>
-bool is_near(const gm::GaussianMixture<Dim, Strategy> &lhs,
-             const gm::GaussianMixture<Dim, Strategy> &rhs, double tolerance) {
+template <int Dim>
+bool is_near(const gm::GaussianMixture<Dim> &lhs,
+             const gm::GaussianMixture<Dim> &rhs, double tolerance) {
   if (lhs.get_size() != rhs.get_size())
     return false;
   for (int i = 0; i < lhs.get_size(); ++i) {
@@ -57,9 +57,9 @@ bool is_near(const gm::GaussianMixture<Dim, Strategy> &lhs,
   return true;
 }
 
-template <typename Strategy, int Dim>
-bool compare_gaussian_mixtures(gm::GaussianMixture<Dim, Strategy> &lhs,
-                               gm::GaussianMixture<Dim, Strategy> &rhs,
+template <int Dim>
+bool compare_gaussian_mixtures(gm::GaussianMixture<Dim> &lhs,
+                               gm::GaussianMixture<Dim> &rhs,
                                double tolerance) {
   if (lhs.get_size() != rhs.get_size())
     return false;

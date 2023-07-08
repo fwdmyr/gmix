@@ -22,19 +22,19 @@ protected:
 } // namespace
 
 TEST_F(StatisticsTestFixture, TestSampleMeanCalculation) {
-  const auto mean = gm::sample_mean(samples_);
+  const auto mean = gm::internal::sample_mean(samples_);
 
   EXPECT_TRUE(test::is_near(mean, mean_, test::RANDOM_TOLERANCE));
 }
 
 TEST_F(StatisticsTestFixture, TestSampleCovarianceCalculation) {
-  const auto covariance = gm::sample_covariance(samples_);
+  const auto covariance = gm::internal::sample_covariance(samples_);
 
   EXPECT_TRUE(test::is_near(covariance, covariance_, test::RANDOM_TOLERANCE));
 }
 
 TEST_F(StatisticsTestFixture, TestSampleCovarianceCalculationGivenMean) {
-  const auto covariance = gm::sample_covariance(samples_, mean_);
+  const auto covariance = gm::internal::sample_covariance(samples_, mean_);
 
   EXPECT_TRUE(test::is_near(covariance, covariance_, test::RANDOM_TOLERANCE));
 }

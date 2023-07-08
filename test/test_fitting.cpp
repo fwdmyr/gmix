@@ -12,7 +12,7 @@
 TEST(FittingTest, kMeansStrategyFittingColdStartTest) {
 
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixtureKMeans<2U> sample_gmm;
+  gm::GaussianMixture<2U> sample_gmm;
   sample_gmm.add_component(
       {0.5, (gm::Vector<2U>() << 2.0, 9.0).finished(),
        (gm::Matrix<2U, 2U>() << 2.0, 0.0, 0.0, 2.0).finished()});
@@ -21,14 +21,15 @@ TEST(FittingTest, kMeansStrategyFittingColdStartTest) {
        (gm::Matrix<2U, 2U>() << 0.5, 0.0, 0.0, 0.5).finished()});
   const auto samples = gm::draw_from_gaussian_mixture(sample_gmm, N_SAMPLES);
 
-  gm::GaussianMixtureKMeans<2U> gmm;
+  gm::GaussianMixture<2U> gmm;
   gm::KMeansStrategy<2U>::Parameters parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   parameters.early_stopping_threshold = 0.0;
   parameters.warm_start = false;
-  gmm.set_strategy(parameters);
-  gmm.fit(samples);
+  const auto strategy = gm::KMeansStrategy<2U>{parameters};
+
+  gm::fit(samples, strategy, gmm);
 
   EXPECT_TRUE(
       test::compare_gaussian_mixtures(sample_gmm, gmm, test::RANDOM_TOLERANCE));
@@ -37,7 +38,7 @@ TEST(FittingTest, kMeansStrategyFittingColdStartTest) {
 TEST(FittingTest, kMeansStrategyFittingWarmStartTest) {
 
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixtureKMeans<2U> sample_gmm;
+  gm::GaussianMixture<2U> sample_gmm;
   sample_gmm.add_component(
       {0.5, (gm::Vector<2U>() << 2.0, 9.0).finished(),
        (gm::Matrix<2U, 2U>() << 2.0, 0.0, 0.0, 2.0).finished()});
@@ -46,18 +47,20 @@ TEST(FittingTest, kMeansStrategyFittingWarmStartTest) {
        (gm::Matrix<2U, 2U>() << 0.5, 0.0, 0.0, 0.5).finished()});
   const auto samples = gm::draw_from_gaussian_mixture(sample_gmm, N_SAMPLES);
 
-  gm::GaussianMixtureKMeans<2U> gmm;
+  gm::GaussianMixture<2U> gmm;
   gmm.add_component({0.5, (gm::Vector<2U>() << 1.0, 1.0).finished(),
                      (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished()});
   gmm.add_component({0.5, (gm::Vector<2U>() << -1.0, -1.0).finished(),
                      (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished()});
+
   gm::KMeansStrategy<2U>::Parameters parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   parameters.early_stopping_threshold = 0.0;
   parameters.warm_start = true;
-  gmm.set_strategy(parameters);
-  gmm.fit(samples);
+  const auto strategy = gm::KMeansStrategy<2U>{parameters};
+
+  gm::fit(samples, strategy, gmm);
 
   EXPECT_TRUE(
       test::compare_gaussian_mixtures(sample_gmm, gmm, test::RANDOM_TOLERANCE));
@@ -66,7 +69,7 @@ TEST(FittingTest, kMeansStrategyFittingWarmStartTest) {
 TEST(FittingTest, ExpectationMaximizationStrategyFittingColdStartTest) {
 
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixtureExpectationMaximization<2U> sample_gmm;
+  gm::GaussianMixture<2U> sample_gmm;
   sample_gmm.add_component(
       {0.5, (gm::Vector<2U>() << 2.0, 9.0).finished(),
        (gm::Matrix<2U, 2U>() << 2.0, 0.0, 0.0, 2.0).finished()});
@@ -75,14 +78,15 @@ TEST(FittingTest, ExpectationMaximizationStrategyFittingColdStartTest) {
        (gm::Matrix<2U, 2U>() << 0.5, 0.0, 0.0, 0.5).finished()});
   const auto samples = gm::draw_from_gaussian_mixture(sample_gmm, N_SAMPLES);
 
-  gm::GaussianMixtureExpectationMaximization<2U> gmm;
+  gm::GaussianMixture<2U> gmm;
   gm::ExpectationMaximizationStrategy<2U>::Parameters parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   parameters.early_stopping_threshold = 0.0;
   parameters.warm_start = false;
-  gmm.set_strategy(parameters);
-  gmm.fit(samples);
+  const auto strategy = gm::ExpectationMaximizationStrategy<2U>{parameters};
+
+  gm::fit(samples, strategy, gmm);
 
   EXPECT_TRUE(
       test::compare_gaussian_mixtures(sample_gmm, gmm, test::RANDOM_TOLERANCE));
@@ -91,7 +95,7 @@ TEST(FittingTest, ExpectationMaximizationStrategyFittingColdStartTest) {
 TEST(FittingTest, ExpectationMaximizationStrategyFittingWarmStartTest) {
 
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixtureExpectationMaximization<2U> sample_gmm;
+  gm::GaussianMixture<2U> sample_gmm;
   sample_gmm.add_component(
       {0.5, (gm::Vector<2U>() << 2.0, 9.0).finished(),
        (gm::Matrix<2U, 2U>() << 2.0, 0.0, 0.0, 2.0).finished()});
@@ -100,18 +104,20 @@ TEST(FittingTest, ExpectationMaximizationStrategyFittingWarmStartTest) {
        (gm::Matrix<2U, 2U>() << 0.5, 0.0, 0.0, 0.5).finished()});
   const auto samples = gm::draw_from_gaussian_mixture(sample_gmm, N_SAMPLES);
 
-  gm::GaussianMixtureExpectationMaximization<2U> gmm;
+  gm::GaussianMixture<2U> gmm;
   gmm.add_component({0.5, (gm::Vector<2U>() << 1.0, 1.0).finished(),
                      (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished()});
   gmm.add_component({0.5, (gm::Vector<2U>() << -1.0, -1.0).finished(),
                      (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished()});
+
   gm::ExpectationMaximizationStrategy<2U>::Parameters parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   parameters.early_stopping_threshold = 0.0;
   parameters.warm_start = true;
-  gmm.set_strategy(parameters);
-  gmm.fit(samples);
+  const auto strategy = gm::ExpectationMaximizationStrategy<2U>{parameters};
+
+  gm::fit(samples, strategy, gmm);
 
   EXPECT_TRUE(
       test::compare_gaussian_mixtures(sample_gmm, gmm, test::RANDOM_TOLERANCE));
@@ -120,7 +126,7 @@ TEST(FittingTest, ExpectationMaximizationStrategyFittingWarmStartTest) {
 TEST(FittingTest, VariationalBayesianInferenceStrategyFittingColdStartTest) {
 
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixtureVariationalBayesianInference<2U> sample_gmm;
+  gm::GaussianMixture<2U> sample_gmm;
   sample_gmm.add_component(
       {0.5, (gm::Vector<2U>() << 2.0, 9.0).finished(),
        (gm::Matrix<2U, 2U>() << 2.0, 0.0, 0.0, 2.0).finished()});
@@ -129,7 +135,7 @@ TEST(FittingTest, VariationalBayesianInferenceStrategyFittingColdStartTest) {
        (gm::Matrix<2U, 2U>() << 0.5, 0.0, 0.0, 0.5).finished()});
   const auto samples = gm::draw_from_gaussian_mixture(sample_gmm, N_SAMPLES);
 
-  gm::GaussianMixtureVariationalBayesianInference<2U> gmm;
+  gm::GaussianMixture<2U> gmm;
   gm::VariationalBayesianInferenceStrategy<2U>::Parameters parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
@@ -141,9 +147,10 @@ TEST(FittingTest, VariationalBayesianInferenceStrategyFittingColdStartTest) {
   parameters.wishart_prior_degrees_of_freedom = 2.0;
   parameters.wishart_prior_information =
       (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished();
+  const auto strategy =
+      gm::VariationalBayesianInferenceStrategy<2U>{parameters};
 
-  gmm.set_strategy(parameters);
-  gmm.fit(samples);
+  gm::fit(samples, strategy, gmm);
 
   EXPECT_TRUE(
       test::compare_gaussian_mixtures(sample_gmm, gmm, test::RANDOM_TOLERANCE));
@@ -152,7 +159,7 @@ TEST(FittingTest, VariationalBayesianInferenceStrategyFittingColdStartTest) {
 TEST(FittingTest, VariationalBayesianInferenceStrategyFittingWarmStartTest) {
 
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixtureVariationalBayesianInference<2U> sample_gmm;
+  gm::GaussianMixture<2U> sample_gmm;
   sample_gmm.add_component(
       {0.5, (gm::Vector<2U>() << 2.0, 9.0).finished(),
        (gm::Matrix<2U, 2U>() << 2.0, 0.0, 0.0, 2.0).finished()});
@@ -161,11 +168,12 @@ TEST(FittingTest, VariationalBayesianInferenceStrategyFittingWarmStartTest) {
        (gm::Matrix<2U, 2U>() << 0.5, 0.0, 0.0, 0.5).finished()});
   const auto samples = gm::draw_from_gaussian_mixture(sample_gmm, N_SAMPLES);
 
-  gm::GaussianMixtureVariationalBayesianInference<2U> gmm;
+  gm::GaussianMixture<2U> gmm;
   gmm.add_component({0.5, (gm::Vector<2U>() << 1.0, 1.0).finished(),
                      (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished()});
   gmm.add_component({0.5, (gm::Vector<2U>() << -1.0, -1.0).finished(),
                      (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished()});
+
   gm::VariationalBayesianInferenceStrategy<2U>::Parameters parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
@@ -177,9 +185,10 @@ TEST(FittingTest, VariationalBayesianInferenceStrategyFittingWarmStartTest) {
   parameters.wishart_prior_degrees_of_freedom = 2.0;
   parameters.wishart_prior_information =
       (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished();
+  const auto strategy =
+      gm::VariationalBayesianInferenceStrategy<2U>{parameters};
 
-  gmm.set_strategy(parameters);
-  gmm.fit(samples);
+  gm::fit(samples, strategy, gmm);
 
   EXPECT_TRUE(
       test::compare_gaussian_mixtures(sample_gmm, gmm, test::RANDOM_TOLERANCE));

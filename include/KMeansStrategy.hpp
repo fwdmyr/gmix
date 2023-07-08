@@ -79,7 +79,7 @@ void update_weight(std::vector<GaussianComponent<Dim>> &components,
   const auto n_components = components.size();
   for (size_t i = 0; i < n_components; ++i) {
     auto &component = components[i];
-    auto &partition = partitions[i];
+    const auto &partition = partitions[i];
     const auto weight = static_cast<double>(partition.cols()) / n_samples;
     component.set_weight(weight);
   }

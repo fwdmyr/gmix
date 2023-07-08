@@ -8,6 +8,8 @@
 
 namespace gm {
 
+namespace internal {
+
 template <int Dim>
 Vector<Dim> sample_mean(const StaticRowsMatrix<Dim> &samples) {
   return samples.rowwise().mean();
@@ -27,6 +29,8 @@ Matrix<Dim, Dim> sample_covariance(const StaticRowsMatrix<Dim> &samples,
   return (centered_samples * centered_samples.adjoint()) /
          static_cast<double>(samples.cols() - 1);
 }
+
+} // namespace internal
 
 } // namespace gm
 

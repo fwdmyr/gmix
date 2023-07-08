@@ -1,10 +1,7 @@
 #ifndef GMSAM_GAUSSIAN_MIXTURE_HPP
 #define GMSAM_GAUSSIAN_MIXTURE_HPP
 
-#include "BaseStrategy.hpp"
-#include "ExpectationMaximizationStrategy.hpp"
-#include "KMeansStrategy.hpp"
-#include "VariationalBayesianInferenceStrategy.hpp"
+#include "TypeTraits.hpp"
 #include <initializer_list>
 #include <memory>
 #include <random>
@@ -12,8 +9,7 @@
 
 namespace gm {
 
-template <int Dim, typename Strategy = BaseStrategy<Dim>>
-class GaussianMixture {
+template <int Dim> class GaussianMixture {
 
 public:
   using container_type = std::vector<GaussianComponent<Dim>>;
@@ -22,12 +18,10 @@ public:
 
   GaussianMixture() = default;
   GaussianMixture(std::initializer_list<GaussianComponent<Dim>>);
-  GaussianMixture(const GaussianMixture<Dim, Strategy> &) = default;
-  GaussianMixture(GaussianMixture<Dim, Strategy> &&) = default;
-  GaussianMixture<Dim, Strategy> &
-  operator=(const GaussianMixture<Dim, Strategy> &) = default;
-  GaussianMixture<Dim, Strategy> &
-  operator=(GaussianMixture<Dim, Strategy> &&) = default;
+  GaussianMixture(const GaussianMixture<Dim> &) = default;
+  GaussianMixture(GaussianMixture<Dim> &&) = default;
+  GaussianMixture<Dim> &operator=(const GaussianMixture<Dim> &) = default;
+  GaussianMixture<Dim> &operator=(GaussianMixture<Dim> &&) = default;
 
   inline iterator begin() noexcept { return components_.begin(); }
   inline const_iterator cbegin() const noexcept { return components_.cbegin(); }
@@ -40,6 +34,12 @@ public:
 
   size_t get_size() const { return components_.size(); }
 
+  const std::vector<GaussianComponent<Dim>> &get_components() const {
+    return components_;
+  }
+
+  std::vector<GaussianComponent<Dim>> &get_components() { return components_; }
+
   void add_component(const GaussianComponent<Dim> &component) {
     components_.push_back(component);
   };
@@ -49,21 +49,8 @@ public:
 
   void reset() { components_.resize(0); }
 
-  void set_strategy(const typename Strategy::Parameters &params) {
-    p_strategy_ = std::make_unique<Strategy>(params);
-  }
-
-  void set_strategy(typename Strategy::Parameters &&params) {
-    p_strategy_ = std::make_unique<Strategy>(params);
-  }
-
-  void fit(const StaticRowsMatrix<Dim> &samples) {
-    if (p_strategy_)
-      p_strategy_->fit(components_, samples);
-  }
-
   friend std::ostream &operator<<(std::ostream &os,
-                                  const GaussianMixture<Dim, Strategy> &gmm) {
+                                  const GaussianMixture<Dim> &gmm) {
     os << "GaussianMixture<" << Dim << ">\n";
     for (const auto &component : gmm.components_)
       os << component << '\n';
@@ -72,25 +59,19 @@ public:
 
 private:
   std::vector<GaussianComponent<Dim>> components_{};
-  std::unique_ptr<Strategy> p_strategy_{nullptr};
 };
 
-template <int Dim>
-using GaussianMixtureKMeans = GaussianMixture<Dim, gm::KMeansStrategy<Dim>>;
+template <typename StrategyType, typename MatrixType,
+          typename GaussianMixtureType>
+void fit(const MatrixType &samples, const StrategyType &strategy,
+         GaussianMixtureType &gmm) {
+  auto &components = gmm.get_components();
+  strategy.fit(components, samples);
+}
 
 template <int Dim>
-using GaussianMixtureExpectationMaximization =
-    GaussianMixture<Dim, gm::ExpectationMaximizationStrategy<Dim>>;
-
-template <int Dim>
-using GaussianMixtureVariationalBayesianInference =
-    GaussianMixture<Dim, gm::VariationalBayesianInferenceStrategy<Dim>>;
-
-template <typename Strategy, int Dim>
 StaticRowsMatrix<Dim>
-draw_from_gaussian_mixture(const GaussianMixture<Dim, Strategy> &gmm,
-                           size_t n_samples) {
-
+draw_from_gaussian_mixture(const GaussianMixture<Dim> &gmm, size_t n_samples) {
   static std::mt19937 gen{std::random_device{}()};
   static std::normal_distribution<> nd;
 

@@ -50,8 +50,8 @@ void BaseStrategy<Dim>::initialize(
   components.resize(0);
   const auto partitions = internal::partition_samples(samples, n_components);
   for (const auto &partition : partitions) {
-    const auto mu = sample_mean(partition);
-    const auto sigma = sample_covariance(partition, mu);
+    const auto mu = internal::sample_mean(partition);
+    const auto sigma = internal::sample_covariance(partition, mu);
     components.push_back({1.0 / n_components, mu, sigma});
   }
 }

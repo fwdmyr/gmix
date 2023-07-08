@@ -22,7 +22,6 @@ protected:
 TEST_F(GaussianComponentTestFixture,
        TestFunctionCallOperatorWithInitialParameters) {
   const auto probability = component_(sample_);
-  std::cerr << covariance_.llt().matrixL().determinant() << std::endl;
 
   EXPECT_NEAR(probability, 0.02207882591462017, test::DETERMINISTIC_TOLERANCE);
 }
