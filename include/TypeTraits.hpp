@@ -19,18 +19,6 @@ template <int Dim> static constexpr bool is_vector_v = Dim == 1;
 template <int Dim> static constexpr bool is_unambiguous_v = Dim > 1;
 template <int Dim> static constexpr bool is_dynamic_v = Dim == -1;
 template <int Dim> static constexpr bool is_static_v = Dim > 0;
-template <int Rows, int Cols>
-static constexpr bool is_static_rows_static_cols_v =
-    is_static_v<Rows> && is_static_v<Cols>;
-template <int Rows, int Cols>
-static constexpr bool is_static_rows_dynamic_cols_v =
-    is_static_v<Rows> && is_dynamic_v<Cols>;
-template <int Rows, int Cols>
-static constexpr bool is_dynamic_rows_static_cols_v =
-    is_dynamic_v<Rows> && is_static_v<Cols>;
-template <int Rows, int Cols>
-static constexpr bool is_dynamic_rows_dynamic_cols_v =
-    is_dynamic_v<Rows> && is_dynamic_v<Cols>;
 
 } // namespace gm
 

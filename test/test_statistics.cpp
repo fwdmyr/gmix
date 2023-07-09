@@ -8,8 +8,8 @@ class StatisticsFixture : public testing::Test {
 protected:
   static void SetUpTestSuite() {
     gm::GaussianMixture<2> gmm;
-    mean_ = (gm::ColVector<2>() << 9.7, -4.2).finished();
-    covariance_ = (gm::Matrix<2, 2>() << 3.2, 0.2, 0.7, 2.5).finished();
+    mean_ = gm::initialize<gm::ColVector<2>>({9.7, -4.2});
+    covariance_ = gm::initialize<gm::Matrix<2, 2>>({{3.2, 0.2}, {0.7, 2.5}});
     gmm.add_component({1.0, mean_, covariance_});
     samples_ = gm::draw_from_gaussian_mixture(gmm, 100000);
   }

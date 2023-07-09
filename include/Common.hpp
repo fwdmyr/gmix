@@ -48,10 +48,10 @@ template <int Cols> using RowVector = Eigen::Matrix<double, 1, Cols>;
 using RowVectorX = Eigen::Matrix<double, 1, Eigen::Dynamic>;
 
 template <typename MatrixType,
-          typename std::enable_if_t<gm::is_static_rows_static_cols_v<
-                                        MatrixTypeTraits<MatrixType>::Rows,
-                                        MatrixTypeTraits<MatrixType>::Cols>,
-                                    int> = 0>
+          typename std::enable_if_t<
+              gm::is_static_v<MatrixTypeTraits<MatrixType>::Rows> &&
+                  gm::is_static_v<MatrixTypeTraits<MatrixType>::Cols>,
+              int> = 0>
 [[nodiscard]] MatrixType
 initialize(std::initializer_list<std::initializer_list<
                typename MatrixTypeTraits<MatrixType>::ElementType>> &&list) {
@@ -73,10 +73,10 @@ initialize(std::initializer_list<std::initializer_list<
 }
 
 template <typename MatrixType,
-          typename std::enable_if_t<gm::is_static_rows_dynamic_cols_v<
-                                        MatrixTypeTraits<MatrixType>::Rows,
-                                        MatrixTypeTraits<MatrixType>::Cols>,
-                                    int> = 0>
+          typename std::enable_if_t<
+              gm::is_static_v<MatrixTypeTraits<MatrixType>::Rows> &&
+                  gm::is_dynamic_v<MatrixTypeTraits<MatrixType>::Cols>,
+              int> = 0>
 [[nodiscard]] MatrixType
 initialize(std::initializer_list<std::initializer_list<
                typename MatrixTypeTraits<MatrixType>::ElementType>> &&list) {
@@ -98,10 +98,10 @@ initialize(std::initializer_list<std::initializer_list<
 }
 
 template <typename MatrixType,
-          typename std::enable_if_t<gm::is_dynamic_rows_static_cols_v<
-                                        MatrixTypeTraits<MatrixType>::Rows,
-                                        MatrixTypeTraits<MatrixType>::Cols>,
-                                    int> = 0>
+          typename std::enable_if_t<
+              gm::is_dynamic_v<MatrixTypeTraits<MatrixType>::Rows> &&
+                  gm::is_static_v<MatrixTypeTraits<MatrixType>::Cols>,
+              int> = 0>
 [[nodiscard]] MatrixType
 initialize(std::initializer_list<std::initializer_list<
                typename MatrixTypeTraits<MatrixType>::ElementType>> &&list) {
@@ -123,10 +123,10 @@ initialize(std::initializer_list<std::initializer_list<
 }
 
 template <typename MatrixType,
-          typename std::enable_if_t<gm::is_dynamic_rows_dynamic_cols_v<
-                                        MatrixTypeTraits<MatrixType>::Rows,
-                                        MatrixTypeTraits<MatrixType>::Cols>,
-                                    int> = 0>
+          typename std::enable_if_t<
+              gm::is_dynamic_v<MatrixTypeTraits<MatrixType>::Rows> &&
+                  gm::is_dynamic_v<MatrixTypeTraits<MatrixType>::Cols>,
+              int> = 0>
 [[nodiscard]] MatrixType
 initialize(std::initializer_list<std::initializer_list<
                typename MatrixTypeTraits<MatrixType>::ElementType>> &&list) {
@@ -150,7 +150,8 @@ initialize(std::initializer_list<std::initializer_list<
 
 template <typename MatrixType,
           typename std::enable_if_t<
-              gm::is_vector_v<MatrixTypeTraits<MatrixType>::Rows> &&
+              gm::is_unambiguous_v<MatrixTypeTraits<MatrixType>::Cols> &&
+                  gm::is_vector_v<MatrixTypeTraits<MatrixType>::Rows> &&
                   gm::is_static_v<MatrixTypeTraits<MatrixType>::Cols>,
               int> = 0>
 [[nodiscard]] MatrixType initialize(
@@ -186,7 +187,8 @@ template <typename MatrixType,
 
 template <typename MatrixType,
           typename std::enable_if_t<
-              gm::is_vector_v<MatrixTypeTraits<MatrixType>::Cols> &&
+              gm::is_unambiguous_v<MatrixTypeTraits<MatrixType>::Rows> &&
+                  gm::is_vector_v<MatrixTypeTraits<MatrixType>::Cols> &&
                   gm::is_static_v<MatrixTypeTraits<MatrixType>::Rows>,
               int> = 0>
 [[nodiscard]] MatrixType initialize(

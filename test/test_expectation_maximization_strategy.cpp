@@ -11,10 +11,12 @@ TEST(EstimateParameters, Dummy) {}
 class ExpectationMaximizationFixture : public ::testing::TestWithParam<bool> {
 protected:
   static void SetUpTestSuite() {
-    gmm_.add_component({0.5, (gm::ColVector<2>() << 2.0, 9.0).finished(),
-                        (gm::Matrix<2, 2>() << 2.0, 0.0, 0.0, 2.0).finished()});
-    gmm_.add_component({0.5, (gm::ColVector<2>() << -5.0, 4.0).finished(),
-                        (gm::Matrix<2, 2>() << 0.5, 0.0, 0.0, 0.5).finished()});
+    gmm_.add_component(
+        {0.5, gm::initialize<gm::ColVector<2>>({2.0, 9.0}),
+         gm::initialize<gm::Matrix<2, 2>>({{2.0, 0.0}, {0.0, 2.0}})});
+    gmm_.add_component(
+        {0.5, gm::initialize<gm::ColVector<2>>({-5.0, 4.0}),
+         gm::initialize<gm::Matrix<2, 2>>({{0.5, 0.0}, {0.0, 0.5}})});
     samples_ = gm::draw_from_gaussian_mixture(gmm_, 1E5);
   }
 
@@ -42,10 +44,12 @@ TEST_P(
     Fit_GivenParametersAndSamples_ExpectCorrectApproximationOfUnderlyingDistribution) {
   gm::GaussianMixture<2> gmm;
   if (GetParam()) {
-    gmm.add_component({0.5, (gm::ColVector<2>() << 1.0, 1.0).finished(),
-                       (gm::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
-    gmm.add_component({0.5, (gm::ColVector<2>() << -1.0, -1.0).finished(),
-                       (gm::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
+    gmm.add_component(
+        {0.5, gm::initialize<gm::ColVector<2>>({1.0, 1.0}),
+         gm::initialize<gm::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
+    gmm.add_component(
+        {0.5, gm::initialize<gm::ColVector<2>>({-1.0, -1.0}),
+         gm::initialize<gm::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
   }
 
   gm::fit(samples_, strategy_, gmm);

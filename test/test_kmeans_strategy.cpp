@@ -8,10 +8,10 @@ namespace {
 class PartitionSamplesFixture : public ::testing::Test {
 protected:
   static void SetUpTestSuite() {
-    samples_ = static_cast<gm::StaticRowsMatrix<2>>(
-        (gm::Matrix<2, 4>() << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
-            .finished());
+    samples_ = gm::initialize<gm::Matrix<2, 4>>(
+        {{0.9, 1.0, 1.9, 2.0}, {0.9, 1.0, 1.9, 2.0}});
   }
+
   static gm::StaticRowsMatrix<2> samples_;
 };
 
@@ -52,13 +52,14 @@ TEST_F(
 TEST(PartitionSamplesResponsibly,
      GivenSamplesAndGaussianMixture_ExpectCorrectAssociation) {
   auto gmm = gm::GaussianMixture<2>{};
-  gmm.add_component({0.5, (gm::ColVector<2>() << 1.0, 1.0).finished(),
-                     (gm::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
-  gmm.add_component({0.5, (gm::ColVector<2>() << 2.0, 2.0).finished(),
-                     (gm::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
-  const auto samples = static_cast<gm::StaticRowsMatrix<2>>(
-      (gm::Matrix<2, 4>() << 0.9, 1.9, 1.0, 2.0, 0.9, 1.9, 1.0, 2.0)
-          .finished());
+  gmm.add_component(
+      {0.5, gm::initialize<gm::ColVector<2>>({1.0, 1.0}),
+       gm::initialize<gm::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
+  gmm.add_component(
+      {0.5, gm::initialize<gm::ColVector<2>>({2.0, 2.0}),
+       gm::initialize<gm::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
+  const auto samples = gm::initialize<gm::StaticRowsMatrix<2>>(
+      {{0.9, 1.0, 1.9, 2.0}, {0.9, 1.0, 1.9, 2.0}});
 
   const auto partitions = gm::internal::partition_samples_responsibly(
       gmm.get_components(), samples);
@@ -80,13 +81,11 @@ TEST(UpdateWeight, GivenPartitionedSamples_ExpectCorrectWeightUpdate) {
   auto gmm = gm::GaussianMixture<2>{};
   gmm.add_component();
   gmm.add_component();
-  auto samples = static_cast<gm::StaticRowsMatrix<2>>(
-      (gm::Matrix<2, 2>() << 0.9, 1.0, 0.9, 1.0).finished());
   auto partitions = std::vector<gm::StaticRowsMatrix<2>>{};
-  partitions.push_back(samples);
-  samples = static_cast<gm::StaticRowsMatrix<2>>(
-      (gm::Matrix<2, 2>() << 1.9, 2.0, 1.9, 2.0).finished());
-  partitions.push_back(samples);
+  partitions.push_back(
+      gm::initialize<gm::StaticRowsMatrix<2>>({{0.9, 1.0}, {0.9, 1.0}}));
+  partitions.push_back(
+      gm::initialize<gm::StaticRowsMatrix<2>>({{1.9, 2.0}, {1.9, 2.0}}));
 
   gm::internal::update_weight(gmm.get_components(), partitions);
 
@@ -98,13 +97,11 @@ TEST(UpdateMean, GivenPartitionedSamples_ExpectCorrectMeanUpdate) {
   auto gmm = gm::GaussianMixture<2>{};
   gmm.add_component();
   gmm.add_component();
-  auto samples = static_cast<gm::StaticRowsMatrix<2>>(
-      (gm::Matrix<2, 2>() << 0.9, 1.0, 0.9, 1.0).finished());
   auto partitions = std::vector<gm::StaticRowsMatrix<2>>{};
-  partitions.push_back(samples);
-  samples = static_cast<gm::StaticRowsMatrix<2>>(
-      (gm::Matrix<2, 2>() << 1.9, 2.0, 1.9, 2.0).finished());
-  partitions.push_back(samples);
+  partitions.push_back(
+      gm::initialize<gm::StaticRowsMatrix<2>>({{0.9, 1.0}, {0.9, 1.0}}));
+  partitions.push_back(
+      gm::initialize<gm::StaticRowsMatrix<2>>({{1.9, 2.0}, {1.9, 2.0}}));
 
   gm::internal::update_mean(gmm.get_components(), partitions);
 
@@ -138,10 +135,12 @@ TEST(UpdateCovariance, GivenPartitionedSamples_ExpectCorrectCovarianceUpdate) {
 
 TEST(GetMeanMatrix, GivenGaussianMixture_ExpectCorrectMeanMatrix) {
   auto gmm = gm::GaussianMixture<2>{};
-  gmm.add_component({0.5, (gm::ColVector<2>() << -1.1, 3.2).finished(),
-                     (gm::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
-  gmm.add_component({0.5, (gm::ColVector<2>() << 4.6, -2.0).finished(),
-                     (gm::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
+  gmm.add_component(
+      {0.5, gm::initialize<gm::ColVector<2>>({-1.1, 3.2}),
+       gm::initialize<gm::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
+  gmm.add_component(
+      {0.5, gm::initialize<gm::ColVector<2>>({4.6, -2.0}),
+       gm::initialize<gm::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
 
   const auto mean_matrix = gm::internal::get_mean_matrix(gmm.get_components());
 
@@ -154,28 +153,40 @@ TEST(GetMeanMatrix, GivenGaussianMixture_ExpectCorrectMeanMatrix) {
 TEST(IsEarlyStoppingConditionFulfilled,
      GivenMeanMatricesAndSmallEnoughThreshold_ExpectFalse) {
   const auto mean_matrix =
-      gm::initialize<gm::StaticRowsMatrix<2>>({{0.9, 1.9}, {0.9, 1.9}});
+      gm::initialize<gm::StaticRowsMatrix<2>>({{0.9, 1.9}, {0.99, 1.99}});
   const auto other_mean_matrix =
       gm::initialize<gm::StaticRowsMatrix<2>>({{1.0, 2.0}, {1.0, 2.0}});
   const auto threshold = 0.1;
 
-  const auto test = gm::initialize<gm::ColVector<2>>({1, 2, 3});
-  const auto xx = gm::initialize<gm::MatrixX>({{1, 2}, {3, 4}});
-
   const auto flag = gm::internal::is_early_stopping_condition_fulfilled(
       mean_matrix, other_mean_matrix, threshold);
+
+  EXPECT_FALSE(flag);
 }
 
 TEST(IsEarlyStoppingConditionFulfilled,
-     GivenMeanMatricesAndLargeEnoughThreshold_ExpectTrue) {}
+     GivenMeanMatricesAndLargeEnoughThreshold_ExpectTrue) {
+  const auto mean_matrix =
+      gm::initialize<gm::StaticRowsMatrix<2>>({{0.99, 1.99}, {0.9, 1.9}});
+  const auto other_mean_matrix =
+      gm::initialize<gm::StaticRowsMatrix<2>>({{1.0, 2.0}, {1.0, 2.0}});
+  const auto threshold = 0.2;
+
+  const auto flag = gm::internal::is_early_stopping_condition_fulfilled(
+      mean_matrix, other_mean_matrix, threshold);
+
+  EXPECT_TRUE(flag);
+}
 
 class KMeansStrategyFixture : public ::testing::TestWithParam<bool> {
 protected:
   static void SetUpTestSuite() {
-    gmm_.add_component({0.5, (gm::ColVector<2>() << 2.0, 9.0).finished(),
-                        (gm::Matrix<2, 2>() << 2.0, 0.0, 0.0, 2.0).finished()});
-    gmm_.add_component({0.5, (gm::ColVector<2>() << -5.0, 4.0).finished(),
-                        (gm::Matrix<2, 2>() << 0.5, 0.0, 0.0, 0.5).finished()});
+    gmm_.add_component(
+        {0.5, gm::initialize<gm::ColVector<2>>({2.0, 9.0}),
+         gm::initialize<gm::Matrix<2, 2>>({{2.0, 0.0}, {0.0, 2.0}})});
+    gmm_.add_component(
+        {0.5, gm::initialize<gm::ColVector<2>>({-5.0, 4.0}),
+         gm::initialize<gm::Matrix<2, 2>>({{0.5, 0.0}, {0.0, 0.5}})});
     samples_ = gm::draw_from_gaussian_mixture(gmm_, 1E5);
   }
 
@@ -202,10 +213,12 @@ TEST_P(
     Fit_GivenParametersAndSamples_ExpectCorrectApproximationOfUnderlyingDistribution) {
   gm::GaussianMixture<2> gmm;
   if (GetParam()) {
-    gmm.add_component({0.5, (gm::ColVector<2>() << 1.0, 1.0).finished(),
-                       (gm::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
-    gmm.add_component({0.5, (gm::ColVector<2>() << -1.0, -1.0).finished(),
-                       (gm::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
+    gmm.add_component(
+        {0.5, gm::initialize<gm::ColVector<2>>({1.0, 1.0}),
+         gm::initialize<gm::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
+    gmm.add_component(
+        {0.5, gm::initialize<gm::ColVector<2>>({-1.0, -1.0}),
+         gm::initialize<gm::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
   }
 
   gm::fit(samples_, strategy_, gmm);
