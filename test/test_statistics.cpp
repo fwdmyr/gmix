@@ -6,17 +6,17 @@ namespace {
 class StatisticsFixture : public testing::Test {
 protected:
   void SetUp() override {
-    gm::GaussianMixture<2U> gmm;
-    mean_ = (gm::Vector<2U>() << 9.7, -4.2).finished();
-    covariance_ = (gm::Matrix<2U, 2U>() << 5.4, 1.3, 2.1, 8.7).finished();
+    gm::GaussianMixture<2> gmm;
+    mean_ = (gm::Vector<2>() << 9.7, -4.2).finished();
+    covariance_ = (gm::Matrix<2, 2>() << 5.4, 1.3, 2.1, 8.7).finished();
     gmm.add_component({1.0, mean_, covariance_});
 
     samples_ = gm::draw_from_gaussian_mixture(gmm, 100000U);
   }
 
-  gm::Vector<2U> mean_;
-  gm::Matrix<2U, 2U> covariance_;
-  gm::StaticRowsMatrix<2U> samples_;
+  gm::Vector<2> mean_;
+  gm::Matrix<2, 2> covariance_;
+  gm::StaticRowsMatrix<2> samples_;
 };
 
 } // namespace

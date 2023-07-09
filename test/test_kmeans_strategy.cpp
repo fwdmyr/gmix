@@ -7,10 +7,10 @@ namespace {
 class PartitionSamplesFixture : public testing::Test {
 protected:
   void SetUp() override {
-    samples_ = (gm::Matrix<2U, 4U>() << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
+    samples_ = (gm::Matrix<2, 4>() << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
                    .finished();
   }
-  gm::StaticRowsMatrix<2U> samples_;
+  gm::StaticRowsMatrix<2> samples_;
 };
 
 TEST_F(PartitionSamplesFixture,

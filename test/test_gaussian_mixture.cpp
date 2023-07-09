@@ -13,10 +13,10 @@ TEST(
     GivenSamplesDrawnFromUnivariateGaussianMixture_ExpectCorrectReconstructionOfGaussianMixture) {
 
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixture<1U> gmm;
+  gm::GaussianMixture<1> gmm;
   const auto weight = 1.0;
-  const auto mean = (gm::Vector<1U>() << 9.7).finished();
-  const auto covariance = (gm::Matrix<1U, 1U>() << 1.7).finished();
+  const auto mean = (gm::Vector<1>() << 9.7).finished();
+  const auto covariance = (gm::Matrix<1, 1>() << 1.7).finished();
   gmm.add_component({weight, mean, covariance});
 
   const auto samples = gm::draw_from_gaussian_mixture(gmm, N_SAMPLES);
@@ -35,11 +35,10 @@ TEST(
     GivenSamplesDrawnFromMultivariateGaussianMixture_ExpectCorrectReconstructionOfGaussianMixture) {
 
   constexpr size_t N_SAMPLES = 1E5;
-  gm::GaussianMixture<2U> gmm;
+  gm::GaussianMixture<2> gmm;
   const auto weight = 1.0;
-  const auto mean = (gm::Vector<2U>() << 9.7, 4.2).finished();
-  const auto covariance =
-      (gm::Matrix<2U, 2U>() << 1.7, 0.0, 0.0, 2.4).finished();
+  const auto mean = (gm::Vector<2>() << 9.7, 4.2).finished();
+  const auto covariance = (gm::Matrix<2, 2>() << 1.7, 0.0, 0.0, 2.4).finished();
   gmm.add_component({weight, mean, covariance});
 
   const auto samples = gm::draw_from_gaussian_mixture(gmm, N_SAMPLES);
