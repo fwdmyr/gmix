@@ -1,7 +1,7 @@
 #include "TestHelpers.hpp"
 namespace {
 
-class GaussianComponentTestFixture : public testing::Test {
+class GaussianComponentFixture : public testing::Test {
 protected:
   void SetUp() override {
     weight_ = 0.5;
@@ -19,15 +19,16 @@ protected:
 };
 } // namespace
 
-TEST_F(GaussianComponentTestFixture,
-       TestFunctionCallOperatorWithInitialParameters) {
+TEST_F(
+    GaussianComponentFixture,
+    FunctionCallOperator_GivenInitialSetOfParameters_ExpectCorrectProbability) {
   const auto probability = component_(sample_);
 
   EXPECT_NEAR(probability, 0.02207882591462017, test::DETERMINISTIC_TOLERANCE);
 }
 
-TEST_F(GaussianComponentTestFixture,
-       TestFunctionCallOperatorWithNewParameters) {
+TEST_F(GaussianComponentFixture,
+       FunctionCallOperator_GivenNewSetOfParameters_ExpectCorrectProbability) {
   const auto new_weight = 0.2;
   const auto new_mean = (gm::Vector<2U>() << -2.3, 4.1).finished();
   const auto new_covariance =

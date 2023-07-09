@@ -17,48 +17,20 @@
 
 namespace gm {
 
-template <int Dim>
-class VariationalBayesianInferenceStrategy final : public BaseStrategy<Dim> {
-public:
-  struct Parameters {
-    int n_components{0};
-    int n_iterations{0};
-    double early_stopping_threshold{0.0};
-    bool warm_start{false};
-    double dirichlet_prior_weight{};
-    Vector<Dim> normal_prior_mean{};
-    double normal_prior_covariance_scaling{};
-    double wishart_prior_degrees_of_freedom{};
-    Matrix<Dim, Dim> wishart_prior_information{};
-  };
-
-  explicit VariationalBayesianInferenceStrategy(const Parameters &parameters)
-      : parameters_(parameters) {}
-  virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const StaticRowsMatrix<Dim> &) const override;
-
-private:
-  Parameters parameters_{};
-
-  void initialize(std::vector<GaussianComponent<Dim>> &,
-                  const StaticRowsMatrix<Dim> &) const;
-};
+template <int Dim> struct VariationalBayesianInferenceParameters;
+template <int Dim> class VariationalBayesianInferenceStrategy;
 
 namespace internal {
 
 template <int Dim>
-using Parameters =
-    typename VariationalBayesianInferenceStrategy<Dim>::Parameters;
-
-template <int Dim>
-void evaluate_responsibilities(const VectorX &dirichlet_weight,
-                               const StaticRowsMatrix<Dim> &normal_mean,
-                               const VectorX &normal_covariance_scaling,
-                               const StaticRowsMatrix<Dim> &wishart_information,
-                               const VectorX &wishart_degrees_of_freedom,
-                               const StaticRowsMatrix<Dim> &samples,
-                               const Parameters<Dim> &parameters,
-                               MatrixX &responsibilities) {
+void evaluate_responsibilities(
+    const VectorX &dirichlet_weight, const StaticRowsMatrix<Dim> &normal_mean,
+    const VectorX &normal_covariance_scaling,
+    const StaticRowsMatrix<Dim> &wishart_information,
+    const VectorX &wishart_degrees_of_freedom,
+    const StaticRowsMatrix<Dim> &samples,
+    const VariationalBayesianInferenceParameters<Dim> &parameters,
+    MatrixX &responsibilities) {
   const auto n_samples = samples.cols();
   for (size_t i = 0; i < parameters.n_components; ++i) {
     const auto e_logweight = Eigen::numext::digamma(dirichlet_weight(i)) -
@@ -90,12 +62,11 @@ void evaluate_responsibilities(const VectorX &dirichlet_weight,
 }
 
 template <int Dim>
-void compute_statistics(const MatrixX &responsibilities,
-                        const StaticRowsMatrix<Dim> &samples,
-                        const Parameters<Dim> &parameters,
-                        VectorX &n_samples_responsible,
-                        StaticRowsMatrix<Dim> &mu,
-                        StaticRowsMatrix<Dim> &sigma) {
+void compute_statistics(
+    const MatrixX &responsibilities, const StaticRowsMatrix<Dim> &samples,
+    const VariationalBayesianInferenceParameters<Dim> &parameters,
+    VectorX &n_samples_responsible, StaticRowsMatrix<Dim> &mu,
+    StaticRowsMatrix<Dim> &sigma) {
   const auto n_samples = samples.cols();
   n_samples_responsible =
       static_cast<VectorX>(responsibilities.rowwise().sum());
@@ -122,15 +93,14 @@ void compute_statistics(const MatrixX &responsibilities,
 }
 
 template <int Dim>
-void update_random_variables(const VectorX &n_samples_responsible,
-                             const StaticRowsMatrix<Dim> &mu,
-                             const StaticRowsMatrix<Dim> &sigma,
-                             const Parameters<Dim> &parameters,
-                             VectorX &dirichlet_weight,
-                             StaticRowsMatrix<Dim> &normal_mean,
-                             VectorX &normal_covariance_scaling,
-                             StaticRowsMatrix<Dim> &wishart_information,
-                             VectorX &wishart_degrees_of_freedom) {
+void update_random_variables(
+    const VectorX &n_samples_responsible, const StaticRowsMatrix<Dim> &mu,
+    const StaticRowsMatrix<Dim> &sigma,
+    const VariationalBayesianInferenceParameters<Dim> &parameters,
+    VectorX &dirichlet_weight, StaticRowsMatrix<Dim> &normal_mean,
+    VectorX &normal_covariance_scaling,
+    StaticRowsMatrix<Dim> &wishart_information,
+    VectorX &wishart_degrees_of_freedom) {
 
   dirichlet_weight = VectorX::Constant(parameters.n_components, 1,
                                        parameters.dirichlet_prior_weight) +
@@ -160,11 +130,39 @@ void update_random_variables(const VectorX &n_samples_responsible,
 
 } // namespace internal
 
+template <int Dim> struct VariationalBayesianInferenceParameters {
+  int n_components{0};
+  int n_iterations{0};
+  double early_stopping_threshold{0.0};
+  bool warm_start{false};
+  double dirichlet_prior_weight{};
+  Vector<Dim> normal_prior_mean{};
+  double normal_prior_covariance_scaling{};
+  double wishart_prior_degrees_of_freedom{};
+  Matrix<Dim, Dim> wishart_prior_information{};
+};
+
+template <int Dim>
+class VariationalBayesianInferenceStrategy final : public BaseStrategy<Dim> {
+public:
+  explicit VariationalBayesianInferenceStrategy(
+      const VariationalBayesianInferenceParameters<Dim> &parameters)
+      : parameters_(parameters) {}
+  virtual void fit(std::vector<GaussianComponent<Dim>> &,
+                   const StaticRowsMatrix<Dim> &) const override;
+
+private:
+  VariationalBayesianInferenceParameters<Dim> parameters_{};
+
+  void initialize(std::vector<GaussianComponent<Dim>> &,
+                  const StaticRowsMatrix<Dim> &) const override;
+};
+
 template <int Dim>
 void VariationalBayesianInferenceStrategy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
-  const typename KMeansStrategy<Dim>::Parameters initialization_parameters = {
+  const KMeansParameters<Dim> initialization_parameters = {
       parameters_.n_components, 1, 0.0, parameters_.warm_start};
   const auto initialization_strategy =
       KMeansStrategy<Dim>{initialization_parameters};

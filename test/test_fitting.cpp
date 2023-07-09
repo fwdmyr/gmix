@@ -22,7 +22,7 @@ TEST(FittingTest, kMeansStrategyFittingColdStartTest) {
   const auto samples = gm::draw_from_gaussian_mixture(sample_gmm, N_SAMPLES);
 
   gm::GaussianMixture<2U> gmm;
-  gm::KMeansStrategy<2U>::Parameters parameters;
+  gm::KMeansParameters<2U> parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   parameters.early_stopping_threshold = 0.0;
@@ -53,7 +53,7 @@ TEST(FittingTest, kMeansStrategyFittingWarmStartTest) {
   gmm.add_component({0.5, (gm::Vector<2U>() << -1.0, -1.0).finished(),
                      (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished()});
 
-  gm::KMeansStrategy<2U>::Parameters parameters;
+  gm::KMeansParameters<2U> parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   parameters.early_stopping_threshold = 0.0;
@@ -79,7 +79,7 @@ TEST(FittingTest, ExpectationMaximizationStrategyFittingColdStartTest) {
   const auto samples = gm::draw_from_gaussian_mixture(sample_gmm, N_SAMPLES);
 
   gm::GaussianMixture<2U> gmm;
-  gm::ExpectationMaximizationStrategy<2U>::Parameters parameters;
+  gm::ExpectationMaximizationParameters<2U> parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   parameters.early_stopping_threshold = 0.0;
@@ -110,7 +110,7 @@ TEST(FittingTest, ExpectationMaximizationStrategyFittingWarmStartTest) {
   gmm.add_component({0.5, (gm::Vector<2U>() << -1.0, -1.0).finished(),
                      (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished()});
 
-  gm::ExpectationMaximizationStrategy<2U>::Parameters parameters;
+  gm::ExpectationMaximizationParameters<2U> parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   parameters.early_stopping_threshold = 0.0;
@@ -136,7 +136,7 @@ TEST(FittingTest, VariationalBayesianInferenceStrategyFittingColdStartTest) {
   const auto samples = gm::draw_from_gaussian_mixture(sample_gmm, N_SAMPLES);
 
   gm::GaussianMixture<2U> gmm;
-  gm::VariationalBayesianInferenceStrategy<2U>::Parameters parameters;
+  gm::VariationalBayesianInferenceParameters<2U> parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   parameters.early_stopping_threshold = 0.0;
@@ -174,7 +174,7 @@ TEST(FittingTest, VariationalBayesianInferenceStrategyFittingWarmStartTest) {
   gmm.add_component({0.5, (gm::Vector<2U>() << -1.0, -1.0).finished(),
                      (gm::Matrix<2U, 2U>() << 1.0, 0.0, 0.0, 1.0).finished()});
 
-  gm::VariationalBayesianInferenceStrategy<2U>::Parameters parameters;
+  gm::VariationalBayesianInferenceParameters<2U> parameters;
   parameters.n_components = 2;
   parameters.n_iterations = 10;
   parameters.early_stopping_threshold = 0.0;

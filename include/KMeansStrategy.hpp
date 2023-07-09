@@ -10,30 +10,35 @@
 
 namespace gm {
 
-template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {
-public:
-  struct Parameters {
-    int n_components{0};
-    int n_iterations{0};
-    double early_stopping_threshold{0.0};
-    bool warm_start{false};
-  };
-
-  explicit KMeansStrategy(const Parameters &parameters)
-      : parameters_(parameters) {}
-  virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const StaticRowsMatrix<Dim> &) const override;
-
-private:
-  Parameters parameters_{};
-};
+template <int Dim> struct KMeansParameters;
+template <int Dim> class KMeansStrategy;
 
 namespace internal {
+
+template <int Dim>
+std::vector<StaticRowsMatrix<Dim>>
+partition_samples(const StaticRowsMatrix<Dim> &samples, size_t n_partitions) {
+  if (n_partitions == 0)
+    return {};
+  const auto n_samples = samples.cols();
+  std::vector<StaticRowsMatrix<Dim>> partitions;
+  partitions.reserve(n_partitions);
+  const auto partition_size =
+      static_cast<int>(static_cast<double>(n_samples) / n_partitions);
+  for (size_t left_index = 0; left_index < n_samples;
+       left_index += partition_size) {
+    const auto batch_size =
+        std::min<size_t>(partition_size, n_samples - left_index);
+    partitions.push_back(samples.middleCols(left_index, batch_size));
+  }
+  return partitions;
+}
 
 template <int Dim>
 std::vector<StaticRowsMatrix<Dim>> partition_samples_responsibly(
     const std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) {
+  assert(!components.empty());
   const auto n_components = components.size();
   std::vector<std::vector<int>> responsibilities{n_components};
   std::for_each(
@@ -73,6 +78,7 @@ std::vector<StaticRowsMatrix<Dim>> partition_samples_responsibly(
 template <int Dim>
 void update_weight(std::vector<GaussianComponent<Dim>> &components,
                    const std::vector<StaticRowsMatrix<Dim>> &partitions) {
+  assert(components.size() == partitions.size());
   const auto n_samples = std::accumulate(
       partitions.begin(), partitions.end(), 0,
       [](auto acc, const auto &rhs) { return acc + rhs.cols(); });
@@ -88,6 +94,7 @@ void update_weight(std::vector<GaussianComponent<Dim>> &components,
 template <int Dim>
 void update_mean(std::vector<GaussianComponent<Dim>> &components,
                  const std::vector<StaticRowsMatrix<Dim>> &partitions) {
+  assert(components.size() == partitions.size());
   const auto n_components = components.size();
   for (size_t i = 0; i < n_components; ++i) {
     auto &component = components[i];
@@ -99,6 +106,7 @@ void update_mean(std::vector<GaussianComponent<Dim>> &components,
 template <int Dim>
 void update_covariance(std::vector<GaussianComponent<Dim>> &components,
                        const std::vector<StaticRowsMatrix<Dim>> &partitions) {
+  assert(components.size() == partitions.size());
   const auto n_components = components.size();
   for (size_t i = 0; i < n_components; ++i) {
     auto &component = components[i];
@@ -111,6 +119,7 @@ void update_covariance(std::vector<GaussianComponent<Dim>> &components,
 template <int Dim>
 StaticRowsMatrix<Dim>
 get_mean_matrix(std::vector<GaussianComponent<Dim>> &components) {
+  assert(!components.empty());
   const auto n_components = components.size();
   auto mean_matrix = static_cast<StaticRowsMatrix<Dim>>(
       StaticRowsMatrix<Dim>::Zero(Dim, n_components));
@@ -125,6 +134,7 @@ bool is_early_stopping_condition_fulfilled(
     const StaticRowsMatrix<Dim> &current_mean_matrix,
     const StaticRowsMatrix<Dim> &new_mean_matrix,
     double early_stopping_threshold) {
+  assert(current_mean_matrix.cols() == new_mean_matrix.cols());
   const auto squared_norms =
       (current_mean_matrix - new_mean_matrix).colwise().squaredNorm();
   return squared_norms.maxCoeff() <
@@ -133,12 +143,48 @@ bool is_early_stopping_condition_fulfilled(
 
 } // namespace internal
 
+template <int Dim> struct KMeansParameters {
+  int n_components{0};
+  int n_iterations{0};
+  double early_stopping_threshold{0.0};
+  bool warm_start{false};
+};
+
+template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {
+public:
+  explicit KMeansStrategy(const KMeansParameters<Dim> &parameters)
+      : parameters_(parameters) {}
+  virtual void fit(std::vector<GaussianComponent<Dim>> &,
+                   const StaticRowsMatrix<Dim> &) const override;
+  virtual void initialize(std::vector<GaussianComponent<Dim>> &,
+                          const StaticRowsMatrix<Dim> &) const override;
+
+private:
+  KMeansParameters<Dim> parameters_{};
+};
+
+template <int Dim>
+void KMeansStrategy<Dim>::initialize(
+    std::vector<GaussianComponent<Dim>> &components,
+    const StaticRowsMatrix<Dim> &samples) const {
+  assert(samples.cols() >= parameters_.n_components);
+  components.resize(0);
+  const auto partitions =
+      internal::partition_samples(samples, parameters_.n_components);
+  for (const auto &partition : partitions) {
+    const auto mu = internal::sample_mean(partition);
+    const auto sigma = internal::sample_covariance(partition, mu);
+    components.push_back({1.0 / parameters_.n_components, mu, sigma});
+  }
+}
+
 template <int Dim>
 void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
                               const StaticRowsMatrix<Dim> &samples) const {
+  assert(samples.cols() >= parameters_.n_components);
   const auto n_components = parameters_.n_components;
   if (!parameters_.warm_start || components.size() != n_components)
-    this->initialize(components, samples, n_components);
+    initialize(components, samples);
   std::vector<StaticRowsMatrix<Dim>> partitions;
   auto current_mean_matrix = internal::get_mean_matrix(components);
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {

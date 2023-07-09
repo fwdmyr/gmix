@@ -3,7 +3,7 @@
 
 namespace {
 
-class StatisticsTestFixture : public testing::Test {
+class StatisticsFixture : public testing::Test {
 protected:
   void SetUp() override {
     gm::GaussianMixture<2U> gmm;
@@ -21,19 +21,25 @@ protected:
 
 } // namespace
 
-TEST_F(StatisticsTestFixture, TestSampleMeanCalculation) {
+TEST_F(
+    StatisticsFixture,
+    SampleMean_GivenSetOfSamplesFromDistribution_ExpectCorrectApproximationOfDistributionMean) {
   const auto mean = gm::internal::sample_mean(samples_);
 
   EXPECT_TRUE(test::is_near(mean, mean_, test::RANDOM_TOLERANCE));
 }
 
-TEST_F(StatisticsTestFixture, TestSampleCovarianceCalculation) {
+TEST_F(
+    StatisticsFixture,
+    SampleCovariance_GivenSetOfSamplesFromDistribution_ExpectCorrectApproximationOfDistributionCovariance) {
   const auto covariance = gm::internal::sample_covariance(samples_);
 
   EXPECT_TRUE(test::is_near(covariance, covariance_, test::RANDOM_TOLERANCE));
 }
 
-TEST_F(StatisticsTestFixture, TestSampleCovarianceCalculationGivenMean) {
+TEST_F(
+    StatisticsFixture,
+    SampleCovariance_GivenSetOfSamplesFromDistributionAndDistributionMean_ExpectCorrectApproximationOfDistributionCovariance) {
   const auto covariance = gm::internal::sample_covariance(samples_, mean_);
 
   EXPECT_TRUE(test::is_near(covariance, covariance_, test::RANDOM_TOLERANCE));

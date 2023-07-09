@@ -6,13 +6,13 @@
 
 namespace gm {
 
-namespace internal {
+namespace {
 
 static constexpr double GAUSSIAN_SCALER(int Dim) {
   return 1.0 / std::pow(2.0 * M_PI, 0.5 * Dim);
 }
 
-} // namespace internal
+} // namespace
 
 template <int Dim> class GaussianComponent {
 
@@ -73,8 +73,7 @@ GaussianComponent<Dim>::GaussianComponent(double weight,
 template <int Dim>
 double GaussianComponent<Dim>::operator()(const Vector<Dim> &x) const {
   if (!cache_) {
-    cache_.emplace(internal::GAUSSIAN_SCALER(Dim) /
-                   llt_.matrixL().determinant());
+    cache_.emplace(GAUSSIAN_SCALER(Dim) / llt_.matrixL().determinant());
   }
   return weight_ * (*cache_) *
          std::exp(-0.5 * (llt_.matrixL().solve(x - mean_)).squaredNorm());

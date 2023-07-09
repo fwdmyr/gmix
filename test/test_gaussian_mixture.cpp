@@ -8,7 +8,9 @@
 // TODO: Since helper functions now live in gm::internal, write unit tests for
 // them too
 
-TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
+TEST(
+    DrawFromGaussianMixture,
+    GivenSamplesDrawnFromUnivariateGaussianMixture_ExpectCorrectReconstructionOfGaussianMixture) {
 
   constexpr size_t N_SAMPLES = 1E5;
   gm::GaussianMixture<1U> gmm;
@@ -28,7 +30,9 @@ TEST(SamplingTest, SingleUnivariateComponentMeanTest) {
       test::is_near(covariance, sample_covariance, test::RANDOM_TOLERANCE));
 }
 
-TEST(SamplingTest, SingleMultivariateComponentTest) {
+TEST(
+    DrawFromGaussianMixture,
+    GivenSamplesDrawnFromMultivariateGaussianMixture_ExpectCorrectReconstructionOfGaussianMixture) {
 
   constexpr size_t N_SAMPLES = 1E5;
   gm::GaussianMixture<2U> gmm;

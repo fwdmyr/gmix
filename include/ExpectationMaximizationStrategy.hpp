@@ -9,27 +9,8 @@
 
 namespace gm {
 
-template <int Dim>
-class ExpectationMaximizationStrategy final : public BaseStrategy<Dim> {
-public:
-  struct Parameters {
-    int n_components{0};
-    int n_iterations{0};
-    double early_stopping_threshold{0.0};
-    bool warm_start{false};
-  };
-
-  explicit ExpectationMaximizationStrategy(const Parameters &parameters)
-      : parameters_(parameters) {}
-  virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const StaticRowsMatrix<Dim> &) const override;
-
-private:
-  virtual void initialize(std::vector<GaussianComponent<Dim>> &,
-                          const StaticRowsMatrix<Dim> &) const;
-
-  Parameters parameters_{};
-};
+template <int Dim> struct ExpectationMaximizationParameters;
+template <int Dim> class ExpectationMaximizationStrategy;
 
 namespace internal {
 
@@ -93,12 +74,35 @@ void estimate_parameters(const StaticRowsMatrix<Dim> &samples,
 
 } // namespace internal
 
+template <int Dim> struct ExpectationMaximizationParameters {
+  int n_components{0};
+  int n_iterations{0};
+  double early_stopping_threshold{0.0};
+  bool warm_start{false};
+};
+
+template <int Dim>
+class ExpectationMaximizationStrategy final : public BaseStrategy<Dim> {
+public:
+  explicit ExpectationMaximizationStrategy(
+      const ExpectationMaximizationParameters<Dim> &parameters)
+      : parameters_(parameters) {}
+  virtual void fit(std::vector<GaussianComponent<Dim>> &,
+                   const StaticRowsMatrix<Dim> &) const override;
+
+private:
+  virtual void initialize(std::vector<GaussianComponent<Dim>> &,
+                          const StaticRowsMatrix<Dim> &) const override;
+
+  ExpectationMaximizationParameters<Dim> parameters_{};
+};
+
 template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
 
-  const typename KMeansStrategy<Dim>::Parameters initialization_parameters = {
+  const KMeansParameters<Dim> initialization_parameters = {
       parameters_.n_components, 1, 0.0, parameters_.warm_start};
   const auto initialization_strategy =
       KMeansStrategy<Dim>{initialization_parameters};
