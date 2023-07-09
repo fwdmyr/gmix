@@ -1,3 +1,4 @@
+#include "../include/Statistics.hpp"
 #include "TestHelpers.hpp"
 #include <gtest/gtest.h>
 
@@ -7,22 +8,20 @@ class StatisticsFixture : public testing::Test {
 protected:
   static void SetUpTestSuite() {
     gm::GaussianMixture<2> gmm;
-    mean_ = (gm::Vector<2>() << 9.7, -4.2).finished();
+    mean_ = (gm::ColVector<2>() << 9.7, -4.2).finished();
     covariance_ = (gm::Matrix<2, 2>() << 3.2, 0.2, 0.7, 2.5).finished();
     gmm.add_component({1.0, mean_, covariance_});
     samples_ = gm::draw_from_gaussian_mixture(gmm, 100000);
   }
 
-  static gm::Vector<2> mean_;
+  static gm::ColVector<2> mean_;
   static gm::Matrix<2, 2> covariance_;
   static gm::StaticRowsMatrix<2> samples_;
 };
 
-gm::Vector<2> StatisticsFixture::mean_{};
+gm::ColVector<2> StatisticsFixture::mean_{};
 gm::Matrix<2, 2> StatisticsFixture::covariance_{};
 gm::StaticRowsMatrix<2> StatisticsFixture::samples_{};
-
-} // namespace
 
 TEST_F(
     StatisticsFixture,
@@ -49,3 +48,5 @@ TEST_F(
 
   EXPECT_TRUE(test::is_near(covariance, covariance_, test::RANDOM_TOLERANCE));
 }
+
+} // namespace

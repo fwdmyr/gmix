@@ -13,11 +13,10 @@ static constexpr double DETERMINISTIC_TOLERANCE = 1E-10;
   return (lhs - tolerance <= rhs && rhs <= lhs + tolerance);
 }
 
-template <int Dim> static constexpr bool is_unambiguous_v = Dim > 1;
-
-template <int Dim, typename std::enable_if_t<is_unambiguous_v<Dim>, int> = 0>
-[[nodiscard]] bool is_near(const gm::Vector<Dim> &lhs,
-                           const gm::Vector<Dim> &rhs, double tolerance) {
+template <int Dim,
+          typename std::enable_if_t<gm::is_unambiguous_v<Dim>, int> = false>
+[[nodiscard]] bool is_near(const gm::ColVector<Dim> &lhs,
+                           const gm::ColVector<Dim> &rhs, double tolerance) {
   for (size_t i = 0; i < Dim; i++) {
     if (!is_near(lhs(i), rhs(i), tolerance))
       return false;

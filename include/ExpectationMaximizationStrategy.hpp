@@ -23,8 +23,9 @@ evaluate_responsibilities(const std::vector<GaussianComponent<Dim>> &components,
   const auto n_components = components.size();
   auto log_likelihood = 0.0;
   for (size_t i = 0; i < n_samples; ++i) {
-    const auto sample = static_cast<Vector<Dim>>(samples.col(i));
-    auto responsibility = static_cast<VectorX>(VectorX::Zero(n_components, 1));
+    const auto sample = static_cast<ColVector<Dim>>(samples.col(i));
+    auto responsibility =
+        static_cast<ColVectorX>(ColVectorX::Zero(n_components, 1));
     for (size_t j = 0; j < n_components; ++j) {
       const auto &component = components[j];
       responsibility(j) = component(sample);
@@ -42,17 +43,17 @@ void estimate_parameters(const StaticRowsMatrix<Dim> &samples,
                          std::vector<GaussianComponent<Dim>> &components) {
   const auto n_samples = samples.cols();
   const auto n_samples_responsible =
-      static_cast<VectorX>(responsibilities.rowwise().sum());
+      static_cast<ColVectorX>(responsibilities.rowwise().sum());
   for (size_t i = 0; i < components.size(); ++i) {
     auto &component = components[i];
     component.set_weight(1.0 / n_samples * n_samples_responsible(i));
-    const auto mu =
-        1.0 / n_samples_responsible(i) *
-        static_cast<Vector<Dim>>((samples.transpose().array().colwise() *
-                                  responsibilities.row(i).transpose().array())
-                                     .transpose()
-                                     .rowwise()
-                                     .sum());
+    const auto mu = 1.0 / n_samples_responsible(i) *
+                    static_cast<ColVector<Dim>>(
+                        (samples.transpose().array().colwise() *
+                         responsibilities.row(i).transpose().array())
+                            .transpose()
+                            .rowwise()
+                            .sum());
     component.set_mean(mu);
     const auto centered_samples = static_cast<StaticRowsMatrix<Dim>>(
         samples.colwise() - component.get_mean());

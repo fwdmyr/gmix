@@ -1,9 +1,9 @@
 #ifndef GMSAM_BASE_STRATEGY_HPP
 #define GMSAM_BASE_STRATEGY_HPP
 
-#include "Common.hpp"
 #include "GaussianComponent.hpp"
 #include "Statistics.hpp"
+#include "TypeTraits.hpp"
 #include <stdexcept>
 #include <vector>
 

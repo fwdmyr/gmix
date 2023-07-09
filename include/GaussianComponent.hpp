@@ -19,10 +19,10 @@ template <int Dim> class GaussianComponent {
 public:
   GaussianComponent()
       : cache_(std::nullopt), weight_(0.0),
-        mean_(static_cast<Vector<Dim>>(Vector<Dim>::Zero())),
+        mean_(static_cast<ColVector<Dim>>(ColVector<Dim>::Zero())),
         covariance_(static_cast<Matrix<Dim, Dim>>(Matrix<Dim, Dim>::Zero())),
         llt_(){};
-  GaussianComponent(double, const Vector<Dim> &, const Matrix<Dim, Dim> &);
+  GaussianComponent(double, const ColVector<Dim> &, const Matrix<Dim, Dim> &);
   GaussianComponent(const GaussianComponent<Dim> &) = default;
   GaussianComponent(GaussianComponent<Dim> &&) = default;
   GaussianComponent<Dim> &operator=(const GaussianComponent<Dim> &) = default;
@@ -31,13 +31,13 @@ public:
   ~GaussianComponent() = default;
 
   [[nodiscard]] double get_weight() const { return weight_; }
-  [[nodiscard]] const Vector<Dim> &get_mean() const { return mean_; }
+  [[nodiscard]] const ColVector<Dim> &get_mean() const { return mean_; }
   [[nodiscard]] const Matrix<Dim, Dim> &get_covariance() const {
     return covariance_;
   }
 
   void set_weight(double weight) { weight_ = weight; }
-  void set_mean(const Vector<Dim> &mean) { mean_ = mean; }
+  void set_mean(const ColVector<Dim> &mean) { mean_ = mean; }
   void set_covariance(const Matrix<Dim, Dim> &covariance) {
     if (covariance_ == covariance)
       return;
@@ -46,7 +46,7 @@ public:
     cache_.reset();
   }
 
-  [[nodiscard]] double operator()(const Vector<Dim> &) const;
+  [[nodiscard]] double operator()(const ColVector<Dim> &) const;
 
   friend std::ostream &operator<<(std::ostream &os,
                                   const GaussianComponent<Dim> &component) {
@@ -60,20 +60,20 @@ public:
 private:
   mutable std::optional<double> cache_{};
   double weight_{};
-  Vector<Dim> mean_{};
+  ColVector<Dim> mean_{};
   Matrix<Dim, Dim> covariance_{};
   Eigen::LLT<Matrix<Dim, Dim>> llt_{};
 };
 
 template <int Dim>
 GaussianComponent<Dim>::GaussianComponent(double weight,
-                                          const Vector<Dim> &mean,
+                                          const ColVector<Dim> &mean,
                                           const Matrix<Dim, Dim> &covariance)
     : cache_(std::nullopt), weight_(weight), mean_(mean),
       covariance_(covariance), llt_(covariance.llt()) {}
 
 template <int Dim>
-double GaussianComponent<Dim>::operator()(const Vector<Dim> &x) const {
+double GaussianComponent<Dim>::operator()(const ColVector<Dim> &x) const {
   if (!cache_) {
     cache_.emplace(GAUSSIAN_SCALER(Dim) / llt_.matrixL().determinant());
   }

@@ -9,7 +9,7 @@ TEST(
     GivenSamplesDrawnFromUnivariateGaussianMixture_ExpectCorrectReconstructionOfGaussianMixture) {
   gm::GaussianMixture<1> gmm;
   const auto weight = 1.0;
-  const auto mean = (gm::Vector<1>() << 9.7).finished();
+  const auto mean = (gm::ColVector<1>() << 9.7).finished();
   const auto covariance = (gm::Matrix<1, 1>() << 1.7).finished();
   gmm.add_component({weight, mean, covariance});
 
@@ -29,7 +29,7 @@ TEST(
     GivenSamplesDrawnFromMultivariateGaussianMixture_ExpectCorrectReconstructionOfGaussianMixture) {
   gm::GaussianMixture<2> gmm;
   const auto weight = 1.0;
-  const auto mean = (gm::Vector<2>() << 9.7, 4.2).finished();
+  const auto mean = (gm::ColVector<2>() << 9.7, 4.2).finished();
   const auto covariance = (gm::Matrix<2, 2>() << 1.7, 0.0, 0.0, 2.4).finished();
   gmm.add_component({weight, mean, covariance});
 

@@ -111,15 +111,14 @@ void update_covariance(std::vector<GaussianComponent<Dim>> &components,
   const auto n_components = components.size();
   for (size_t i = 0; i < n_components; ++i) {
     auto &component = components[i];
-    const auto mu = component.get_mean();
-    const auto sigma = sample_covariance(partitions[i], mu);
+    const auto sigma = sample_covariance(partitions[i]);
     component.set_covariance(sigma);
   }
 }
 
 template <int Dim>
 [[nodiscard]] StaticRowsMatrix<Dim>
-get_mean_matrix(std::vector<GaussianComponent<Dim>> &components) {
+get_mean_matrix(const std::vector<GaussianComponent<Dim>> &components) {
   assert(!components.empty());
   const auto n_components = components.size();
   auto mean_matrix = static_cast<StaticRowsMatrix<Dim>>(

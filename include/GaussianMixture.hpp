@@ -1,6 +1,7 @@
 #ifndef GMSAM_GAUSSIAN_MIXTURE_HPP
 #define GMSAM_GAUSSIAN_MIXTURE_HPP
 
+#include "GaussianComponent.hpp"
 #include "TypeTraits.hpp"
 #include <initializer_list>
 #include <memory>
@@ -47,9 +48,12 @@ public:
     return components_;
   }
 
+  void add_component() { components_.emplace_back(); }
+
   void add_component(const GaussianComponent<Dim> &component) {
     components_.push_back(component);
   };
+
   void add_component(GaussianComponent<Dim> &&component) {
     components_.emplace_back(component);
   }
@@ -97,7 +101,7 @@ draw_from_gaussian_mixture(const GaussianMixture<Dim> &gmm, size_t n_samples) {
                            eigen_solver.eigenvalues().cwiseSqrt().asDiagonal();
     samples.col(i) =
         component.get_mean() +
-        transform * Vector<Dim>{}.unaryExpr([](auto x) { return nd(gen); });
+        transform * ColVector<Dim>{}.unaryExpr([](auto x) { return nd(gen); });
   }
   return samples;
 }

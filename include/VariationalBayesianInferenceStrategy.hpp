@@ -24,10 +24,11 @@ namespace internal {
 
 template <int Dim>
 void evaluate_responsibilities(
-    const VectorX &dirichlet_weight, const StaticRowsMatrix<Dim> &normal_mean,
-    const VectorX &normal_covariance_scaling,
+    const ColVectorX &dirichlet_weight,
+    const StaticRowsMatrix<Dim> &normal_mean,
+    const ColVectorX &normal_covariance_scaling,
     const StaticRowsMatrix<Dim> &wishart_information,
-    const VectorX &wishart_degrees_of_freedom,
+    const ColVectorX &wishart_degrees_of_freedom,
     const StaticRowsMatrix<Dim> &samples,
     const VariationalBayesianInferenceParameters<Dim> &parameters,
     MatrixX &responsibilities) {
@@ -65,19 +66,19 @@ template <int Dim>
 void compute_statistics(
     const MatrixX &responsibilities, const StaticRowsMatrix<Dim> &samples,
     const VariationalBayesianInferenceParameters<Dim> &parameters,
-    VectorX &n_samples_responsible, StaticRowsMatrix<Dim> &mu,
+    ColVectorX &n_samples_responsible, StaticRowsMatrix<Dim> &mu,
     StaticRowsMatrix<Dim> &sigma) {
   const auto n_samples = samples.cols();
   n_samples_responsible =
-      static_cast<VectorX>(responsibilities.rowwise().sum());
+      static_cast<ColVectorX>(responsibilities.rowwise().sum());
   for (size_t i = 0; i < parameters.n_components; ++i) {
-    mu.col(i) =
-        1.0 / n_samples_responsible(i) *
-        static_cast<Vector<Dim>>((samples.transpose().array().colwise() *
-                                  responsibilities.row(i).transpose().array())
-                                     .transpose()
-                                     .rowwise()
-                                     .sum());
+    mu.col(i) = 1.0 / n_samples_responsible(i) *
+                static_cast<ColVector<Dim>>(
+                    (samples.transpose().array().colwise() *
+                     responsibilities.row(i).transpose().array())
+                        .transpose()
+                        .rowwise()
+                        .sum());
     const auto centered_samples =
         static_cast<StaticRowsMatrix<Dim>>(samples.colwise() - mu.col(i));
     const auto weighted_centered_samples = static_cast<StaticRowsMatrix<Dim>>(
@@ -94,20 +95,20 @@ void compute_statistics(
 
 template <int Dim>
 void update_random_variables(
-    const VectorX &n_samples_responsible, const StaticRowsMatrix<Dim> &mu,
+    const ColVectorX &n_samples_responsible, const StaticRowsMatrix<Dim> &mu,
     const StaticRowsMatrix<Dim> &sigma,
     const VariationalBayesianInferenceParameters<Dim> &parameters,
-    VectorX &dirichlet_weight, StaticRowsMatrix<Dim> &normal_mean,
-    VectorX &normal_covariance_scaling,
+    ColVectorX &dirichlet_weight, StaticRowsMatrix<Dim> &normal_mean,
+    ColVectorX &normal_covariance_scaling,
     StaticRowsMatrix<Dim> &wishart_information,
-    VectorX &wishart_degrees_of_freedom) {
+    ColVectorX &wishart_degrees_of_freedom) {
 
-  dirichlet_weight = VectorX::Constant(parameters.n_components, 1,
-                                       parameters.dirichlet_prior_weight) +
+  dirichlet_weight = ColVectorX::Constant(parameters.n_components, 1,
+                                          parameters.dirichlet_prior_weight) +
                      n_samples_responsible;
   normal_covariance_scaling =
-      VectorX::Constant(parameters.n_components, 1,
-                        parameters.normal_prior_covariance_scaling) +
+      ColVectorX::Constant(parameters.n_components, 1,
+                           parameters.normal_prior_covariance_scaling) +
       n_samples_responsible;
   for (size_t i = 0; i < parameters.n_components; ++i) {
     normal_mean.col(i) = 1.0 / normal_covariance_scaling(i) *
@@ -136,7 +137,7 @@ template <int Dim> struct VariationalBayesianInferenceParameters {
   double early_stopping_threshold{0.0};
   bool warm_start{false};
   double dirichlet_prior_weight{};
-  Vector<Dim> normal_prior_mean{};
+  ColVector<Dim> normal_prior_mean{};
   double normal_prior_covariance_scaling{};
   double wishart_prior_degrees_of_freedom{};
   Matrix<Dim, Dim> wishart_prior_information{};
@@ -177,18 +178,18 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
   const auto n_samples = samples.cols();
   const auto n_components = parameters_.n_components;
 
-  auto dirichlet_weight = static_cast<VectorX>(
-      parameters_.dirichlet_prior_weight * VectorX::Ones(n_components, 1));
+  auto dirichlet_weight = static_cast<ColVectorX>(
+      parameters_.dirichlet_prior_weight * ColVectorX::Ones(n_components, 1));
   auto normal_mean = static_cast<StaticRowsMatrix<Dim>>(
       parameters_.normal_prior_mean.replicate(1, n_components));
   auto normal_covariance_scaling =
-      static_cast<VectorX>(parameters_.normal_prior_covariance_scaling *
-                           VectorX::Ones(n_components, 1));
+      static_cast<ColVectorX>(parameters_.normal_prior_covariance_scaling *
+                              ColVectorX::Ones(n_components, 1));
   auto wishart_information = static_cast<StaticRowsMatrix<Dim>>(
       parameters_.wishart_prior_information.replicate(1, n_components));
   auto wishart_degrees_of_freedom =
-      static_cast<VectorX>(parameters_.wishart_prior_degrees_of_freedom *
-                           VectorX::Ones(n_components, 1));
+      static_cast<ColVectorX>(parameters_.wishart_prior_degrees_of_freedom *
+                              ColVectorX::Ones(n_components, 1));
 
   if (!parameters_.warm_start || components.size() != n_components)
     initialize(components, samples);
@@ -204,7 +205,7 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
   auto responsibilities =
       static_cast<MatrixX>(MatrixX::Zero(n_components, n_samples));
   auto n_samples_responsible =
-      static_cast<VectorX>(VectorX::Zero(n_components, 1));
+      static_cast<ColVectorX>(ColVectorX::Zero(n_components, 1));
   auto mu = static_cast<StaticRowsMatrix<Dim>>(
       StaticRowsMatrix<Dim>::Zero(Dim, n_components));
   auto sigma = static_cast<StaticRowsMatrix<Dim>>(

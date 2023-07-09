@@ -1,42 +1,36 @@
 #ifndef GMSAM_TYPE_TRAITS_HPP
 #define GMSAM_TYPE_TRAITS_HPP
 
-#include "BaseStrategy.hpp"
-#include "ExpectationMaximizationStrategy.hpp"
-#include "KMeansStrategy.hpp"
-#include "VariationalBayesianInferenceStrategy.hpp"
+#include <Eigen/Dense>
 
 namespace gm {
 
-namespace internal {
+template <typename> struct MatrixTypeTraits;
 
-template <typename> struct StrategyTypeTraits;
-
-template <int Dim> struct StrategyTypeTraits<gm::BaseStrategy<Dim>> {
-  using ParameterType = typename gm::BaseStrategy<Dim>::Parameters;
-  static constexpr int Dimension = Dim;
+template <typename Type, int RowsAtCompileTime, int ColsAtCompileTime>
+struct MatrixTypeTraits<
+    Eigen::Matrix<Type, RowsAtCompileTime, ColsAtCompileTime>> {
+  using ElementType = Type;
+  static constexpr int Rows = RowsAtCompileTime;
+  static constexpr int Cols = ColsAtCompileTime;
 };
 
-template <int Dim> struct StrategyTypeTraits<gm::KMeansStrategy<Dim>> {
-  using ParameterType = typename gm::KMeansStrategy<Dim>::Parameters;
-  static constexpr int Dimension = Dim;
-};
-
-template <int Dim>
-struct StrategyTypeTraits<gm::ExpectationMaximizationStrategy<Dim>> {
-  using ParameterType =
-      typename gm::ExpectationMaximizationStrategy<Dim>::Parameters;
-  static constexpr int Dimension = Dim;
-};
-
-template <int Dim>
-struct StrategyTypeTraits<gm::VariationalBayesianInferenceStrategy<Dim>> {
-  using ParameterType =
-      typename gm::VariationalBayesianInferenceStrategy<Dim>::Parameters;
-  static constexpr int Dimension = Dim;
-};
-
-} // namespace internal
+template <int Dim> static constexpr bool is_vector_v = Dim == 1;
+template <int Dim> static constexpr bool is_unambiguous_v = Dim > 1;
+template <int Dim> static constexpr bool is_dynamic_v = Dim == -1;
+template <int Dim> static constexpr bool is_static_v = Dim > 0;
+template <int Rows, int Cols>
+static constexpr bool is_static_rows_static_cols_v =
+    is_static_v<Rows> && is_static_v<Cols>;
+template <int Rows, int Cols>
+static constexpr bool is_static_rows_dynamic_cols_v =
+    is_static_v<Rows> && is_dynamic_v<Cols>;
+template <int Rows, int Cols>
+static constexpr bool is_dynamic_rows_static_cols_v =
+    is_dynamic_v<Rows> && is_static_v<Cols>;
+template <int Rows, int Cols>
+static constexpr bool is_dynamic_rows_dynamic_cols_v =
+    is_dynamic_v<Rows> && is_dynamic_v<Cols>;
 
 } // namespace gm
 
