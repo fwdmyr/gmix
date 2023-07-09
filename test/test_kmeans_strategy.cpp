@@ -4,28 +4,36 @@
 
 namespace {
 
-TEST(PartitionSamples,
-     GivenSamplesAndZeroPartitionSize_ExpectEmptyPartitionVector) {
-  const auto samples = static_cast<gm::StaticRowsMatrix<2>>(
-      (gm::Matrix<2, 4>() << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
-          .finished());
+class PartitionSamplesFixture : public ::testing::Test {
+protected:
+  static void SetUpTestSuite() {
+    samples_ = static_cast<gm::StaticRowsMatrix<2>>(
+        (gm::Matrix<2, 4>() << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
+            .finished());
+  }
+  static gm::StaticRowsMatrix<2> samples_;
+};
+
+gm::StaticRowsMatrix<2> PartitionSamplesFixture::samples_{};
+
+TEST_F(
+    PartitionSamplesFixture,
+    PartitionSamples_GivenSamplesAndZeroPartitionSize_ExpectEmptyPartitionVector) {
   const auto n_partitions = 0;
 
   const auto partitions =
-      gm::internal::partition_samples(samples, n_partitions);
+      gm::internal::partition_samples(samples_, n_partitions);
 
   EXPECT_EQ(partitions.size(), 0);
 }
 
-TEST(PartitionSamples,
-     GivenSamplesAndNonzeroPartitionSize_ExpectCorrectAssigmentToPartitions) {
-  const auto samples = static_cast<gm::StaticRowsMatrix<2>>(
-      (gm::Matrix<2, 4>() << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
-          .finished());
+TEST_F(
+    PartitionSamplesFixture,
+    PartitionSamples_GivenSamplesAndNonzeroPartitionSize_ExpectCorrectAssigmentToPartitions) {
   const auto n_partitions = 2;
 
   const auto partitions =
-      gm::internal::partition_samples(samples, n_partitions);
+      gm::internal::partition_samples(samples_, n_partitions);
 
   EXPECT_EQ(partitions.size(), 2);
   EXPECT_EQ(partitions[0].cols(), 2);

@@ -5,19 +5,22 @@ namespace {
 
 class StatisticsFixture : public testing::Test {
 protected:
-  void SetUp() override {
+  static void SetUpTestSuite() {
     gm::GaussianMixture<2> gmm;
     mean_ = (gm::Vector<2>() << 9.7, -4.2).finished();
-    covariance_ = (gm::Matrix<2, 2>() << 5.4, 1.3, 2.1, 8.7).finished();
+    covariance_ = (gm::Matrix<2, 2>() << 3.2, 0.2, 0.7, 2.5).finished();
     gmm.add_component({1.0, mean_, covariance_});
-
-    samples_ = gm::draw_from_gaussian_mixture(gmm, 100000U);
+    samples_ = gm::draw_from_gaussian_mixture(gmm, 100000);
   }
 
-  gm::Vector<2> mean_;
-  gm::Matrix<2, 2> covariance_;
-  gm::StaticRowsMatrix<2> samples_;
+  static gm::Vector<2> mean_;
+  static gm::Matrix<2, 2> covariance_;
+  static gm::StaticRowsMatrix<2> samples_;
 };
+
+gm::Vector<2> StatisticsFixture::mean_{};
+gm::Matrix<2, 2> StatisticsFixture::covariance_{};
+gm::StaticRowsMatrix<2> StatisticsFixture::samples_{};
 
 } // namespace
 
@@ -33,6 +36,8 @@ TEST_F(
     StatisticsFixture,
     SampleCovariance_GivenSetOfSamplesFromDistribution_ExpectCorrectApproximationOfDistributionCovariance) {
   const auto covariance = gm::internal::sample_covariance(samples_);
+
+  std::cerr << covariance << std::endl;
 
   EXPECT_TRUE(test::is_near(covariance, covariance_, test::RANDOM_TOLERANCE));
 }

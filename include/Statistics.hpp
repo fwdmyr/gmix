@@ -17,8 +17,9 @@ Vector<Dim> sample_mean(const StaticRowsMatrix<Dim> &samples) {
 
 template <int Dim>
 Matrix<Dim, Dim> sample_covariance(const StaticRowsMatrix<Dim> &samples) {
-  const auto centered_samples = samples.colwise() - sample_mean(samples);
-  return (centered_samples * centered_samples.adjoint()) /
+  const auto mu = sample_mean(samples);
+  const auto centered_samples = samples.colwise() - mu;
+  return (centered_samples * centered_samples.transpose()) /
          static_cast<double>(samples.cols() - 1);
 }
 
@@ -26,7 +27,7 @@ template <int Dim>
 Matrix<Dim, Dim> sample_covariance(const StaticRowsMatrix<Dim> &samples,
                                    const Vector<Dim> &mu) {
   const auto centered_samples = samples.colwise() - mu;
-  return (centered_samples * centered_samples.adjoint()) /
+  return (centered_samples * centered_samples.transpose()) /
          static_cast<double>(samples.cols() - 1);
 }
 

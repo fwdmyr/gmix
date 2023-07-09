@@ -3,21 +3,21 @@ namespace {
 
 class GaussianComponentFixture : public testing::Test {
 protected:
-  void SetUp() override {
-    weight_ = 0.5;
-    mean_ = (gm::Vector<2>() << -2.3, 4.1).finished();
-    covariance_ = (gm::Matrix<2, 2>() << 3.3, 0.4, 0.4, 2.8).finished();
-    component_ = {weight_, mean_, covariance_};
+  static void SetUpTestSuite() {
+    const auto weight = 0.5;
+    const auto mean = (gm::Vector<2>() << -2.3, 4.1).finished();
+    const auto covariance =
+        (gm::Matrix<2, 2>() << 3.3, 0.4, 0.4, 2.8).finished();
+    component_ = {weight, mean, covariance};
     sample_ = (gm::Vector<2>() << -2.1, 5.1).finished();
   }
 
-  double weight_{};
-  gm::Vector<2> mean_{};
-  gm::Matrix<2, 2> covariance_{};
-  gm::GaussianComponent<2> component_{};
-  gm::Vector<2> sample_{};
+  static gm::GaussianComponent<2> component_;
+  static gm::Vector<2> sample_;
 };
-} // namespace
+
+gm::GaussianComponent<2> GaussianComponentFixture::component_{};
+gm::Vector<2> GaussianComponentFixture::sample_{};
 
 TEST_F(
     GaussianComponentFixture,
@@ -43,3 +43,5 @@ TEST_F(GaussianComponentFixture,
   EXPECT_TRUE(test::is_near(new_component(sample_), component_(sample_),
                             test::DETERMINISTIC_TOLERANCE));
 }
+
+} // namespace
