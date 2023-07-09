@@ -39,6 +39,7 @@ std::vector<StaticRowsMatrix<Dim>> partition_samples_responsibly(
     const std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) {
   assert(!components.empty());
+  assert(samples.cols() >= components.size());
   const auto n_components = components.size();
   std::vector<std::vector<int>> responsibilities{n_components};
   std::for_each(
