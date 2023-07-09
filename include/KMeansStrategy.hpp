@@ -16,7 +16,7 @@ template <int Dim> class KMeansStrategy;
 namespace internal {
 
 template <int Dim>
-std::vector<StaticRowsMatrix<Dim>>
+[[nodiscard]] std::vector<StaticRowsMatrix<Dim>>
 partition_samples(const StaticRowsMatrix<Dim> &samples, size_t n_partitions) {
   if (n_partitions == 0)
     return {};
@@ -35,7 +35,7 @@ partition_samples(const StaticRowsMatrix<Dim> &samples, size_t n_partitions) {
 }
 
 template <int Dim>
-std::vector<StaticRowsMatrix<Dim>> partition_samples_responsibly(
+[[nodiscard]] std::vector<StaticRowsMatrix<Dim>> partition_samples_responsibly(
     const std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) {
   assert(!components.empty());
@@ -118,7 +118,7 @@ void update_covariance(std::vector<GaussianComponent<Dim>> &components,
 }
 
 template <int Dim>
-StaticRowsMatrix<Dim>
+[[nodiscard]] StaticRowsMatrix<Dim>
 get_mean_matrix(std::vector<GaussianComponent<Dim>> &components) {
   assert(!components.empty());
   const auto n_components = components.size();
@@ -131,7 +131,7 @@ get_mean_matrix(std::vector<GaussianComponent<Dim>> &components) {
   return mean_matrix;
 }
 template <int Dim>
-bool is_early_stopping_condition_fulfilled(
+[[nodiscard]] bool is_early_stopping_condition_fulfilled(
     const StaticRowsMatrix<Dim> &current_mean_matrix,
     const StaticRowsMatrix<Dim> &new_mean_matrix,
     double early_stopping_threshold) {

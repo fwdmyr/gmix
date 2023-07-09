@@ -8,7 +8,7 @@ namespace gm {
 
 namespace {
 
-static constexpr double GAUSSIAN_SCALER(int Dim) {
+[[nodiscard]] static constexpr double GAUSSIAN_SCALER(int Dim) {
   return 1.0 / std::pow(2.0 * M_PI, 0.5 * Dim);
 }
 
@@ -30,9 +30,11 @@ public:
 
   ~GaussianComponent() = default;
 
-  double get_weight() const { return weight_; }
-  const Vector<Dim> &get_mean() const { return mean_; }
-  const Matrix<Dim, Dim> &get_covariance() const { return covariance_; }
+  [[nodiscard]] double get_weight() const { return weight_; }
+  [[nodiscard]] const Vector<Dim> &get_mean() const { return mean_; }
+  [[nodiscard]] const Matrix<Dim, Dim> &get_covariance() const {
+    return covariance_;
+  }
 
   void set_weight(double weight) { weight_ = weight; }
   void set_mean(const Vector<Dim> &mean) { mean_ = mean; }
@@ -44,7 +46,7 @@ public:
     cache_.reset();
   }
 
-  double operator()(const Vector<Dim> &) const;
+  [[nodiscard]] double operator()(const Vector<Dim> &) const;
 
   friend std::ostream &operator<<(std::ostream &os,
                                   const GaussianComponent<Dim> &component) {

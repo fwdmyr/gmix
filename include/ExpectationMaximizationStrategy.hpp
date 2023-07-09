@@ -15,7 +15,7 @@ template <int Dim> class ExpectationMaximizationStrategy;
 namespace internal {
 
 template <int Dim>
-double
+[[nodiscard]] double
 evaluate_responsibilities(const std::vector<GaussianComponent<Dim>> &components,
                           const StaticRowsMatrix<Dim> &samples,
                           MatrixX &responsibilities) {

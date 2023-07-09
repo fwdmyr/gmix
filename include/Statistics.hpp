@@ -11,12 +11,13 @@ namespace gm {
 namespace internal {
 
 template <int Dim>
-Vector<Dim> sample_mean(const StaticRowsMatrix<Dim> &samples) {
+[[nodiscard]] Vector<Dim> sample_mean(const StaticRowsMatrix<Dim> &samples) {
   return samples.rowwise().mean();
 }
 
 template <int Dim>
-Matrix<Dim, Dim> sample_covariance(const StaticRowsMatrix<Dim> &samples) {
+[[nodiscard]] Matrix<Dim, Dim>
+sample_covariance(const StaticRowsMatrix<Dim> &samples) {
   const auto mu = sample_mean(samples);
   const auto centered_samples = samples.colwise() - mu;
   return (centered_samples * centered_samples.transpose()) /
@@ -24,8 +25,8 @@ Matrix<Dim, Dim> sample_covariance(const StaticRowsMatrix<Dim> &samples) {
 }
 
 template <int Dim>
-Matrix<Dim, Dim> sample_covariance(const StaticRowsMatrix<Dim> &samples,
-                                   const Vector<Dim> &mu) {
+[[nodiscard]] Matrix<Dim, Dim>
+sample_covariance(const StaticRowsMatrix<Dim> &samples, const Vector<Dim> &mu) {
   const auto centered_samples = samples.colwise() - mu;
   return (centered_samples * centered_samples.transpose()) /
          static_cast<double>(samples.cols() - 1);

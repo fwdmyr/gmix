@@ -23,22 +23,29 @@ public:
   GaussianMixture<Dim> &operator=(const GaussianMixture<Dim> &) = default;
   GaussianMixture<Dim> &operator=(GaussianMixture<Dim> &&) = default;
 
-  inline iterator begin() noexcept { return components_.begin(); }
-  inline const_iterator cbegin() const noexcept { return components_.cbegin(); }
-  inline iterator end() noexcept { return components_.end(); }
-  inline const_iterator cend() const noexcept { return components_.cend(); }
+  [[nodiscard]] inline iterator begin() noexcept { return components_.begin(); }
+  [[nodiscard]] inline const_iterator cbegin() const noexcept {
+    return components_.cbegin();
+  }
+  [[nodiscard]] inline iterator end() noexcept { return components_.end(); }
+  [[nodiscard]] inline const_iterator cend() const noexcept {
+    return components_.cend();
+  }
 
-  const GaussianComponent<Dim> &get_component(size_t idx) const {
+  [[nodiscard]] const GaussianComponent<Dim> &get_component(size_t idx) const {
     return components_[idx];
   }
 
-  size_t get_size() const { return components_.size(); }
+  [[nodiscard]] size_t get_size() const { return components_.size(); }
 
-  const std::vector<GaussianComponent<Dim>> &get_components() const {
+  [[nodiscard]] const std::vector<GaussianComponent<Dim>> &
+  get_components() const {
     return components_;
   }
 
-  std::vector<GaussianComponent<Dim>> &get_components() { return components_; }
+  [[nodiscard]] std::vector<GaussianComponent<Dim>> &get_components() {
+    return components_;
+  }
 
   void add_component(const GaussianComponent<Dim> &component) {
     components_.push_back(component);
@@ -70,7 +77,7 @@ void fit(const MatrixType &samples, const StrategyType &strategy,
 }
 
 template <int Dim>
-StaticRowsMatrix<Dim>
+[[nodiscard]] StaticRowsMatrix<Dim>
 draw_from_gaussian_mixture(const GaussianMixture<Dim> &gmm, size_t n_samples) {
   static std::mt19937 gen{std::random_device{}()};
   static std::normal_distribution<> nd;
