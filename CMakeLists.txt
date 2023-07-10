@@ -21,10 +21,11 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(HEADERS_LIST
   include/Common.hpp
+  include/TypeTraits.hpp
   include/Statistics.hpp
   include/GaussianComponent.hpp
   include/GaussianMixture.hpp
-  include/FittingStrategy.hpp
+  include/BaseStrategy.hpp
   include/KMeansStrategy.hpp
   include/ExpectationMaximizationStrategy.hpp
   include/VariationalBayesianInferenceStrategy.hpp

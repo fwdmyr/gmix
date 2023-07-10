@@ -1,6 +1,7 @@
 #ifndef GMSAM_GAUSSIAN_MIXTURE_HPP
 #define GMSAM_GAUSSIAN_MIXTURE_HPP
 
+#include "Common.hpp"
 #include "GaussianComponent.hpp"
 #include "TypeTraits.hpp"
 #include <initializer_list>
@@ -33,6 +34,8 @@ public:
     return components_.cend();
   }
 
+  [[nodiscard]] double operator()(gmix::ColVector<Dim>) const;
+
   [[nodiscard]] const GaussianComponent<Dim> &get_component(size_t idx) const {
     return components_[idx];
   }
@@ -55,7 +58,7 @@ public:
   };
 
   void add_component(GaussianComponent<Dim> &&component) {
-    components_.emplace_back(component);
+    components_.emplace_back(std::move(component));
   }
 
   void reset() { components_.resize(0); }
@@ -71,6 +74,15 @@ public:
 private:
   std::vector<GaussianComponent<Dim>> components_{};
 };
+
+template <int Dim>
+double GaussianMixture<Dim>::operator()(gmix::ColVector<Dim> sample) const {
+  return std::accumulate(
+      components_.begin(), components_.end(), 0.0,
+      [&x = std::as_const(sample)](auto sum, const auto &component) -> double {
+        return sum + component(x);
+      });
+}
 
 template <typename StrategyType, typename MatrixType,
           typename GaussianMixtureType>
