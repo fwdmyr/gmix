@@ -3,7 +3,7 @@
 
 #include <Eigen/Dense>
 
-namespace gm {
+namespace gmix {
 
 template <typename> struct MatrixTypeTraits;
 
@@ -20,6 +20,6 @@ template <int Dim> static constexpr bool is_unambiguous_v = Dim > 1;
 template <int Dim> static constexpr bool is_dynamic_v = Dim == -1;
 template <int Dim> static constexpr bool is_static_v = Dim > 0;
 
-} // namespace gm
+} // namespace gmix
 
 #endif // !GMSAM_TYPE_TRAITS_HPP

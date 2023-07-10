@@ -5,19 +5,19 @@ class GaussianComponentFixture : public testing::Test {
 protected:
   static void SetUpTestSuite() {
     const auto weight = 0.5;
-    const auto mean = gm::initialize<gm::ColVector<2>>({-2.3, 4.1});
+    const auto mean = gmix::initialize<gmix::ColVector<2>>({-2.3, 4.1});
     const auto covariance =
-        gm::initialize<gm::Matrix<2, 2>>({{3.3, 0.4}, {0.4, 2.8}});
+        gmix::initialize<gmix::Matrix<2, 2>>({{3.3, 0.4}, {0.4, 2.8}});
     component_ = {weight, mean, covariance};
-    sample_ = gm::initialize<gm::ColVector<2>>({-2.1, 5.1});
+    sample_ = gmix::initialize<gmix::ColVector<2>>({-2.1, 5.1});
   }
 
-  static gm::GaussianComponent<2> component_;
-  static gm::ColVector<2> sample_;
+  static gmix::GaussianComponent<2> component_;
+  static gmix::ColVector<2> sample_;
 };
 
-gm::GaussianComponent<2> GaussianComponentFixture::component_{};
-gm::ColVector<2> GaussianComponentFixture::sample_{};
+gmix::GaussianComponent<2> GaussianComponentFixture::component_{};
+gmix::ColVector<2> GaussianComponentFixture::sample_{};
 
 TEST_F(
     GaussianComponentFixture,
@@ -30,11 +30,11 @@ TEST_F(
 TEST_F(GaussianComponentFixture,
        FunctionCallOperator_GivenNewSetOfParameters_ExpectCorrectProbability) {
   const auto new_weight = 0.5;
-  const auto new_mean = gm::initialize<gm::ColVector<2>>({-2.3, 4.1});
+  const auto new_mean = gmix::initialize<gmix::ColVector<2>>({-2.3, 4.1});
   const auto new_covariance =
-      gm::initialize<gm::Matrix<2, 2>>({{3.3, 0.4}, {0.4, 2.8}});
+      gmix::initialize<gmix::Matrix<2, 2>>({{3.3, 0.4}, {0.4, 2.8}});
   const auto new_component =
-      gm::GaussianComponent<2>{new_weight, new_mean, new_covariance};
+      gmix::GaussianComponent<2>{new_weight, new_mean, new_covariance};
 
   EXPECT_TRUE(test::is_near(new_component(sample_), component_(sample_),
                             test::DETERMINISTIC_TOLERANCE));

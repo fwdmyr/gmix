@@ -6,7 +6,7 @@
 #include <numeric>
 #include <random>
 
-namespace gm {
+namespace gmix {
 
 namespace internal {
 
@@ -37,6 +37,6 @@ sample_covariance(const StaticRowsMatrix<Dim> &samples,
 
 } // namespace internal
 
-} // namespace gm
+} // namespace gmix
 
 #endif // !GMSAM_STATISTICS_HPP

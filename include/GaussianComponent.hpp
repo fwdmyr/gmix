@@ -4,7 +4,7 @@
 #include "Common.hpp"
 #include <optional>
 
-namespace gm {
+namespace gmix {
 
 namespace {
 
@@ -81,6 +81,6 @@ double GaussianComponent<Dim>::operator()(const ColVector<Dim> &x) const {
          std::exp(-0.5 * (llt_.matrixL().solve(x - mean_)).squaredNorm());
 }
 
-} // namespace gm
+} // namespace gmix
 
 #endif // !GMSAM_GAUSSIAN_COMPONENT_HPP

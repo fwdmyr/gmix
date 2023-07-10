@@ -14,9 +14,9 @@ static constexpr double DETERMINISTIC_TOLERANCE = 1E-10;
 }
 
 template <int Dim,
-          typename std::enable_if_t<gm::is_unambiguous_v<Dim>, int> = false>
-[[nodiscard]] bool is_near(const gm::ColVector<Dim> &lhs,
-                           const gm::ColVector<Dim> &rhs, double tolerance) {
+          typename std::enable_if_t<gmix::is_unambiguous_v<Dim>, int> = false>
+[[nodiscard]] bool is_near(const gmix::ColVector<Dim> &lhs,
+                           const gmix::ColVector<Dim> &rhs, double tolerance) {
   for (size_t i = 0; i < Dim; i++) {
     if (!is_near(lhs(i), rhs(i), tolerance))
       return false;
@@ -25,8 +25,9 @@ template <int Dim,
 }
 
 template <int Dim>
-[[nodiscard]] bool is_near(const gm::Matrix<Dim, Dim> &lhs,
-                           const gm::Matrix<Dim, Dim> &rhs, double tolerance) {
+[[nodiscard]] bool is_near(const gmix::Matrix<Dim, Dim> &lhs,
+                           const gmix::Matrix<Dim, Dim> &rhs,
+                           double tolerance) {
   for (size_t i = 0; i < Dim; i++) {
     if (!is_near(lhs(i, i), rhs(i, i), tolerance))
       return false;
@@ -35,8 +36,8 @@ template <int Dim>
 }
 
 template <int Dim>
-[[nodiscard]] bool is_near(const gm::GaussianComponent<Dim> &lhs,
-                           const gm::GaussianComponent<Dim> &rhs,
+[[nodiscard]] bool is_near(const gmix::GaussianComponent<Dim> &lhs,
+                           const gmix::GaussianComponent<Dim> &rhs,
                            double tolerance) {
   return is_near(lhs.get_weight(), rhs.get_weight(), tolerance) &&
          is_near(lhs.get_mean(), rhs.get_mean(), tolerance) &&
@@ -44,8 +45,8 @@ template <int Dim>
 }
 
 template <int Dim>
-[[nodiscard]] bool is_near(const gm::GaussianMixture<Dim> &lhs,
-                           const gm::GaussianMixture<Dim> &rhs,
+[[nodiscard]] bool is_near(const gmix::GaussianMixture<Dim> &lhs,
+                           const gmix::GaussianMixture<Dim> &rhs,
                            double tolerance) {
   if (lhs.get_size() != rhs.get_size())
     return false;
@@ -59,8 +60,8 @@ template <int Dim>
 }
 
 template <int Dim>
-[[nodiscard]] bool compare_gaussian_mixtures(gm::GaussianMixture<Dim> &lhs,
-                                             gm::GaussianMixture<Dim> &rhs,
+[[nodiscard]] bool compare_gaussian_mixtures(gmix::GaussianMixture<Dim> &lhs,
+                                             gmix::GaussianMixture<Dim> &rhs,
                                              double tolerance) {
   if (lhs.get_size() != rhs.get_size())
     return false;

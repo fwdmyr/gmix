@@ -7,7 +7,7 @@
 #include <limits>
 #include <random>
 
-namespace gm {
+namespace gmix {
 
 template <int Dim> struct ExpectationMaximizationParameters;
 template <int Dim> class ExpectationMaximizationStrategy;
@@ -131,6 +131,6 @@ void ExpectationMaximizationStrategy<Dim>::fit(
   }
 }
 
-} // namespace gm
+} // namespace gmix
 
 #endif // !#ifndef GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP

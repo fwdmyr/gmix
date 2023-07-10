@@ -2,9 +2,9 @@
 cmake_minimum_required(VERSION 3.14...3.26)
 
 project(
-  GMSAM
+  gmix
   VERSION 0.1
-  DESCRIPTION "Gaussian Mixture Models for Smoothing and Mapping"
+  DESCRIPTION "Gaussian Mixture"
   LANGUAGES CXX)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)

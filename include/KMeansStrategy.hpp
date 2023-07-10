@@ -8,7 +8,7 @@
 #include <numeric>
 #include <random>
 
-namespace gm {
+namespace gmix {
 
 template <int Dim> struct KMeansParameters;
 template <int Dim> class KMeansStrategy;
@@ -202,5 +202,5 @@ void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
   internal::update_covariance(components, partitions);
 }
 
-} // namespace gm
+} // namespace gmix
 #endif // !GMSAM_K_MEANS_STRATEGY_HPP

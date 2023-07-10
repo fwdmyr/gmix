@@ -12,47 +12,47 @@ class ExpectationMaximizationFixture : public ::testing::TestWithParam<bool> {
 protected:
   static void SetUpTestSuite() {
     gmm_.add_component(
-        {0.5, gm::initialize<gm::ColVector<2>>({2.0, 9.0}),
-         gm::initialize<gm::Matrix<2, 2>>({{2.0, 0.0}, {0.0, 2.0}})});
+        {0.5, gmix::initialize<gmix::ColVector<2>>({2.0, 9.0}),
+         gmix::initialize<gmix::Matrix<2, 2>>({{2.0, 0.0}, {0.0, 2.0}})});
     gmm_.add_component(
-        {0.5, gm::initialize<gm::ColVector<2>>({-5.0, 4.0}),
-         gm::initialize<gm::Matrix<2, 2>>({{0.5, 0.0}, {0.0, 0.5}})});
-    samples_ = gm::draw_from_gaussian_mixture(gmm_, 1E5);
+        {0.5, gmix::initialize<gmix::ColVector<2>>({-5.0, 4.0}),
+         gmix::initialize<gmix::Matrix<2, 2>>({{0.5, 0.0}, {0.0, 0.5}})});
+    samples_ = gmix::draw_from_gaussian_mixture(gmm_, 1E5);
   }
 
   void SetUp() override {
-    gm::ExpectationMaximizationParameters<2> parameters;
+    gmix::ExpectationMaximizationParameters<2> parameters;
     parameters.n_components = 2;
     parameters.n_iterations = 10;
     parameters.early_stopping_threshold = 0.0;
     parameters.warm_start = GetParam();
-    strategy_ = gm::ExpectationMaximizationStrategy<2>{parameters};
+    strategy_ = gmix::ExpectationMaximizationStrategy<2>{parameters};
   }
 
-  static gm::GaussianMixture<2> gmm_;
-  static gm::StaticRowsMatrix<2> samples_;
-  gm::ExpectationMaximizationParameters<2> parameters_{};
-  gm::ExpectationMaximizationStrategy<2> strategy_{
-      gm::ExpectationMaximizationParameters<2>{}};
+  static gmix::GaussianMixture<2> gmm_;
+  static gmix::StaticRowsMatrix<2> samples_;
+  gmix::ExpectationMaximizationParameters<2> parameters_{};
+  gmix::ExpectationMaximizationStrategy<2> strategy_{
+      gmix::ExpectationMaximizationParameters<2>{}};
 };
 
-gm::GaussianMixture<2> ExpectationMaximizationFixture::gmm_{};
-gm::StaticRowsMatrix<2> ExpectationMaximizationFixture::samples_{};
+gmix::GaussianMixture<2> ExpectationMaximizationFixture::gmm_{};
+gmix::StaticRowsMatrix<2> ExpectationMaximizationFixture::samples_{};
 
 TEST_P(
     ExpectationMaximizationFixture,
     Fit_GivenParametersAndSamples_ExpectCorrectApproximationOfUnderlyingDistribution) {
-  gm::GaussianMixture<2> gmm;
+  gmix::GaussianMixture<2> gmm;
   if (GetParam()) {
     gmm.add_component(
-        {0.5, gm::initialize<gm::ColVector<2>>({1.0, 1.0}),
-         gm::initialize<gm::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
+        {0.5, gmix::initialize<gmix::ColVector<2>>({1.0, 1.0}),
+         gmix::initialize<gmix::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
     gmm.add_component(
-        {0.5, gm::initialize<gm::ColVector<2>>({-1.0, -1.0}),
-         gm::initialize<gm::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
+        {0.5, gmix::initialize<gmix::ColVector<2>>({-1.0, -1.0}),
+         gmix::initialize<gmix::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
   }
 
-  gm::fit(samples_, strategy_, gmm);
+  gmix::fit(samples_, strategy_, gmm);
 
   EXPECT_TRUE(
       test::compare_gaussian_mixtures(gmm_, gmm, test::RANDOM_TOLERANCE));

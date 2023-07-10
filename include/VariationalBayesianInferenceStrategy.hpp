@@ -15,7 +15,7 @@
 // vectorizing more
 // TODO: Implement early stopping based on variational lower bound
 
-namespace gm {
+namespace gmix {
 
 template <int Dim> struct VariationalBayesianInferenceParameters;
 template <int Dim> class VariationalBayesianInferenceStrategy;
@@ -237,6 +237,6 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
   }
 }
 
-} // namespace gm
+} // namespace gmix
 
 #endif // !GMSAM_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_HPP

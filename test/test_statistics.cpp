@@ -7,26 +7,27 @@ namespace {
 class StatisticsFixture : public testing::Test {
 protected:
   static void SetUpTestSuite() {
-    gm::GaussianMixture<2> gmm;
-    mean_ = gm::initialize<gm::ColVector<2>>({9.7, -4.2});
-    covariance_ = gm::initialize<gm::Matrix<2, 2>>({{3.2, 0.2}, {0.7, 2.5}});
+    gmix::GaussianMixture<2> gmm;
+    mean_ = gmix::initialize<gmix::ColVector<2>>({9.7, -4.2});
+    covariance_ =
+        gmix::initialize<gmix::Matrix<2, 2>>({{3.2, 0.2}, {0.7, 2.5}});
     gmm.add_component({1.0, mean_, covariance_});
-    samples_ = gm::draw_from_gaussian_mixture(gmm, 100000);
+    samples_ = gmix::draw_from_gaussian_mixture(gmm, 100000);
   }
 
-  static gm::ColVector<2> mean_;
-  static gm::Matrix<2, 2> covariance_;
-  static gm::StaticRowsMatrix<2> samples_;
+  static gmix::ColVector<2> mean_;
+  static gmix::Matrix<2, 2> covariance_;
+  static gmix::StaticRowsMatrix<2> samples_;
 };
 
-gm::ColVector<2> StatisticsFixture::mean_{};
-gm::Matrix<2, 2> StatisticsFixture::covariance_{};
-gm::StaticRowsMatrix<2> StatisticsFixture::samples_{};
+gmix::ColVector<2> StatisticsFixture::mean_{};
+gmix::Matrix<2, 2> StatisticsFixture::covariance_{};
+gmix::StaticRowsMatrix<2> StatisticsFixture::samples_{};
 
 TEST_F(
     StatisticsFixture,
     SampleMean_GivenSetOfSamplesFromDistribution_ExpectCorrectApproximationOfDistributionMean) {
-  const auto mean = gm::internal::sample_mean(samples_);
+  const auto mean = gmix::internal::sample_mean(samples_);
 
   EXPECT_TRUE(test::is_near(mean, mean_, test::RANDOM_TOLERANCE));
 }
@@ -34,7 +35,7 @@ TEST_F(
 TEST_F(
     StatisticsFixture,
     SampleCovariance_GivenSetOfSamplesFromDistribution_ExpectCorrectApproximationOfDistributionCovariance) {
-  const auto covariance = gm::internal::sample_covariance(samples_);
+  const auto covariance = gmix::internal::sample_covariance(samples_);
 
   std::cerr << covariance << std::endl;
 
@@ -44,7 +45,7 @@ TEST_F(
 TEST_F(
     StatisticsFixture,
     SampleCovariance_GivenSetOfSamplesFromDistributionAndDistributionMean_ExpectCorrectApproximationOfDistributionCovariance) {
-  const auto covariance = gm::internal::sample_covariance(samples_, mean_);
+  const auto covariance = gmix::internal::sample_covariance(samples_, mean_);
 
   EXPECT_TRUE(test::is_near(covariance, covariance_, test::RANDOM_TOLERANCE));
 }

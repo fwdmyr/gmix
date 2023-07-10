@@ -8,7 +8,7 @@
 #include <random>
 #include <vector>
 
-namespace gm {
+namespace gmix {
 
 template <int Dim> class GaussianMixture {
 
@@ -106,5 +106,5 @@ draw_from_gaussian_mixture(const GaussianMixture<Dim> &gmm, size_t n_samples) {
   return samples;
 }
 
-} // namespace gm
+} // namespace gmix
 #endif // !GMSAM_GAUSSIAN_MIXTURE_HPP

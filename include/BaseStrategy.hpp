@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace gm {
+namespace gmix {
 
 template <int Dim> class BaseStrategy {
 public:
@@ -22,5 +22,5 @@ protected:
                           const StaticRowsMatrix<Dim> &) const = 0;
 };
 
-} // namespace gm
+} // namespace gmix
 #endif // !GMSAM_BASE_STRATEGY_HPP
