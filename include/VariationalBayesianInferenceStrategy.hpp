@@ -190,6 +190,20 @@ void update_random_variables(
   }
 }
 
+double evaluate_sample_probabilitity_expectation();
+
+double evaluate_hidden_probability_expectation();
+
+double evaluate_weight_probability_expectation();
+
+double evaluate_normal_probability_expectation();
+
+double evaluate_hidden_posterior_expectation();
+
+double evaluate_weight_posterior_expectation();
+
+double evaluate_normal_posterior_expectation();
+
 template <int Dim>
 double evaluate_variational_lower_bound(
     const RandomVariables<Dim> &random_variables,
@@ -264,7 +278,13 @@ double evaluate_variational_lower_bound(
 
     // TODO: e_q_meaninformation
   }
-  return 0.0;
+  return evaluate_sample_probabilitity_expectation() +
+         evaluate_hidden_probability_expectation() +
+         evaluate_weight_probability_expectation() +
+         evaluate_normal_probability_expectation() +
+         evaluate_hidden_posterior_expectation() +
+         evaluate_weight_posterior_expectation() +
+         evaluate_normal_posterior_expectation();
 }
 
 } // namespace internal
