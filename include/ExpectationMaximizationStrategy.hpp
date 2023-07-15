@@ -86,7 +86,7 @@ template <int Dim>
 class ExpectationMaximizationStrategy final : public BaseStrategy<Dim> {
 public:
   explicit ExpectationMaximizationStrategy(
-      const ExpectationMaximizationParameters<Dim> &parameters)
+      const ExpectationMaximizationParameters<Dim> &parameters) noexcept
       : parameters_(parameters) {}
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
                    const StaticRowsMatrix<Dim> &) const override;
@@ -125,7 +125,7 @@ void ExpectationMaximizationStrategy<Dim>::fit(
     internal::estimate_parameters(samples, responsibilities, components);
     if (new_log_likelihood - current_log_likelihood <
         parameters_.early_stopping_threshold)
-      break;
+      return;
     else
       current_log_likelihood = new_log_likelihood;
   }

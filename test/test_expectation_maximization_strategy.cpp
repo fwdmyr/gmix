@@ -4,9 +4,69 @@
 
 namespace {
 
-TEST(EvaluateResponsibilities, Dummy) {}
+TEST(EvaluateResponsibilities,
+     GivenSamplesAndGaussianMixture_ExpectCorrectResponsibilityMatrix) {
+  const auto samples =
+      gmix::initialize<gmix::StaticRowsMatrix<2>>({{-3.0, -2.0}, {4.0, 3.0}});
+  auto gmm = gmix::GaussianMixture<2>{};
+  gmm.add_component(
+      {0.5, gmix::initialize<gmix::ColVector<2>>({2.0, 9.0}),
+       gmix::initialize<gmix::Matrix<2, 2>>({{2.0, 0.0}, {0.0, 2.0}})});
+  gmm.add_component(
+      {0.5, gmix::initialize<gmix::ColVector<2>>({-5.0, 4.0}),
+       gmix::initialize<gmix::Matrix<2, 2>>({{0.5, 0.0}, {0.0, 0.5}})});
+  auto responsibilities =
+      gmix::initialize<gmix::MatrixX>({{0.0, 0.0}, {0.0, 0.0}});
 
-TEST(EstimateParameters, Dummy) {}
+  std::ignore = gmix::internal::evaluate_responsibilities(
+      gmm.get_components(), samples, responsibilities);
+
+  EXPECT_NEAR(responsibilities(0, 0), 0.000050864504923,
+              test::DETERMINISTIC_TOLERANCE);
+  EXPECT_NEAR(responsibilities(0, 1), 0.012293749653344,
+              test::DETERMINISTIC_TOLERANCE);
+  EXPECT_NEAR(responsibilities.col(0).sum(), 1.0,
+              test::DETERMINISTIC_TOLERANCE);
+  EXPECT_NEAR(responsibilities.col(1).sum(), 1.0,
+              test::DETERMINISTIC_TOLERANCE);
+}
+
+TEST(
+    EstimateParameters,
+    GivenSamplesResponsibilitiesAndGaussianMixture_ExpectCorrectUpdateOfParameters) {
+  const auto samples =
+      gmix::initialize<gmix::StaticRowsMatrix<2>>({{1.0, 2.0}, {3.0, 4.0}});
+  const auto responsibilities =
+      gmix::initialize<gmix::MatrixX>({{0.3, 0.6}, {0.7, 0.4}});
+  auto gmm = gmix::GaussianMixture<2>{};
+  gmm.add_component(
+      {0.5, gmix::initialize<gmix::ColVector<2>>({2.0, 9.0}),
+       gmix::initialize<gmix::Matrix<2, 2>>({{2.0, 0.0}, {0.0, 2.0}})});
+  gmm.add_component(
+      {0.5, gmix::initialize<gmix::ColVector<2>>({-5.0, 4.0}),
+       gmix::initialize<gmix::Matrix<2, 2>>({{0.5, 0.0}, {0.0, 0.5}})});
+
+  auto gmm_expected = gmix::GaussianMixture<2>{};
+  gmm_expected.add_component({0.45,
+                              gmix::initialize<gmix::ColVector<2>>(
+                                  {1.6666666666666667, 3.6666666666666667}),
+                              gmix::initialize<gmix::Matrix<2, 2>>(
+                                  {{0.2222222222222222, 0.2222222222222222},
+                                   {0.2222222222222222, 0.2222222222222222}})});
+
+  gmm_expected.add_component({0.55,
+                              gmix::initialize<gmix::ColVector<2>>(
+                                  {1.3636363636363636, 3.3636363636363636}),
+                              gmix::initialize<gmix::Matrix<2, 2>>(
+                                  {{0.2314049586776859, 0.2314049586776859},
+                                   {0.2314049586776859, 0.2314049586776859}})});
+
+  gmix::internal::estimate_parameters(samples, responsibilities,
+                                      gmm.get_components());
+
+  EXPECT_TRUE(test::compare_gaussian_mixtures(gmm, gmm_expected,
+                                              test::DETERMINISTIC_TOLERANCE));
+}
 
 class ExpectationMaximizationFixture : public ::testing::TestWithParam<bool> {
 protected:

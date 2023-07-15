@@ -17,18 +17,13 @@ namespace {
 template <int Dim> class GaussianComponent {
 
 public:
-  GaussianComponent()
+  GaussianComponent() noexcept
       : cache_(std::nullopt), weight_(0.0),
         mean_(static_cast<ColVector<Dim>>(ColVector<Dim>::Zero())),
         covariance_(static_cast<Matrix<Dim, Dim>>(Matrix<Dim, Dim>::Zero())),
         llt_(){};
-  GaussianComponent(double, const ColVector<Dim> &, const Matrix<Dim, Dim> &);
-  GaussianComponent(const GaussianComponent<Dim> &) = default;
-  GaussianComponent(GaussianComponent<Dim> &&) = default;
-  GaussianComponent<Dim> &operator=(const GaussianComponent<Dim> &) = default;
-  GaussianComponent<Dim> &operator=(GaussianComponent<Dim> &&) = default;
-
-  ~GaussianComponent() = default;
+  GaussianComponent(double, const ColVector<Dim> &,
+                    const Matrix<Dim, Dim> &) noexcept;
 
   [[nodiscard]] double get_weight() const { return weight_; }
   [[nodiscard]] const ColVector<Dim> &get_mean() const { return mean_; }
@@ -66,9 +61,9 @@ private:
 };
 
 template <int Dim>
-GaussianComponent<Dim>::GaussianComponent(double weight,
-                                          const ColVector<Dim> &mean,
-                                          const Matrix<Dim, Dim> &covariance)
+GaussianComponent<Dim>::GaussianComponent(
+    double weight, const ColVector<Dim> &mean,
+    const Matrix<Dim, Dim> &covariance) noexcept
     : cache_(std::nullopt), weight_(weight), mean_(mean),
       covariance_(covariance), llt_(covariance.llt()) {}
 

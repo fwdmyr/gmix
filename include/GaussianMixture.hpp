@@ -19,11 +19,7 @@ public:
   using const_iterator = typename container_type::const_iterator;
 
   GaussianMixture() = default;
-  GaussianMixture(std::initializer_list<GaussianComponent<Dim>>);
-  GaussianMixture(const GaussianMixture<Dim> &) = default;
-  GaussianMixture(GaussianMixture<Dim> &&) = default;
-  GaussianMixture<Dim> &operator=(const GaussianMixture<Dim> &) = default;
-  GaussianMixture<Dim> &operator=(GaussianMixture<Dim> &&) = default;
+  GaussianMixture(std::initializer_list<GaussianComponent<Dim>>) noexcept;
 
   [[nodiscard]] inline iterator begin() noexcept { return components_.begin(); }
   [[nodiscard]] inline const_iterator cbegin() const noexcept {
@@ -74,6 +70,11 @@ public:
 private:
   std::vector<GaussianComponent<Dim>> components_{};
 };
+
+template <int Dim>
+GaussianMixture<Dim>::GaussianMixture(
+    std::initializer_list<GaussianComponent<Dim>> components) noexcept
+    : components_{components} {}
 
 template <int Dim>
 double GaussianMixture<Dim>::operator()(gmix::ColVector<Dim> sample) const {

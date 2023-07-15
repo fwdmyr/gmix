@@ -152,7 +152,7 @@ template <int Dim> struct KMeansParameters {
 
 template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {
 public:
-  explicit KMeansStrategy(const KMeansParameters<Dim> &parameters)
+  explicit KMeansStrategy(const KMeansParameters<Dim> &parameters) noexcept
       : parameters_(parameters) {}
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
                    const StaticRowsMatrix<Dim> &) const override;
