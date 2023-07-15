@@ -346,6 +346,11 @@ void VariationalBayesianInferenceStrategy<Dim>::fit(
     internal::evaluate_responsibilities(random_variables, samples, parameters_,
                                         responsibilities);
 
+    if (responsibilities.array().isNaN().any()) {
+      initialize(components, samples);
+      continue;
+    }
+
     internal::compute_statistics(responsibilities, samples, parameters_,
                                  statistics);
 

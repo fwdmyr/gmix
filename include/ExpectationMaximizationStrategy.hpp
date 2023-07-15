@@ -122,6 +122,10 @@ void ExpectationMaximizationStrategy<Dim>::fit(
   for (size_t i = 0; i < parameters_.n_iterations; ++i) {
     const auto new_log_likelihood = internal::evaluate_responsibilities(
         components, samples, responsibilities);
+    if (responsibilities.array().isNaN().any()) {
+      initialize(components, samples);
+      continue;
+    }
     internal::estimate_parameters(samples, responsibilities, components);
     if (new_log_likelihood - current_log_likelihood <
         parameters_.early_stopping_threshold)
