@@ -8,7 +8,7 @@ namespace {
 class PartitionSamplesFixture : public ::testing::Test {
 protected:
   static void SetUpTestSuite() {
-    samples_ = (gmix::Matrix<2, 4>() << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
+    samples_ = (gmix::StaticRowsMatrix<2>() << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
                    .finished();
   }
 
@@ -57,7 +57,7 @@ TEST(PartitionSamplesResponsibly,
   gmm.add_component({0.5, (gmix::ColVector<2>() << 2.0, 2.0).finished(),
                      (gmix::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
   const auto samples =
-      (gmix::Matrix<2, 4>() << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
+      (gmix::StaticRowsMatrix<2>() << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
           .finished();
 
   const auto partitions = gmix::internal::partition_samples_responsibly(

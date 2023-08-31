@@ -2,6 +2,7 @@
 #define GMSAM_TYPE_TRAITS_HPP
 
 #include <eigen3/Eigen/Dense>
+#include <type_traits>
 
 namespace gmix {
 
@@ -27,30 +28,27 @@ struct is_dynamic_matrix<Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>>
 template <typename MatrixT>
 static constexpr auto is_dynamic_v = is_dynamic_matrix<MatrixT>::value;
 
-// TODO: Restrict true case for Eigen matrices
-template <typename MatrixT> struct is_matrix : std::true_type {};
+template <typename MatrixT> struct is_row_vector : std::false_type {};
 template <typename T, int ColsAtCompileTime>
-struct is_matrix<Eigen::Matrix<T, 1, ColsAtCompileTime>> : std::false_type {};
-template <typename T, int RowsAtCompileTime>
-struct is_matrix<Eigen::Matrix<T, RowsAtCompileTime, 1>> : std::false_type {};
+struct is_row_vector<Eigen::Matrix<T, 1, ColsAtCompileTime>> : std::true_type {
+};
 template <typename T>
-struct is_matrix<Eigen::Matrix<T, 1, 1>> : std::false_type {};
+struct is_row_vector<Eigen::Matrix<T, 1, 1>> : std::false_type {};
 template <typename MatrixT>
-static constexpr auto is_matrix_v = is_matrix<MatrixT>::value;
+static constexpr auto is_row_vector_v = is_row_vector<MatrixT>::value;
 
 template <typename MatrixT> struct is_column_vector : std::false_type {};
 template <typename T, int RowsAtCompileTime>
 struct is_column_vector<Eigen::Matrix<T, RowsAtCompileTime, 1>>
     : std::true_type {};
+template <typename T>
+struct is_column_vector<Eigen::Matrix<T, 1, 1>> : std::false_type {};
 template <typename MatrixT>
 static constexpr auto is_column_vector_v = is_column_vector<MatrixT>::value;
 
-template <typename MatrixT> struct is_row_vector : std::false_type {};
-template <typename T, int ColsAtCompileTime>
-struct is_row_vector<Eigen::Matrix<T, 1, ColsAtCompileTime>> : std::true_type {
-};
 template <typename MatrixT>
-static constexpr auto is_row_vector_v = is_row_vector<MatrixT>::value;
+static constexpr auto is_matrix_v =
+    !is_row_vector_v<MatrixT> && !is_column_vector_v<MatrixT>;
 
 } // namespace gmix
 
