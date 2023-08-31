@@ -9,8 +9,8 @@ TEST(
     GivenSamplesDrawnFromUnivariateGaussianMixture_ExpectCorrectReconstructionOfGaussianMixture) {
   gmix::GaussianMixture<1> gmm;
   const auto weight = 1.0;
-  const auto mean = gmix::initialize<gmix::ColVector<1>>({{9.7}});
-  const auto covariance = gmix::initialize<gmix::Matrix<1, 1>>({{1.7}});
+  const auto mean = (gmix::ColVector<1>() << 9.7).finished();
+  const auto covariance = (gmix::Matrix<1, 1>() << 1.7).finished();
   gmm.add_component({weight, mean, covariance});
 
   const auto samples = gmix::draw_from_gaussian_mixture(gmm, 1E5);
@@ -29,9 +29,9 @@ TEST(
     GivenSamplesDrawnFromMultivariateGaussianMixture_ExpectCorrectReconstructionOfGaussianMixture) {
   gmix::GaussianMixture<2> gmm;
   const auto weight = 1.0;
-  const auto mean = gmix::initialize<gmix::ColVector<2>>({9.7, 4.2});
+  const auto mean = (gmix::ColVector<2>() << 9.7, 4.2).finished();
   const auto covariance =
-      gmix::initialize<gmix::Matrix<2, 2>>({{1.7, 0.0}, {0.0, 2.4}});
+      (gmix::Matrix<2, 2>() << 1.7, 0.0, 0.0, 2.4).finished();
   gmm.add_component({weight, mean, covariance});
 
   const auto samples = gmix::draw_from_gaussian_mixture(gmm, 1E5);

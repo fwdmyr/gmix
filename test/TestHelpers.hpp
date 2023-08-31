@@ -10,27 +10,45 @@ static constexpr double RANDOM_TOLERANCE = 5E-2;
 static constexpr double DETERMINISTIC_TOLERANCE = 1E-10;
 
 [[nodiscard]] inline bool is_near(double lhs, double rhs, double tolerance) {
-  return (lhs - tolerance <= rhs && rhs <= lhs + tolerance);
+  return ((lhs - tolerance <= rhs) && (rhs <= lhs + tolerance));
 }
 
-template <int Dim,
-          typename std::enable_if_t<gmix::is_unambiguous_v<Dim>, int> = false>
-[[nodiscard]] bool is_near(const gmix::ColVector<Dim> &lhs,
-                           const gmix::ColVector<Dim> &rhs, double tolerance) {
-  for (size_t i = 0; i < Dim; i++) {
-    if (!is_near(lhs(i), rhs(i), tolerance))
+template <typename ColumnVector>
+[[nodiscard]] std::enable_if_t<gmix::is_column_vector_v<ColumnVector>, bool>
+is_near(const ColumnVector &lhs, const ColumnVector &rhs, double tolerance) {
+  if (lhs.rows() != rhs.rows())
+    return false;
+  for (size_t i = 0; i < lhs.rows(); i++) {
+    if (!is_near(lhs(i, 0), rhs(i, 0), tolerance))
       return false;
   }
   return true;
 }
 
-template <int Dim>
-[[nodiscard]] bool is_near(const gmix::Matrix<Dim, Dim> &lhs,
-                           const gmix::Matrix<Dim, Dim> &rhs,
-                           double tolerance) {
-  for (size_t i = 0; i < Dim; i++) {
-    if (!is_near(lhs(i, i), rhs(i, i), tolerance))
+template <typename RowVector>
+[[nodiscard]] std::enable_if_t<gmix::is_row_vector_v<RowVector>, bool>
+is_near(const RowVector &lhs, const RowVector &rhs, double tolerance) {
+  if (lhs.cols() != rhs.cols()) {
+    return false;
+  }
+  for (size_t i = 0; i < lhs.cols(); i++) {
+    if (!is_near(lhs(0, i), rhs(0, i), tolerance))
       return false;
+  }
+  return true;
+}
+
+template <typename Matrix>
+[[nodiscard]] bool is_near(const Matrix &lhs, const Matrix &rhs,
+                           double tolerance) {
+  if ((lhs.rows() != rhs.rows()) || (lhs.cols() != rhs.cols())) {
+    return false;
+  }
+  for (size_t i = 0; i < lhs.rows(); i++) {
+    for (size_t j = 0; j < lhs.cols(); j++) {
+      if (!is_near(lhs(i, j), rhs(i, j), tolerance))
+        return false;
+    }
   }
   return true;
 }

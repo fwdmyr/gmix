@@ -15,11 +15,11 @@ class VariationalBayesianInferenceFixture
 protected:
   static void SetUpTestSuite() {
     gmm_.add_component(
-        {0.5, gmix::initialize<gmix::ColVector<2>>({2.0, 9.0}),
-         gmix::initialize<gmix::Matrix<2, 2>>({{2.0, 0.0}, {0.0, 2.0}})});
+        {0.5, (gmix::ColVector<2>() << 2.0, 9.0).finished(),
+         (gmix::Matrix<2, 2>() << 2.0, 0.0, 0.0, 2.0).finished()});
     gmm_.add_component(
-        {0.5, gmix::initialize<gmix::ColVector<2>>({-5.0, 4.0}),
-         gmix::initialize<gmix::Matrix<2, 2>>({{0.5, 0.0}, {0.0, 0.5}})});
+        {0.5, (gmix::ColVector<2>() << -5.0, 4.0).finished(),
+         (gmix::Matrix<2, 2>() << 0.5, 0.0, 0.0, 0.5).finished()});
     samples_ = gmix::draw_from_gaussian_mixture(gmm_, 1E5);
   }
 
@@ -31,11 +31,11 @@ protected:
     parameters.warm_start = GetParam();
     parameters.dirichlet_prior_weight = 1.0;
     parameters.normal_prior_mean =
-        gmix::initialize<gmix::ColVector<2>>({0.0, 0.0});
+        (gmix::ColVector<2>() << 0.0, 0.0).finished();
     parameters.normal_prior_covariance_scaling = 1.0;
     parameters.wishart_prior_degrees_of_freedom = 2.0;
     parameters.wishart_prior_information =
-        gmix::initialize<gmix::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}});
+        (gmix::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished();
     strategy_ = gmix::VariationalBayesianInferenceStrategy<2>{parameters};
   }
 
@@ -55,11 +55,11 @@ TEST_P(
   gmix::GaussianMixture<2> gmm;
   if (GetParam()) {
     gmm.add_component(
-        {0.5, gmix::initialize<gmix::ColVector<2>>({1.0, 1.0}),
-         gmix::initialize<gmix::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
+        {0.5, (gmix::ColVector<2>() << 1.0, 1.0).finished(),
+         (gmix::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
     gmm.add_component(
-        {0.5, gmix::initialize<gmix::ColVector<2>>({-1.0, -1.0}),
-         gmix::initialize<gmix::Matrix<2, 2>>({{1.0, 0.0}, {0.0, 1.0}})});
+        {0.5, (gmix::ColVector<2>() << -1.0, -1.0).finished(),
+         (gmix::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
   }
 
   gmix::fit(samples_, strategy_, gmm);

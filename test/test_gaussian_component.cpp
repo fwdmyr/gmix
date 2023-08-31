@@ -5,11 +5,11 @@ class GaussianComponentFixture : public testing::Test {
 protected:
   static void SetUpTestSuite() {
     const auto weight = 0.5;
-    const auto mean = gmix::initialize<gmix::ColVector<2>>({-2.3, 4.1});
+    const auto mean = (gmix::ColVector<2>() << -2.3, 4.1).finished();
     const auto covariance =
-        gmix::initialize<gmix::Matrix<2, 2>>({{3.3, 0.4}, {0.4, 2.8}});
+        (gmix::Matrix<2, 2>() << 3.3, 0.4, 0.4, 2.8).finished();
     component_ = {weight, mean, covariance};
-    sample_ = gmix::initialize<gmix::ColVector<2>>({-2.1, 5.1});
+    sample_ = (gmix::ColVector<2>() << -2.1, 5.1).finished();
   }
 
   static gmix::GaussianComponent<2> component_;
@@ -30,9 +30,9 @@ TEST_F(
 TEST_F(GaussianComponentFixture,
        FunctionCallOperator_GivenNewSetOfParameters_ExpectCorrectProbability) {
   const auto new_weight = 0.5;
-  const auto new_mean = gmix::initialize<gmix::ColVector<2>>({-2.3, 4.1});
+  const auto new_mean = (gmix::ColVector<2>() << -2.3, 4.1).finished();
   const auto new_covariance =
-      gmix::initialize<gmix::Matrix<2, 2>>({{3.3, 0.4}, {0.4, 2.8}});
+      (gmix::Matrix<2, 2>() << 3.3, 0.4, 0.4, 2.8).finished();
   const auto new_component =
       gmix::GaussianComponent<2>{new_weight, new_mean, new_covariance};
 
