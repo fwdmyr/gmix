@@ -1,10 +1,9 @@
 #ifndef GMSAM_GAUSSIAN_MIXTURE_HPP
 #define GMSAM_GAUSSIAN_MIXTURE_HPP
 
-#include "base_strategy.hpp"
 #include "common.hpp"
 #include "gaussian_component.hpp"
-#include "matrix_traits.hpp"
+#include "null_strategy.hpp"
 #include <memory>
 #include <random>
 #include <vector>

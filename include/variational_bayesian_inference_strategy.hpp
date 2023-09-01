@@ -1,9 +1,9 @@
 #ifndef GMSAM_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_HPP
 #define GMSAM_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_HPP
 
-#include "base_strategy.hpp"
 #include "common.hpp"
 #include "kmeans_strategy.hpp"
+#include "null_strategy.hpp"
 #include "statistics.hpp"
 #include <cmath>
 #include <cstdlib>
@@ -293,6 +293,9 @@ template <int Dim>
 class VariationalBayesianInferenceStrategy : public BaseStrategy<Dim> {
 public:
   using ParamType = VariationalBayesianInferenceParameters<Dim>;
+
+  explicit VariationalBayesianInferenceStrategy(ParamType &&parameters) noexcept
+      : parameters_(std::move(parameters)) {}
 
   explicit VariationalBayesianInferenceStrategy(
       const ParamType &parameters) noexcept

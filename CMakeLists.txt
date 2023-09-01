@@ -21,7 +21,8 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(HEADERS_LIST
   include/common.hpp
-  include/matrix_traits.hpp
+  include/gmix_traits.hpp
+  include/null_strategy.hpp
   include/statistics.hpp
   include/gaussian_component.hpp
   include/gaussian_mixture.hpp

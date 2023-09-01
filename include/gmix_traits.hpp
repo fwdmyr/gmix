@@ -11,8 +11,8 @@ template <typename, typename, typename = std::void_t<>>
 struct is_constructible_with : std::false_type {};
 
 template <typename Type, typename Arg>
-struct is_constructible_with<
-    Type, Arg, std::void_t<decltype(std::declval<Type>()(std::declval<Arg>()))>>
+struct is_constructible_with<Type, Arg,
+                             std::void_t<decltype(Type(std::declval<Arg>()))>>
     : std::true_type {};
 
 template <typename Type, typename Arg>

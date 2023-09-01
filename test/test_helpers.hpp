@@ -3,6 +3,9 @@
 
 #include "../include/gaussian_mixture.hpp"
 #include <gtest/gtest.h>
+#include <iostream>
+
+#define GTEST_COUT std::cerr << "[          ] [ INFO ] "
 
 namespace test {
 

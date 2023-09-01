@@ -1,11 +1,8 @@
 #ifndef GMSAM_COMMON_HPP
 #define GMSAM_COMMON_HPP
 
-#include "matrix_traits.hpp"
+#include "gmix_traits.hpp"
 #include <eigen3/Eigen/Core>
-#include <iostream>
-
-#define GTEST_COUT std::cerr << "[          ] [ INFO ] "
 
 namespace gmix {
 
@@ -18,24 +15,6 @@ template <int Cols>
 using StaticColsMatrix = Eigen::Matrix<double, Eigen::Dynamic, Cols>;
 
 using MatrixX = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
-
-template <int Rows> using DiagonalMatrix = Eigen::DiagonalMatrix<double, Rows>;
-
-using DiagonalMatrixX = Eigen::DiagonalMatrix<double, Eigen::Dynamic>;
-
-template <int Rows, int Cols>
-using PermutationMatrix = Eigen::PermutationMatrix<Rows, Cols>;
-
-template <int Rows>
-using StaticRowsPermutationMatrix =
-    Eigen::PermutationMatrix<Rows, Eigen::Dynamic>;
-
-template <int Cols>
-using StaticColsPermutationMatrix =
-    Eigen::PermutationMatrix<Eigen::Dynamic, Cols>;
-
-using PermutationMatrixX =
-    Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic>;
 
 template <int Rows> using ColVector = Eigen::Matrix<double, Rows, 1>;
 

@@ -1,8 +1,8 @@
 #ifndef GMSAM_K_MEANS_STRATEGY_HPP
 #define GMSAM_K_MEANS_STRATEGY_HPP
 
-#include "base_strategy.hpp"
 #include "common.hpp"
+#include "null_strategy.hpp"
 #include "statistics.hpp"
 #include <limits>
 #include <numeric>
@@ -153,6 +153,9 @@ template <int Dim> struct KMeansParameters {
 template <int Dim> class KMeansStrategy : public BaseStrategy<Dim> {
 public:
   using ParamType = KMeansParameters<Dim>;
+
+  explicit KMeansStrategy(ParamType &&parameters) noexcept
+      : parameters_(std::move(parameters)) {}
 
   explicit KMeansStrategy(const ParamType &parameters) noexcept
       : parameters_(parameters) {}

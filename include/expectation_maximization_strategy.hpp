@@ -87,6 +87,9 @@ class ExpectationMaximizationStrategy : public BaseStrategy<Dim> {
 public:
   using ParamType = ExpectationMaximizationParameters<Dim>;
 
+  explicit ExpectationMaximizationStrategy(ParamType &&parameters) noexcept
+      : parameters_(std::move(parameters)) {}
+
   explicit ExpectationMaximizationStrategy(const ParamType &parameters) noexcept
       : parameters_(parameters) {}
 
