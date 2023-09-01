@@ -1,7 +1,7 @@
 #ifndef GMSAM_GAUSSIAN_COMPONENT_HPP
 #define GMSAM_GAUSSIAN_COMPONENT_HPP
 
-#include "Common.hpp"
+#include "common.hpp"
 #include <optional>
 
 namespace gmix {

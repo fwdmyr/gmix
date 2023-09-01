@@ -1,7 +1,7 @@
 #ifndef GMSAM_TEST_HELPERS
 #define GMSAM_TEST_HELPERS
 
-#include "../include/GaussianMixture.hpp"
+#include "../include/gaussian_mixture.hpp"
 #include <gtest/gtest.h>
 
 namespace test {

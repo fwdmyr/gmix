@@ -1,9 +1,9 @@
 #ifndef GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
 #define GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
 
-#include "Common.hpp"
-#include "KMeansStrategy.hpp"
-#include "Statistics.hpp"
+#include "common.hpp"
+#include "kmeans_strategy.hpp"
+#include "statistics.hpp"
 #include <limits>
 #include <random>
 

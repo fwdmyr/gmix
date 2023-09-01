@@ -1,7 +1,7 @@
 #ifndef GMSAM_STATISTICS_HPP
 #define GMSAM_STATISTICS_HPP
 
-#include "Common.hpp"
+#include "common.hpp"
 #include <iostream>
 #include <numeric>
 #include <random>

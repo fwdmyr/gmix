@@ -1,7 +1,7 @@
 #ifndef GMSAM_COMMON_HPP
 #define GMSAM_COMMON_HPP
 
-#include "TypeTraits.hpp"
+#include "matrix_traits.hpp"
 #include <eigen3/Eigen/Core>
 #include <iostream>
 

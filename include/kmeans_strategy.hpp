@@ -1,9 +1,9 @@
 #ifndef GMSAM_K_MEANS_STRATEGY_HPP
 #define GMSAM_K_MEANS_STRATEGY_HPP
 
-#include "BaseStrategy.hpp"
-#include "Common.hpp"
-#include "Statistics.hpp"
+#include "base_strategy.hpp"
+#include "common.hpp"
+#include "statistics.hpp"
 #include <limits>
 #include <numeric>
 #include <random>

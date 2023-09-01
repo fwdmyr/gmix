@@ -1,5 +1,5 @@
-#include "../include/Statistics.hpp"
-#include "TestHelpers.hpp"
+#include "../include/statistics.hpp"
+#include "test_helpers.hpp"
 #include <gtest/gtest.h>
 
 namespace {

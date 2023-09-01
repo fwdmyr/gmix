@@ -1,5 +1,5 @@
-#include "../include/KMeansStrategy.hpp"
-#include "TestHelpers.hpp"
+#include "../include/kmeans_strategy.hpp"
+#include "test_helpers.hpp"
 #include <cmath>
 #include <gtest/gtest.h>
 

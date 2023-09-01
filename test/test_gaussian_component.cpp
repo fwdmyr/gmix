@@ -1,4 +1,4 @@
-#include "TestHelpers.hpp"
+#include "test_helpers.hpp"
 namespace {
 
 class GaussianComponentFixture : public testing::Test {

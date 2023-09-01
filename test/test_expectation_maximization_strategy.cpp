@@ -1,5 +1,5 @@
-#include "../include/ExpectationMaximizationStrategy.hpp"
-#include "TestHelpers.hpp"
+#include "../include/expectation_maximization_strategy.hpp"
+#include "test_helpers.hpp"
 #include <gtest/gtest.h>
 
 namespace {
@@ -7,7 +7,7 @@ namespace {
 TEST(EvaluateResponsibilities,
      GivenSamplesAndGaussianMixture_ExpectCorrectResponsibilityMatrix) {
   const auto samples =
-      (gmix::StaticRowsMatrix<2>(2,2) << -3.0, -2.0, 4.0, 3.0).finished();
+      (gmix::StaticRowsMatrix<2>(2, 2) << -3.0, -2.0, 4.0, 3.0).finished();
   auto gmm = gmix::GaussianMixture<2>{};
   gmm.add_component({0.5, (gmix::ColVector<2>() << 2.0, 9.0).finished(),
                      (gmix::Matrix<2, 2>() << 2.0, 0.0, 0.0, 2.0).finished()});
@@ -33,7 +33,7 @@ TEST(
     EstimateParameters,
     GivenSamplesResponsibilitiesAndGaussianMixture_ExpectCorrectUpdateOfParameters) {
   const auto samples =
-      (gmix::StaticRowsMatrix<2>(2,2) << 1.0, 2.0, 3.0, 4.0).finished();
+      (gmix::StaticRowsMatrix<2>(2, 2) << 1.0, 2.0, 3.0, 4.0).finished();
   const auto responsibilities =
       (gmix::MatrixX(2, 2) << 0.3, 0.6, 0.7, 0.4).finished();
   auto gmm = gmix::GaussianMixture<2>{};

@@ -1,5 +1,5 @@
-#include "../include/VariationalBayesianInferenceStrategy.hpp"
-#include "TestHelpers.hpp"
+#include "../include/variational_bayesian_inference_strategy.hpp"
+#include "test_helpers.hpp"
 #include <gtest/gtest.h>
 
 namespace {

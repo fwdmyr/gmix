@@ -1,16 +1,16 @@
 #ifndef GMSAM_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_HPP
 #define GMSAM_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_HPP
 
-#include "BaseStrategy.hpp"
-#include "Common.hpp"
-#include "KMeansStrategy.hpp"
-#include "Statistics.hpp"
+#include "base_strategy.hpp"
+#include "common.hpp"
+#include "kmeans_strategy.hpp"
+#include "statistics.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <eigen3/Eigen/src/Core/GlobalFunctions.h>
+#include <eigen3/unsupported/Eigen/SpecialFunctions>
 #include <limits>
 #include <random>
-#include <unsupported/Eigen/SpecialFunctions>
 #include <variant>
 
 // TODO: There is a lot of optimization to be done here, also think about

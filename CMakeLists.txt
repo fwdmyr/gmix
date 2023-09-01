@@ -20,15 +20,15 @@ endif()
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(HEADERS_LIST
-  include/Common.hpp
-  include/TypeTraits.hpp
-  include/Statistics.hpp
-  include/GaussianComponent.hpp
-  include/GaussianMixture.hpp
-  include/BaseStrategy.hpp
-  include/KMeansStrategy.hpp
-  include/ExpectationMaximizationStrategy.hpp
-  include/VariationalBayesianInferenceStrategy.hpp
+  include/common.hpp
+  include/matrix_traits.hpp
+  include/statistics.hpp
+  include/gaussian_component.hpp
+  include/gaussian_mixture.hpp
+  include/base_strategy.hpp
+  include/kmeans_strategy.hpp
+  include/expectation_maximization_strategy.hpp
+  include/variational_bayesian_inference_strategy.hpp
   )
 
 set(TARGET_NAME gmsam)

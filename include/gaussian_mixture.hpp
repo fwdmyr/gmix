@@ -1,10 +1,9 @@
 #ifndef GMSAM_GAUSSIAN_MIXTURE_HPP
 #define GMSAM_GAUSSIAN_MIXTURE_HPP
 
-#include "Common.hpp"
-#include "GaussianComponent.hpp"
-#include "TypeTraits.hpp"
-#include <initializer_list>
+#include "common.hpp"
+#include "gaussian_component.hpp"
+#include "matrix_traits.hpp"
 #include <memory>
 #include <random>
 #include <vector>
