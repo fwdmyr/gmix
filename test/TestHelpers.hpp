@@ -39,8 +39,8 @@ is_near(const RowVector &lhs, const RowVector &rhs, double tolerance) {
 }
 
 template <typename Matrix>
-[[nodiscard]] std::enable_if_t<gmix::is_matrix_v<Matrix>, bool> is_near(const Matrix &lhs, const Matrix &rhs,
-                           double tolerance) {
+[[nodiscard]] std::enable_if_t<gmix::is_matrix_v<Matrix>, bool>
+is_near(const Matrix &lhs, const Matrix &rhs, double tolerance) {
   if ((lhs.rows() != rhs.rows()) || (lhs.cols() != rhs.cols())) {
     return false;
   }

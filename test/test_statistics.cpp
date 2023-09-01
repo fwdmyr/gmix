@@ -9,7 +9,7 @@ protected:
   static void SetUpTestSuite() {
     gmix::GaussianMixture<2> gmm;
     mean_ = (gmix::ColVector<2>() << 9.7, -4.2).finished();
-    covariance_ = (gmix::Matrix<2, 2>() << 3.2, 0.2, 0.7, 2.5).finished();
+    covariance_ = (gmix::Matrix<2, 2>() << 1.2, 0.0, 0.0, 1.2).finished();
     gmm.add_component({1.0, mean_, covariance_});
     samples_ = gmix::draw_from_gaussian_mixture(gmm, 100000);
   }
