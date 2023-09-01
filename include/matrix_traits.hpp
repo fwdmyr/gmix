@@ -2,9 +2,22 @@
 #define GMSAM_TYPE_TRAITS_HPP
 
 #include <eigen3/Eigen/Dense>
+#include <tuple>
 #include <type_traits>
 
 namespace gmix {
+
+template <typename, typename, typename = std::void_t<>>
+struct is_constructible_with : std::false_type {};
+
+template <typename Type, typename Arg>
+struct is_constructible_with<
+    Type, Arg, std::void_t<decltype(std::declval<Type>()(std::declval<Arg>()))>>
+    : std::true_type {};
+
+template <typename Type, typename Arg>
+static constexpr auto is_constructible_with_v =
+    is_constructible_with<Type, Arg>::value;
 
 template <typename> struct MatrixTraits;
 

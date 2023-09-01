@@ -24,16 +24,14 @@ public:
   explicit GaussianMixture(
       std::initializer_list<GaussianComponent<Dim>>) noexcept;
 
-  template <
-      typename Parameters,
-      typename = std::enable_if_t<std::is_same_v<
-          std::decay_t<Parameters>, typename FittingStrategy<Dim>::ParamType>>>
+  template <typename Parameters,
+            typename = std::enable_if_t<is_constructible_with_v<
+                FittingStrategy<Dim>, std::decay_t<Parameters>>>>
   explicit GaussianMixture(Parameters &&) noexcept;
 
-  template <
-      typename Parameters,
-      typename = std::enable_if_t<std::is_same_v<
-          std::decay_t<Parameters>, typename FittingStrategy<Dim>::ParamType>>>
+  template <typename Parameters,
+            typename = std::enable_if_t<is_constructible_with_v<
+                FittingStrategy<Dim>, std::decay_t<Parameters>>>>
   GaussianMixture(std::initializer_list<GaussianComponent<Dim>>,
                   Parameters &&) noexcept;
 
