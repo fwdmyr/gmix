@@ -83,17 +83,19 @@ template <int Dim> struct ExpectationMaximizationParameters {
 };
 
 template <int Dim>
-class ExpectationMaximizationStrategy final : public BaseStrategy<Dim> {
-public:
+class ExpectationMaximizationStrategy : public BaseStrategy<Dim> {
+protected:
+  using ParamType = ExpectationMaximizationParameters<Dim>;
+
   explicit ExpectationMaximizationStrategy(
       const ExpectationMaximizationParameters<Dim> &parameters) noexcept
       : parameters_(parameters) {}
+
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
                    const StaticRowsMatrix<Dim> &) const override;
 
-private:
   virtual void initialize(std::vector<GaussianComponent<Dim>> &,
-                          const StaticRowsMatrix<Dim> &) const override;
+                          const StaticRowsMatrix<Dim> &) override;
 
   ExpectationMaximizationParameters<Dim> parameters_{};
 };
@@ -101,13 +103,14 @@ private:
 template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
-    const StaticRowsMatrix<Dim> &samples) const {
+    const StaticRowsMatrix<Dim> &samples) {
 
   const KMeansParameters<Dim> initialization_parameters = {
       parameters_.n_components, 1, 0.0, parameters_.warm_start};
   const auto initialization_strategy =
       KMeansStrategy<Dim>{initialization_parameters};
   initialization_strategy.fit(components, samples);
+  parameters_.warm_start = true;
 }
 
 template <int Dim>

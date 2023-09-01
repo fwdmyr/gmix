@@ -1,6 +1,7 @@
 #ifndef GMSAM_GAUSSIAN_MIXTURE_HPP
 #define GMSAM_GAUSSIAN_MIXTURE_HPP
 
+#include "base_strategy.hpp"
 #include "common.hpp"
 #include "gaussian_component.hpp"
 #include "matrix_traits.hpp"
@@ -10,7 +11,8 @@
 
 namespace gmix {
 
-template <int Dim> class GaussianMixture {
+template <int Dim, template <int> typename FittingStrategy = NullStrategy>
+class GaussianMixture : public FittingStrategy<Dim> {
 
 public:
   using container_type = std::vector<GaussianComponent<Dim>>;
@@ -18,7 +20,21 @@ public:
   using const_iterator = typename container_type::const_iterator;
 
   GaussianMixture() = default;
+
   GaussianMixture(std::initializer_list<GaussianComponent<Dim>>) noexcept;
+
+  template <
+      typename Parameters,
+      typename = std::enable_if_t<std::is_same_v<
+          std::decay_t<Parameters>, typename FittingStrategy<Dim>::ParamType>>>
+  GaussianMixture(Parameters &&) noexcept;
+
+  template <
+      typename Parameters,
+      typename = std::enable_if_t<std::is_same_v<
+          std::decay_t<Parameters>, typename FittingStrategy<Dim>::ParamType>>>
+  GaussianMixture(std::initializer_list<GaussianComponent<Dim>>,
+                  Parameters &&) noexcept;
 
   [[nodiscard]] inline iterator begin() noexcept { return components_.begin(); }
   [[nodiscard]] inline const_iterator cbegin() const noexcept {
@@ -58,8 +74,9 @@ public:
 
   void reset() { components_.resize(0); }
 
-  friend std::ostream &operator<<(std::ostream &os,
-                                  const GaussianMixture<Dim> &gmm) {
+  friend std::ostream &
+  operator<<(std::ostream &os,
+             const GaussianMixture<Dim, FittingStrategy> &gmm) {
     os << "GaussianMixture<" << Dim << ">\n";
     for (const auto &component : gmm.components_)
       os << component << '\n';
@@ -70,13 +87,20 @@ private:
   std::vector<GaussianComponent<Dim>> components_{};
 };
 
-template <int Dim>
-GaussianMixture<Dim>::GaussianMixture(
+template <int Dim, template <int> typename FittingStrategy>
+GaussianMixture<Dim, FittingStrategy>::GaussianMixture(
     std::initializer_list<GaussianComponent<Dim>> components) noexcept
     : components_{components} {}
 
-template <int Dim>
-double GaussianMixture<Dim>::operator()(gmix::ColVector<Dim> sample) const {
+template <int Dim, template <int> typename FittingStrategy>
+template <typename Parameters, typename>
+GaussianMixture<Dim, FittingStrategy>::GaussianMixture(
+    std::initializer_list<GaussianComponent<Dim>> components, Parameters&& params) noexcept
+    : FittingStrategy<Dim>(std::forward<Parameters>(params), components_{components} {}
+
+template <int Dim, template <int> typename FittingStrategy>
+double GaussianMixture<Dim, FittingStrategy>::operator()(
+    gmix::ColVector<Dim> sample) const {
   return std::accumulate(
       components_.begin(), components_.end(), 0.0,
       [&x = std::as_const(sample)](auto sum, const auto &component) -> double {
@@ -92,9 +116,10 @@ void fit(const MatrixType &samples, const StrategyType &strategy,
   strategy.fit(components, samples);
 }
 
-template <int Dim>
+template <template <int> typename FittingStrategy, int Dim>
 [[nodiscard]] StaticRowsMatrix<Dim>
-draw_from_gaussian_mixture(const GaussianMixture<Dim> &gmm, size_t n_samples) {
+draw_from_gaussian_mixture(const GaussianMixture<Dim, FittingStrategy> &gmm,
+                           size_t n_samples) {
   static std::mt19937 gen{std::random_device{}()};
   static std::normal_distribution<> nd;
 

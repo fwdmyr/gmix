@@ -150,23 +150,26 @@ template <int Dim> struct KMeansParameters {
   bool warm_start{false};
 };
 
-template <int Dim> class KMeansStrategy final : public BaseStrategy<Dim> {
-public:
+template <int Dim> class KMeansStrategy : public BaseStrategy<Dim> {
+protected:
+  using ParamType = KMeansParameters<Dim>;
+
   explicit KMeansStrategy(const KMeansParameters<Dim> &parameters) noexcept
       : parameters_(parameters) {}
+
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
                    const StaticRowsMatrix<Dim> &) const override;
-  virtual void initialize(std::vector<GaussianComponent<Dim>> &,
-                          const StaticRowsMatrix<Dim> &) const override;
 
-private:
+  virtual void initialize(std::vector<GaussianComponent<Dim>> &,
+                          const StaticRowsMatrix<Dim> &) override;
+
   KMeansParameters<Dim> parameters_{};
 };
 
 template <int Dim>
 void KMeansStrategy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
-    const StaticRowsMatrix<Dim> &samples) const {
+    const StaticRowsMatrix<Dim> &samples) {
   assert(samples.cols() >= parameters_.n_components);
   components.resize(0);
   const auto partitions =
@@ -176,6 +179,7 @@ void KMeansStrategy<Dim>::initialize(
     const auto sigma = internal::sample_covariance(partition, mu);
     components.push_back({1.0 / parameters_.n_components, mu, sigma});
   }
+  parameters_.warm_start = true;
 }
 
 template <int Dim>

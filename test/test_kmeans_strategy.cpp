@@ -8,7 +8,8 @@ namespace {
 class PartitionSamplesFixture : public ::testing::Test {
 protected:
   static void SetUpTestSuite() {
-    samples_ = (gmix::StaticRowsMatrix<2>(2,4) << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
+    samples_ = (gmix::StaticRowsMatrix<2>(2, 4) << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0,
+                1.9, 2.0)
                    .finished();
   }
 
@@ -51,14 +52,14 @@ TEST_F(
 
 TEST(PartitionSamplesResponsibly,
      GivenSamplesAndGaussianMixture_ExpectCorrectAssociation) {
-  auto gmm = gmix::GaussianMixture<2>{};
+  auto gmm = gmix::GaussianMixture<gmix::KMeansStrategy, 2>{};
   gmm.add_component({0.5, (gmix::ColVector<2>() << 1.0, 1.0).finished(),
                      (gmix::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
   gmm.add_component({0.5, (gmix::ColVector<2>() << 2.0, 2.0).finished(),
                      (gmix::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
-  const auto samples =
-      (gmix::StaticRowsMatrix<2>(2,4) << 0.9, 1.0, 1.9, 2.0, 0.9, 1.0, 1.9, 2.0)
-          .finished();
+  const auto samples = (gmix::StaticRowsMatrix<2>(2, 4) << 0.9, 1.0, 1.9, 2.0,
+                        0.9, 1.0, 1.9, 2.0)
+                           .finished();
 
   const auto partitions = gmix::internal::partition_samples_responsibly(
       gmm.get_components(), samples);
@@ -82,9 +83,9 @@ TEST(UpdateWeight, GivenPartitionedSamples_ExpectCorrectWeightUpdate) {
   gmm.add_component();
   auto partitions = std::vector<gmix::StaticRowsMatrix<2>>{};
   partitions.push_back(
-      (gmix::StaticRowsMatrix<2>(2,2) << 0.9, 1.0, 0.9, 1.0).finished());
+      (gmix::StaticRowsMatrix<2>(2, 2) << 0.9, 1.0, 0.9, 1.0).finished());
   partitions.push_back(
-      (gmix::StaticRowsMatrix<2>(2,2) << 1.9, 2.0, 1.9, 2.0).finished());
+      (gmix::StaticRowsMatrix<2>(2, 2) << 1.9, 2.0, 1.9, 2.0).finished());
 
   gmix::internal::update_weight(gmm.get_components(), partitions);
 
@@ -98,9 +99,9 @@ TEST(UpdateMean, GivenPartitionedSamples_ExpectCorrectMeanUpdate) {
   gmm.add_component();
   auto partitions = std::vector<gmix::StaticRowsMatrix<2>>{};
   partitions.push_back(
-      (gmix::StaticRowsMatrix<2>(2,2) << 0.9, 1.0, 0.9, 1.0).finished());
+      (gmix::StaticRowsMatrix<2>(2, 2) << 0.9, 1.0, 0.9, 1.0).finished());
   partitions.push_back(
-      (gmix::StaticRowsMatrix<2>(2,2) << 1.9, 2.0, 1.9, 2.0).finished());
+      (gmix::StaticRowsMatrix<2>(2, 2) << 1.9, 2.0, 1.9, 2.0).finished());
 
   gmix::internal::update_mean(gmm.get_components(), partitions);
 
@@ -116,9 +117,9 @@ TEST(UpdateCovariance, GivenPartitionedSamples_ExpectCorrectCovarianceUpdate) {
   gmm.add_component();
   auto partitions = std::vector<gmix::StaticRowsMatrix<2>>{};
   partitions.push_back(
-      (gmix::StaticRowsMatrix<2>(2,2) << 0.9, 1.0, 0.9, 1.0).finished());
+      (gmix::StaticRowsMatrix<2>(2, 2) << 0.9, 1.0, 0.9, 1.0).finished());
   partitions.push_back(
-      (gmix::StaticRowsMatrix<2>(2,2) << 1.9, 2.0, 1.9, 2.0).finished());
+      (gmix::StaticRowsMatrix<2>(2, 2) << 1.9, 2.0, 1.9, 2.0).finished());
   const auto expected_covariance =
       (gmix::Matrix<2, 2>() << 0.005, 0.005, 0.005, 0.005).finished();
 
@@ -151,9 +152,9 @@ TEST(GetMeanMatrix, GivenGaussianMixture_ExpectCorrectMeanMatrix) {
 TEST(IsEarlyStoppingConditionFulfilled,
      GivenMeanMatricesAndSmallEnoughThreshold_ExpectFalse) {
   const auto mean_matrix =
-      (gmix::StaticRowsMatrix<2>(2,2) << 0.9, 1.9, 0.99, 1.99).finished();
+      (gmix::StaticRowsMatrix<2>(2, 2) << 0.9, 1.9, 0.99, 1.99).finished();
   const auto other_mean_matrix =
-      (gmix::StaticRowsMatrix<2>(2,2) << 1.0, 2.0, 1.0, 2.0).finished();
+      (gmix::StaticRowsMatrix<2>(2, 2) << 1.0, 2.0, 1.0, 2.0).finished();
   const auto threshold = 0.1;
 
   const auto flag = gmix::internal::is_early_stopping_condition_fulfilled(
@@ -165,9 +166,9 @@ TEST(IsEarlyStoppingConditionFulfilled,
 TEST(IsEarlyStoppingConditionFulfilled,
      GivenMeanMatricesAndLargeEnoughThreshold_ExpectTrue) {
   const auto mean_matrix =
-      (gmix::StaticRowsMatrix<2>(2,2) << 0.9, 1.9, 0.99, 1.99).finished();
+      (gmix::StaticRowsMatrix<2>(2, 2) << 0.9, 1.9, 0.99, 1.99).finished();
   const auto other_mean_matrix =
-      (gmix::StaticRowsMatrix<2>(2,2) << 1.0, 2.0, 1.0, 2.0).finished();
+      (gmix::StaticRowsMatrix<2>(2, 2) << 1.0, 2.0, 1.0, 2.0).finished();
   const auto threshold = 0.2;
 
   const auto flag = gmix::internal::is_early_stopping_condition_fulfilled(
