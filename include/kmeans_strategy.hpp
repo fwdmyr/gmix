@@ -151,25 +151,29 @@ template <int Dim> struct KMeansParameters {
 };
 
 template <int Dim> class KMeansStrategy : public BaseStrategy<Dim> {
-protected:
+public:
   using ParamType = KMeansParameters<Dim>;
 
-  explicit KMeansStrategy(const KMeansParameters<Dim> &parameters) noexcept
+  explicit KMeansStrategy(const ParamType &parameters) noexcept
       : parameters_(parameters) {}
 
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
                    const StaticRowsMatrix<Dim> &) const override;
 
   virtual void initialize(std::vector<GaussianComponent<Dim>> &,
-                          const StaticRowsMatrix<Dim> &) override;
+                          const StaticRowsMatrix<Dim> &) const override;
 
-  KMeansParameters<Dim> parameters_{};
+protected:
+  KMeansStrategy() = default;
+
+private:
+  ParamType parameters_{};
 };
 
 template <int Dim>
 void KMeansStrategy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
-    const StaticRowsMatrix<Dim> &samples) {
+    const StaticRowsMatrix<Dim> &samples) const {
   assert(samples.cols() >= parameters_.n_components);
   components.resize(0);
   const auto partitions =
@@ -179,7 +183,6 @@ void KMeansStrategy<Dim>::initialize(
     const auto sigma = internal::sample_covariance(partition, mu);
     components.push_back({1.0 / parameters_.n_components, mu, sigma});
   }
-  parameters_.warm_start = true;
 }
 
 template <int Dim>

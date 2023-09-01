@@ -19,15 +19,16 @@ public:
   using iterator = typename container_type::iterator;
   using const_iterator = typename container_type::const_iterator;
 
-  GaussianMixture() = default;
+  explicit GaussianMixture() noexcept;
 
-  GaussianMixture(std::initializer_list<GaussianComponent<Dim>>) noexcept;
+  explicit GaussianMixture(
+      std::initializer_list<GaussianComponent<Dim>>) noexcept;
 
   template <
       typename Parameters,
       typename = std::enable_if_t<std::is_same_v<
           std::decay_t<Parameters>, typename FittingStrategy<Dim>::ParamType>>>
-  GaussianMixture(Parameters &&) noexcept;
+  explicit GaussianMixture(Parameters &&) noexcept;
 
   template <
       typename Parameters,
@@ -35,6 +36,8 @@ public:
           std::decay_t<Parameters>, typename FittingStrategy<Dim>::ParamType>>>
   GaussianMixture(std::initializer_list<GaussianComponent<Dim>>,
                   Parameters &&) noexcept;
+
+  void fit(const StaticRowsMatrix<Dim> &);
 
   [[nodiscard]] inline iterator begin() noexcept { return components_.begin(); }
   [[nodiscard]] inline const_iterator cbegin() const noexcept {
@@ -88,15 +91,27 @@ private:
 };
 
 template <int Dim, template <int> typename FittingStrategy>
+GaussianMixture<Dim, FittingStrategy>::GaussianMixture() noexcept
+    : FittingStrategy<Dim>() {}
+
+template <int Dim, template <int> typename FittingStrategy>
 GaussianMixture<Dim, FittingStrategy>::GaussianMixture(
     std::initializer_list<GaussianComponent<Dim>> components) noexcept
-    : components_{components} {}
+    : FittingStrategy<Dim>(), components_{components} {}
 
 template <int Dim, template <int> typename FittingStrategy>
 template <typename Parameters, typename>
 GaussianMixture<Dim, FittingStrategy>::GaussianMixture(
-    std::initializer_list<GaussianComponent<Dim>> components, Parameters&& params) noexcept
-    : FittingStrategy<Dim>(std::forward<Parameters>(params), components_{components} {}
+    Parameters &&params) noexcept
+    : FittingStrategy<Dim>(std::forward<Parameters>(params)) {}
+
+template <int Dim, template <int> typename FittingStrategy>
+template <typename Parameters, typename>
+GaussianMixture<Dim, FittingStrategy>::GaussianMixture(
+    std::initializer_list<GaussianComponent<Dim>> components,
+    Parameters &&params) noexcept
+    : FittingStrategy<Dim>(std::forward<Parameters>(params)),
+      components_{components} {}
 
 template <int Dim, template <int> typename FittingStrategy>
 double GaussianMixture<Dim, FittingStrategy>::operator()(
@@ -108,12 +123,10 @@ double GaussianMixture<Dim, FittingStrategy>::operator()(
       });
 }
 
-template <typename StrategyType, typename MatrixType,
-          typename GaussianMixtureType>
-void fit(const MatrixType &samples, const StrategyType &strategy,
-         GaussianMixtureType &gmm) {
-  auto &components = gmm.get_components();
-  strategy.fit(components, samples);
+template <int Dim, template <int> typename FittingStrategy>
+void GaussianMixture<Dim, FittingStrategy>::fit(
+    const StaticRowsMatrix<Dim> &samples) {
+  FittingStrategy<Dim>::fit(components_, samples);
 }
 
 template <template <int> typename FittingStrategy, int Dim>

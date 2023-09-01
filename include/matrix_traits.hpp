@@ -46,10 +46,6 @@ struct is_column_vector<Eigen::Matrix<T, 1, 1>> : std::false_type {};
 template <typename MatrixT>
 static constexpr auto is_column_vector_v = is_column_vector<MatrixT>::value;
 
-template <typename MatrixT>
-static constexpr auto is_matrix_v =
-    !is_row_vector_v<MatrixT> && !is_column_vector_v<MatrixT>;
-
 } // namespace gmix
 
 #endif // !GMSAM_TYPE_TRAITS_HPP

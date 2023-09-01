@@ -13,34 +13,11 @@ static constexpr double DETERMINISTIC_TOLERANCE = 1E-10;
   return ((lhs - tolerance <= rhs) && (rhs <= lhs + tolerance));
 }
 
-template <typename ColumnVector>
-[[nodiscard]] std::enable_if_t<gmix::is_column_vector_v<ColumnVector>, bool>
-is_near(const ColumnVector &lhs, const ColumnVector &rhs, double tolerance) {
-  if (lhs.rows() != rhs.rows())
-    return false;
-  for (size_t i = 0; i < lhs.rows(); i++) {
-    if (!is_near(lhs(i, 0), rhs(i, 0), tolerance))
-      return false;
-  }
-  return true;
-}
-
-template <typename RowVector>
-[[nodiscard]] std::enable_if_t<gmix::is_row_vector_v<RowVector>, bool>
-is_near(const RowVector &lhs, const RowVector &rhs, double tolerance) {
-  if (lhs.cols() != rhs.cols()) {
-    return false;
-  }
-  for (size_t i = 0; i < lhs.cols(); i++) {
-    if (!is_near(lhs(0, i), rhs(0, i), tolerance))
-      return false;
-  }
-  return true;
-}
-
-template <typename Matrix>
-[[nodiscard]] std::enable_if_t<gmix::is_matrix_v<Matrix>, bool>
-is_near(const Matrix &lhs, const Matrix &rhs, double tolerance) {
+template <template <typename, int, int> typename Matrix, typename T,
+          int RowsLhs, int ColsLhs, int RowsRhs, int ColsRhs>
+[[nodiscard]] bool is_near(const Matrix<T, RowsLhs, ColsLhs> &lhs,
+                           const Matrix<T, RowsRhs, ColsRhs> &rhs,
+                           double tolerance) {
   if ((lhs.rows() != rhs.rows()) || (lhs.cols() != rhs.cols())) {
     return false;
   }
@@ -62,10 +39,11 @@ template <int Dim>
          is_near(lhs.get_covariance(), rhs.get_covariance(), tolerance);
 }
 
-template <template <int Dim> typename FittingStrategy, int Dim>
+template <template <int> typename FittingStrategyLhs,
+          template <int> typename FittingStrategyRhs, int Dim>
 [[nodiscard]] bool
-is_near(const gmix::GaussianMixture<Dim, FittingStrategy> &lhs,
-        const gmix::GaussianMixture<Dim, FittingStrategy> &rhs,
+is_near(const gmix::GaussianMixture<Dim, FittingStrategyLhs> &lhs,
+        const gmix::GaussianMixture<Dim, FittingStrategyRhs> &rhs,
         double tolerance) {
   if (lhs.get_size() != rhs.get_size())
     return false;
@@ -78,10 +56,11 @@ is_near(const gmix::GaussianMixture<Dim, FittingStrategy> &lhs,
   return true;
 }
 
-template <template <int Dim> typename FittingStrategy, int Dim>
+template <template <int> typename FittingStrategyLhs,
+          template <int> typename FittingStrategyRhs, int Dim>
 [[nodiscard]] bool
-compare_gaussian_mixtures(gmix::GaussianMixture<Dim, FittingStrategy> &lhs,
-                          gmix::GaussianMixture<Dim, FittingStrategy> &rhs,
+compare_gaussian_mixtures(gmix::GaussianMixture<Dim, FittingStrategyLhs> &lhs,
+                          gmix::GaussianMixture<Dim, FittingStrategyRhs> &rhs,
                           double tolerance) {
   if (lhs.get_size() != rhs.get_size())
     return false;

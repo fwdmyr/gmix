@@ -291,32 +291,35 @@ double evaluate_variational_lower_bound(
 
 template <int Dim>
 class VariationalBayesianInferenceStrategy : public BaseStrategy<Dim> {
-protected:
+public:
   using ParamType = VariationalBayesianInferenceParameters<Dim>;
 
   explicit VariationalBayesianInferenceStrategy(
-      const VariationalBayesianInferenceParameters<Dim> &parameters) noexcept
+      const ParamType &parameters) noexcept
       : parameters_(parameters) {}
 
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
                    const StaticRowsMatrix<Dim> &) const override;
 
   void initialize(std::vector<GaussianComponent<Dim>> &,
-                  const StaticRowsMatrix<Dim> &) override;
+                  const StaticRowsMatrix<Dim> &) const override;
 
-  VariationalBayesianInferenceParameters<Dim> parameters_{};
+protected:
+  VariationalBayesianInferenceStrategy() = default;
+
+private:
+  ParamType parameters_{};
 };
 
 template <int Dim>
 void VariationalBayesianInferenceStrategy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
-    const StaticRowsMatrix<Dim> &samples) {
+    const StaticRowsMatrix<Dim> &samples) const {
   const KMeansParameters<Dim> initialization_parameters = {
       parameters_.n_components, 1, 0.0, parameters_.warm_start};
   const auto initialization_strategy =
       KMeansStrategy<Dim>{initialization_parameters};
   initialization_strategy.fit(components, samples);
-  parameters_.warm_start = true;
 }
 
 template <int Dim>

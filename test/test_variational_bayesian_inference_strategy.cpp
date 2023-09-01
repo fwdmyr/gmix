@@ -36,14 +36,12 @@ protected:
     parameters.wishart_prior_degrees_of_freedom = 2.0;
     parameters.wishart_prior_information =
         (gmix::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished();
-    strategy_ = gmix::VariationalBayesianInferenceStrategy<2>{parameters};
+    parameters_ = std::move(parameters);
   }
 
   static gmix::GaussianMixture<2> gmm_;
   static gmix::StaticRowsMatrix<2> samples_;
   gmix::VariationalBayesianInferenceParameters<2> parameters_{};
-  gmix::VariationalBayesianInferenceStrategy<2> strategy_{
-      gmix::VariationalBayesianInferenceParameters<2>{}};
 };
 
 gmix::GaussianMixture<2> VariationalBayesianInferenceFixture::gmm_{};
@@ -52,7 +50,8 @@ gmix::StaticRowsMatrix<2> VariationalBayesianInferenceFixture::samples_{};
 TEST_P(
     VariationalBayesianInferenceFixture,
     Fit_GivenParametersAndSamples_ExpectCorrectApproximationOfUnderlyingDistribution) {
-  gmix::GaussianMixture<2> gmm;
+  gmix::GaussianMixture<2, gmix::VariationalBayesianInferenceStrategy> gmm{
+      parameters_};
   if (GetParam()) {
     gmm.add_component(
         {0.5, (gmix::ColVector<2>() << 1.0, 1.0).finished(),
@@ -62,7 +61,7 @@ TEST_P(
          (gmix::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
   }
 
-  gmix::fit(samples_, strategy_, gmm);
+  gmm.fit(samples_);
 
   EXPECT_TRUE(
       test::compare_gaussian_mixtures(gmm_, gmm, test::RANDOM_TOLERANCE));

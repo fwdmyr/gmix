@@ -52,7 +52,7 @@ TEST_F(
 
 TEST(PartitionSamplesResponsibly,
      GivenSamplesAndGaussianMixture_ExpectCorrectAssociation) {
-  auto gmm = gmix::GaussianMixture<gmix::KMeansStrategy, 2>{};
+  auto gmm = gmix::GaussianMixture<2>{};
   gmm.add_component({0.5, (gmix::ColVector<2>() << 1.0, 1.0).finished(),
                      (gmix::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
   gmm.add_component({0.5, (gmix::ColVector<2>() << 2.0, 2.0).finished(),
@@ -195,13 +195,12 @@ protected:
     parameters.n_iterations = 10;
     parameters.early_stopping_threshold = 0.0;
     parameters.warm_start = GetParam();
-    strategy_ = gmix::KMeansStrategy<2>{parameters};
+    parameters_ = std::move(parameters);
   }
 
   static gmix::GaussianMixture<2> gmm_;
   static gmix::StaticRowsMatrix<2> samples_;
   gmix::KMeansParameters<2> parameters_{};
-  gmix::KMeansStrategy<2> strategy_{gmix::KMeansParameters<2>{}};
 };
 
 gmix::GaussianMixture<2> KMeansStrategyFixture::gmm_{};
@@ -210,7 +209,7 @@ gmix::StaticRowsMatrix<2> KMeansStrategyFixture::samples_{};
 TEST_P(
     KMeansStrategyFixture,
     Fit_GivenParametersAndSamples_ExpectCorrectApproximationOfUnderlyingDistribution) {
-  gmix::GaussianMixture<2> gmm;
+  gmix::GaussianMixture<2, gmix::KMeansStrategy> gmm{parameters_};
   if (GetParam()) {
     gmm.add_component(
         {0.5, (gmix::ColVector<2>() << 1.0, 1.0).finished(),
@@ -220,7 +219,7 @@ TEST_P(
          (gmix::Matrix<2, 2>() << 1.0, 0.0, 0.0, 1.0).finished()});
   }
 
-  gmix::fit(samples_, strategy_, gmm);
+  gmm.fit(samples_);
 
   EXPECT_TRUE(
       test::compare_gaussian_mixtures(gmm_, gmm, test::RANDOM_TOLERANCE));

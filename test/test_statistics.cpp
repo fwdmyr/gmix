@@ -36,8 +36,6 @@ TEST_F(
     SampleCovariance_GivenSetOfSamplesFromDistribution_ExpectCorrectApproximationOfDistributionCovariance) {
   const auto covariance = gmix::internal::sample_covariance(samples_);
 
-  std::cerr << covariance << std::endl;
-
   EXPECT_TRUE(test::is_near(covariance, covariance_, test::RANDOM_TOLERANCE));
 }
 
