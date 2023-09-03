@@ -1,7 +1,7 @@
 #ifndef GMIX_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_HPP
 #define GMIX_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_HPP
 
-#include "variational_bayesian_inference_strategy_impl.hpp"
+#include "variational_bayesian_inference_policy_impl.hpp"
 
 // TODO: There is a lot of optimization to be done here, also think about
 // vectorizing more
@@ -64,14 +64,14 @@ VariationalStatistics<Dim>::VariationalStatistics(
       mu{StaticRowsMatrix<Dim>::Zero(Dim, parameters.n_components)},
       sigma{StaticRowsMatrix<Dim>::Zero(Dim, Dim * parameters.n_components)} {}
 
-template <int Dim> class VariationalBayesianInferenceStrategy {
+template <int Dim> class VariationalBayesianInferencePolicy {
 public:
   using ParamType = VariationalBayesianInferenceParameters<Dim>;
 
-  explicit VariationalBayesianInferenceStrategy(
+  explicit VariationalBayesianInferencePolicy(
       ParamType &&parameters) noexcept;
 
-  explicit VariationalBayesianInferenceStrategy(
+  explicit VariationalBayesianInferencePolicy(
       const ParamType &parameters) noexcept;
 
   void initialize(std::vector<GaussianComponent<Dim>> &,
@@ -81,35 +81,35 @@ public:
                    const StaticRowsMatrix<Dim> &) const;
 
 protected:
-  VariationalBayesianInferenceStrategy() = default;
+  VariationalBayesianInferencePolicy() = default;
 
 private:
   ParamType parameters_{};
 };
 
 template <int Dim>
-VariationalBayesianInferenceStrategy<Dim>::VariationalBayesianInferenceStrategy(
+VariationalBayesianInferencePolicy<Dim>::VariationalBayesianInferencePolicy(
     ParamType &&parameters) noexcept
     : parameters_(std::move(parameters)) {}
 
 template <int Dim>
-VariationalBayesianInferenceStrategy<Dim>::VariationalBayesianInferenceStrategy(
+VariationalBayesianInferencePolicy<Dim>::VariationalBayesianInferencePolicy(
     const ParamType &parameters) noexcept
     : parameters_(parameters) {}
 
 template <int Dim>
-void VariationalBayesianInferenceStrategy<Dim>::initialize(
+void VariationalBayesianInferencePolicy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
   const KMeansParameters<Dim> initialization_parameters = {
       parameters_.n_components, 1, 0.0, parameters_.warm_start};
-  const auto initialization_strategy =
-      KMeansStrategy<Dim>{initialization_parameters};
-  initialization_strategy.fit(components, samples);
+  const auto initialization_policy =
+      KMeansPolicy<Dim>{initialization_parameters};
+  initialization_policy.fit(components, samples);
 }
 
 template <int Dim>
-void VariationalBayesianInferenceStrategy<Dim>::fit(
+void VariationalBayesianInferencePolicy<Dim>::fit(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
 

@@ -1,4 +1,4 @@
-#include "../include/kmeans_strategy.hpp"
+#include "../include/kmeans_policy.hpp"
 #include "../include/statistics.hpp"
 #include "test_helpers.hpp"
 #include <gtest/gtest.h>

@@ -1,4 +1,4 @@
-#include "../include/variational_bayesian_inference_strategy.hpp"
+#include "../include/variational_bayesian_inference_policy.hpp"
 #include "test_helpers.hpp"
 #include <gtest/gtest.h>
 
@@ -50,7 +50,7 @@ gmix::StaticRowsMatrix<2> VariationalBayesianInferenceFixture::samples_{};
 TEST_P(
     VariationalBayesianInferenceFixture,
     Fit_GivenParametersAndSamples_ExpectCorrectApproximationOfUnderlyingDistribution) {
-  gmix::GaussianMixture<2, gmix::VariationalBayesianInferenceStrategy> gmm{
+  gmix::GaussianMixture<2, gmix::VariationalBayesianInferencePolicy> gmm{
       parameters_};
   if (GetParam()) {
     gmm.add_component(
@@ -67,7 +67,7 @@ TEST_P(
       test::compare_gaussian_mixtures(gmm_, gmm, test::RANDOM_TOLERANCE));
 }
 
-INSTANTIATE_TEST_SUITE_P(VariationalBayesianInferenceStrategyWarmColdStart,
+INSTANTIATE_TEST_SUITE_P(VariationalBayesianInferencePolicyWarmColdStart,
                          VariationalBayesianInferenceFixture,
                          testing::Values(true, false));
 

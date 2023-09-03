@@ -1,7 +1,7 @@
 #ifndef GMIX_K_MEANS_STRATEGY_HPP
 #define GMIX_K_MEANS_STRATEGY_HPP
 
-#include "kmeans_strategy_impl.hpp"
+#include "kmeans_policy_impl.hpp"
 
 namespace gmix {
 
@@ -12,13 +12,13 @@ template <int Dim> struct KMeansParameters {
   bool warm_start{false};
 };
 
-template <int Dim> class KMeansStrategy {
+template <int Dim> class KMeansPolicy {
 public:
   using ParamType = KMeansParameters<Dim>;
 
-  explicit KMeansStrategy(ParamType &&parameters) noexcept;
+  explicit KMeansPolicy(ParamType &&parameters) noexcept;
 
-  explicit KMeansStrategy(const ParamType &parameters) noexcept;
+  explicit KMeansPolicy(const ParamType &parameters) noexcept;
 
   void fit(std::vector<GaussianComponent<Dim>> &,
            const StaticRowsMatrix<Dim> &) const;
@@ -27,22 +27,22 @@ public:
                   const StaticRowsMatrix<Dim> &) const;
 
 protected:
-  KMeansStrategy() = default;
+  KMeansPolicy() = default;
 
 private:
   ParamType parameters_{};
 };
 
 template <int Dim>
-KMeansStrategy<Dim>::KMeansStrategy(ParamType &&parameters) noexcept
+KMeansPolicy<Dim>::KMeansPolicy(ParamType &&parameters) noexcept
     : parameters_(std::move(parameters)) {}
 
 template <int Dim>
-KMeansStrategy<Dim>::KMeansStrategy(const ParamType &parameters) noexcept
+KMeansPolicy<Dim>::KMeansPolicy(const ParamType &parameters) noexcept
     : parameters_(parameters) {}
 
 template <int Dim>
-void KMeansStrategy<Dim>::initialize(
+void KMeansPolicy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
   assert(samples.cols() >= parameters_.n_components);
@@ -57,7 +57,7 @@ void KMeansStrategy<Dim>::initialize(
 }
 
 template <int Dim>
-void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
+void KMeansPolicy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
                               const StaticRowsMatrix<Dim> &samples) const {
   assert(samples.cols() >= parameters_.n_components);
   const auto n_components = parameters_.n_components;

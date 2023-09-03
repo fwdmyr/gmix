@@ -1,7 +1,7 @@
 #ifndef GMIX_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_IMPL_HPP
 #define GMIX_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_IMPL_HPP
 
-#include "kmeans_strategy.hpp"
+#include "kmeans_policy.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <eigen3/Eigen/src/Core/GlobalFunctions.h>

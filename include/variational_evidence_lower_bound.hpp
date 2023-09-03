@@ -1,7 +1,7 @@
 #ifndef GMIX_VARIATIONAL_EVIDENCE_LOWER_BOUND_HPP
 #define GMIX_VARIATIONAL_EVIDENCE_LOWER_BOUND_HPP
 
-#include "variational_bayesian_inference_strategy_impl.hpp"
+#include "variational_bayesian_inference_policy_impl.hpp"
 
 // TODO: There is a lot of optimization to be done here, also think about
 // vectorizing more

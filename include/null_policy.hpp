@@ -3,9 +3,9 @@
 
 namespace gmix {
 
-template <int Dim> class NullStrategy {
+template <int Dim> class NullPolicy {
 protected:
-  NullStrategy() = default;
+  NullPolicy() = default;
 };
 
 } // namespace gmix

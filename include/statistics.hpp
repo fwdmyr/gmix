@@ -8,12 +8,12 @@
 
 namespace gmix {
 
-template <int Dim, template <int> typename FittingStrategy>
+template <int Dim, template <int> typename FittingPolicy>
 class GaussianMixture;
 
-template <template <int> typename FittingStrategy, int Dim>
+template <template <int> typename FittingPolicy, int Dim>
 [[nodiscard]] StaticRowsMatrix<Dim>
-draw_from_gaussian_mixture(const GaussianMixture<Dim, FittingStrategy> &gmm,
+draw_from_gaussian_mixture(const GaussianMixture<Dim, FittingPolicy> &gmm,
                            size_t n_samples) {
   static std::mt19937 gen{std::random_device{}()};
   static std::normal_distribution<> nd;

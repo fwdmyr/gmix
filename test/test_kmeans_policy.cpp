@@ -1,4 +1,4 @@
-#include "../include/kmeans_strategy.hpp"
+#include "../include/kmeans_policy.hpp"
 #include "test_helpers.hpp"
 #include <cmath>
 #include <gtest/gtest.h>
@@ -177,7 +177,7 @@ TEST(IsEarlyStoppingConditionFulfilled,
   EXPECT_TRUE(flag);
 }
 
-class KMeansStrategyFixture : public ::testing::TestWithParam<bool> {
+class KMeansPolicyFixture : public ::testing::TestWithParam<bool> {
 protected:
   static void SetUpTestSuite() {
     gmm_.add_component(
@@ -203,13 +203,13 @@ protected:
   gmix::KMeansParameters<2> parameters_{};
 };
 
-gmix::GaussianMixture<2> KMeansStrategyFixture::gmm_{};
-gmix::StaticRowsMatrix<2> KMeansStrategyFixture::samples_{};
+gmix::GaussianMixture<2> KMeansPolicyFixture::gmm_{};
+gmix::StaticRowsMatrix<2> KMeansPolicyFixture::samples_{};
 
 TEST_P(
-    KMeansStrategyFixture,
+    KMeansPolicyFixture,
     Fit_GivenParametersAndSamples_ExpectCorrectApproximationOfUnderlyingDistribution) {
-  gmix::GaussianMixture<2, gmix::KMeansStrategy> gmm{parameters_};
+  gmix::GaussianMixture<2, gmix::KMeansPolicy> gmm{parameters_};
   if (GetParam()) {
     gmm.add_component(
         {0.5, (gmix::ColVector<2>() << 1.0, 1.0).finished(),
@@ -225,7 +225,7 @@ TEST_P(
       test::compare_gaussian_mixtures(gmm_, gmm, test::RANDOM_TOLERANCE));
 }
 
-INSTANTIATE_TEST_SUITE_P(KMeansStrategyWarmColdStart, KMeansStrategyFixture,
+INSTANTIATE_TEST_SUITE_P(KMeansPolicyWarmColdStart, KMeansPolicyFixture,
                          testing::Values(true, false));
 
 } // namespace

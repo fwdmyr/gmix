@@ -1,7 +1,7 @@
 #ifndef GMIX_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
 #define GMIX_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
 
-#include "expectation_maximization_strategy_impl.hpp"
+#include "expectation_maximization_policy_impl.hpp"
 
 namespace gmix {
 
@@ -12,14 +12,14 @@ template <int Dim> struct ExpectationMaximizationParameters {
   bool warm_start{false};
 };
 
-template <int Dim> class ExpectationMaximizationStrategy {
+template <int Dim> class ExpectationMaximizationPolicy {
 public:
   using ParamType = ExpectationMaximizationParameters<Dim>;
 
-  explicit ExpectationMaximizationStrategy(
+  explicit ExpectationMaximizationPolicy(
       const ParamType &parameters) noexcept;
 
-  explicit ExpectationMaximizationStrategy(ParamType &&parameters) noexcept;
+  explicit ExpectationMaximizationPolicy(ParamType &&parameters) noexcept;
 
   void initialize(std::vector<GaussianComponent<Dim>> &,
                   const StaticRowsMatrix<Dim> &) const;
@@ -28,36 +28,36 @@ public:
            const StaticRowsMatrix<Dim> &) const;
 
 protected:
-  ExpectationMaximizationStrategy() = default;
+  ExpectationMaximizationPolicy() = default;
 
 private:
   ParamType parameters_{};
 };
 
 template <int Dim>
-ExpectationMaximizationStrategy<Dim>::ExpectationMaximizationStrategy(
+ExpectationMaximizationPolicy<Dim>::ExpectationMaximizationPolicy(
     const ParamType &parameters) noexcept
     : parameters_{parameters} {}
 
 template <int Dim>
-ExpectationMaximizationStrategy<Dim>::ExpectationMaximizationStrategy(
+ExpectationMaximizationPolicy<Dim>::ExpectationMaximizationPolicy(
     ParamType &&parameters) noexcept
     : parameters_{std::move(parameters)} {}
 
 template <int Dim>
-void ExpectationMaximizationStrategy<Dim>::initialize(
+void ExpectationMaximizationPolicy<Dim>::initialize(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
 
   const KMeansParameters<Dim> initialization_parameters = {
       parameters_.n_components, 1, 0.0, parameters_.warm_start};
-  const auto initialization_strategy =
-      KMeansStrategy<Dim>{initialization_parameters};
-  initialization_strategy.fit(components, samples);
+  const auto initialization_policy =
+      KMeansPolicy<Dim>{initialization_parameters};
+  initialization_policy.fit(components, samples);
 }
 
 template <int Dim>
-void ExpectationMaximizationStrategy<Dim>::fit(
+void ExpectationMaximizationPolicy<Dim>::fit(
     std::vector<GaussianComponent<Dim>> &components,
     const StaticRowsMatrix<Dim> &samples) const {
   if (!parameters_.warm_start || components.size() != parameters_.n_components)

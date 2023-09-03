@@ -1,4 +1,4 @@
-#include "../include/expectation_maximization_strategy.hpp"
+#include "../include/expectation_maximization_policy.hpp"
 #include "test_helpers.hpp"
 #include <gtest/gtest.h>
 
@@ -97,7 +97,7 @@ gmix::StaticRowsMatrix<2> ExpectationMaximizationFixture::samples_{};
 TEST_P(
     ExpectationMaximizationFixture,
     Fit_GivenParametersAndSamples_ExpectCorrectApproximationOfUnderlyingDistribution) {
-  gmix::GaussianMixture<2, gmix::ExpectationMaximizationStrategy> gmm{
+  gmix::GaussianMixture<2, gmix::ExpectationMaximizationPolicy> gmm{
       parameters_};
   if (GetParam()) {
     gmm.add_component(
@@ -114,7 +114,7 @@ TEST_P(
       test::compare_gaussian_mixtures(gmm_, gmm, test::RANDOM_TOLERANCE));
 }
 
-INSTANTIATE_TEST_SUITE_P(ExpectationMaximizationStrategyWarmColdStart,
+INSTANTIATE_TEST_SUITE_P(ExpectationMaximizationPolicyWarmColdStart,
                          ExpectationMaximizationFixture,
                          testing::Values(true, false));
 

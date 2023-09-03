@@ -42,11 +42,11 @@ template <int Dim>
          is_near(lhs.get_covariance(), rhs.get_covariance(), tolerance);
 }
 
-template <template <int> typename FittingStrategyLhs,
-          template <int> typename FittingStrategyRhs, int Dim>
+template <template <int> typename FittingPolicyLhs,
+          template <int> typename FittingPolicyRhs, int Dim>
 [[nodiscard]] bool
-is_near(const gmix::GaussianMixture<Dim, FittingStrategyLhs> &lhs,
-        const gmix::GaussianMixture<Dim, FittingStrategyRhs> &rhs,
+is_near(const gmix::GaussianMixture<Dim, FittingPolicyLhs> &lhs,
+        const gmix::GaussianMixture<Dim, FittingPolicyRhs> &rhs,
         double tolerance) {
   if (lhs.get_size() != rhs.get_size())
     return false;
@@ -59,11 +59,11 @@ is_near(const gmix::GaussianMixture<Dim, FittingStrategyLhs> &lhs,
   return true;
 }
 
-template <template <int> typename FittingStrategyLhs,
-          template <int> typename FittingStrategyRhs, int Dim>
+template <template <int> typename FittingPolicyLhs,
+          template <int> typename FittingPolicyRhs, int Dim>
 [[nodiscard]] bool
-compare_gaussian_mixtures(gmix::GaussianMixture<Dim, FittingStrategyLhs> &lhs,
-                          gmix::GaussianMixture<Dim, FittingStrategyRhs> &rhs,
+compare_gaussian_mixtures(gmix::GaussianMixture<Dim, FittingPolicyLhs> &lhs,
+                          gmix::GaussianMixture<Dim, FittingPolicyRhs> &rhs,
                           double tolerance) {
   if (lhs.get_size() != rhs.get_size())
     return false;

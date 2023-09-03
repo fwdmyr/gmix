@@ -1,7 +1,7 @@
 #ifndef GMIX_EXPECTATION_MAXIMIZATION_STRATEGY_IMPL_HPP
 #define GMIX_EXPECTATION_MAXIMIZATION_STRATEGY_IMPL_HPP
 
-#include "kmeans_strategy.hpp"
+#include "kmeans_policy.hpp"
 
 namespace gmix {
 

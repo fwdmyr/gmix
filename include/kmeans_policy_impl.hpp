@@ -13,7 +13,7 @@
 namespace gmix {
 
 template <int Dim> struct KMeansParameters;
-template <int Dim> class KMeansStrategy;
+template <int Dim> class KMeansPolicy;
 
 namespace internal {
 
