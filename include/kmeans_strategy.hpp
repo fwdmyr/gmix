@@ -2,11 +2,13 @@
 #define GMSAM_K_MEANS_STRATEGY_HPP
 
 #include "common.hpp"
-#include "null_strategy.hpp"
+#include "gaussian_component.hpp"
 #include "statistics.hpp"
 #include <limits>
 #include <numeric>
 #include <random>
+#include <stdexcept>
+#include <vector>
 
 namespace gmix {
 
@@ -150,7 +152,7 @@ template <int Dim> struct KMeansParameters {
   bool warm_start{false};
 };
 
-template <int Dim> class KMeansStrategy : public BaseStrategy<Dim> {
+template <int Dim> class KMeansStrategy {
 public:
   using ParamType = KMeansParameters<Dim>;
 
@@ -160,11 +162,11 @@ public:
   explicit KMeansStrategy(const ParamType &parameters) noexcept
       : parameters_(parameters) {}
 
-  virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const StaticRowsMatrix<Dim> &) const override;
+  void fit(std::vector<GaussianComponent<Dim>> &,
+           const StaticRowsMatrix<Dim> &) const;
 
-  virtual void initialize(std::vector<GaussianComponent<Dim>> &,
-                          const StaticRowsMatrix<Dim> &) const override;
+  void initialize(std::vector<GaussianComponent<Dim>> &,
+                  const StaticRowsMatrix<Dim> &) const;
 
 protected:
   KMeansStrategy() = default;

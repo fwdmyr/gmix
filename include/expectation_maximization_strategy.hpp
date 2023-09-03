@@ -1,11 +1,7 @@
 #ifndef GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
 #define GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
 
-#include "common.hpp"
 #include "kmeans_strategy.hpp"
-#include "statistics.hpp"
-#include <limits>
-#include <random>
 
 namespace gmix {
 
@@ -82,8 +78,7 @@ template <int Dim> struct ExpectationMaximizationParameters {
   bool warm_start{false};
 };
 
-template <int Dim>
-class ExpectationMaximizationStrategy : public BaseStrategy<Dim> {
+template <int Dim> class ExpectationMaximizationStrategy {
 public:
   using ParamType = ExpectationMaximizationParameters<Dim>;
 
@@ -94,10 +89,10 @@ public:
       : parameters_(parameters) {}
 
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const StaticRowsMatrix<Dim> &) const override;
+                   const StaticRowsMatrix<Dim> &) const;
 
   virtual void initialize(std::vector<GaussianComponent<Dim>> &,
-                          const StaticRowsMatrix<Dim> &) const override;
+                          const StaticRowsMatrix<Dim> &) const;
 
 protected:
   ExpectationMaximizationStrategy() = default;

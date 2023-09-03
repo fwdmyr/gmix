@@ -1,17 +1,11 @@
 #ifndef GMSAM_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_HPP
 #define GMSAM_VARIATIONAL_BAYESIAN_INFERENCE_STRATEGY_HPP
 
-#include "common.hpp"
 #include "kmeans_strategy.hpp"
-#include "null_strategy.hpp"
-#include "statistics.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <eigen3/Eigen/src/Core/GlobalFunctions.h>
 #include <eigen3/unsupported/Eigen/SpecialFunctions>
-#include <limits>
-#include <random>
-#include <variant>
 
 // TODO: There is a lot of optimization to be done here, also think about
 // vectorizing more
@@ -289,8 +283,7 @@ double evaluate_variational_lower_bound(
 
 } // namespace internal
 
-template <int Dim>
-class VariationalBayesianInferenceStrategy : public BaseStrategy<Dim> {
+template <int Dim> class VariationalBayesianInferenceStrategy {
 public:
   using ParamType = VariationalBayesianInferenceParameters<Dim>;
 
@@ -302,10 +295,10 @@ public:
       : parameters_(parameters) {}
 
   virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const StaticRowsMatrix<Dim> &) const override;
+                   const StaticRowsMatrix<Dim> &) const;
 
   void initialize(std::vector<GaussianComponent<Dim>> &,
-                  const StaticRowsMatrix<Dim> &) const override;
+                  const StaticRowsMatrix<Dim> &) const;
 
 protected:
   VariationalBayesianInferenceStrategy() = default;
