@@ -4,12 +4,6 @@
 
 namespace {
 
-TEST(EvaluateResponsibilities, Dummy) {}
-
-TEST(ComputeStatistics, Dummy) {}
-
-TEST(UpdateRandomVariables, Dummy) {}
-
 class VariationalBayesianInferenceFixture
     : public ::testing::TestWithParam<bool> {
 protected:
