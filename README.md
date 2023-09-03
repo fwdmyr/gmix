@@ -18,11 +18,11 @@ auto fitted_gmm = gmix::GaussianMixture<Dim>{};
 const auto samples = gmix::draw_from_gaussian_mixture(fitted_gmm, n_samples);
 
 // Parameterize the fitting policy.
-auto parameters = gmix::VariationalBayesianInferenceParameters<Dim>{};
+auto parameters = gmix::ExpectationMaximizationParameters<Dim>{};
 
 ... // Adjust the parameters
 
 // Fit a Gaussian mixture model with policy to the samples.
-auto gmm = gmix::GaussianMixture<Dim, gmix::VariationalBayesianInferencePolicy>{std::move(parameters)};
+auto gmm = gmix::GaussianMixture<Dim, gmix::ExpectationMaximizationPolicy>{std::move(parameters)};
 gmm.fit(samples);
 ```
