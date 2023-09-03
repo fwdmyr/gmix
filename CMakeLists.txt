@@ -25,13 +25,13 @@ set(HEADERS_LIST
   include/statistics.hpp
   include/gaussian_component.hpp
   include/gaussian_mixture.hpp
-  include/null_strategy.hpp
-  include/kmeans_strategy.hpp
-  include/kmeans_strategy_impl.hpp
-  include/expectation_maximization_strategy.hpp
-  include/expectation_maximization_strategy_impl.hpp
-  include/variational_bayesian_inference_strategy.hpp
-  include/variational_bayesian_inference_strategy_impl.hpp
+  include/null_policy.hpp
+  include/kmeans_policy.hpp
+  include/kmeans_policy_impl.hpp
+  include/expectation_maximization_policy.hpp
+  include/expectation_maximization_policy_impl.hpp
+  include/variational_bayesian_inference_policy.hpp
+  include/variational_bayesian_inference_policy_impl.hpp
   include/variational_evidence_lower_bound.hpp
   )
 
