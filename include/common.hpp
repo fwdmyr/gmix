@@ -1,5 +1,5 @@
-#ifndef GMSAM_COMMON_HPP
-#define GMSAM_COMMON_HPP
+#ifndef GMIX_COMMON_HPP
+#define GMIX_COMMON_HPP
 
 #include "gmix_traits.hpp"
 #include <eigen3/Eigen/Core>
@@ -26,4 +26,4 @@ using RowVectorX = Eigen::Matrix<double, 1, Eigen::Dynamic>;
 
 } // namespace gmix
 
-#endif // !GMSAM_COMMON_HPP
+#endif // !GMIX_COMMON_HPP

@@ -1,5 +1,5 @@
-#ifndef GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
-#define GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
+#ifndef GMIX_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
+#define GMIX_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
 
 #include "expectation_maximization_strategy_impl.hpp"
 
@@ -83,4 +83,4 @@ void ExpectationMaximizationStrategy<Dim>::fit(
 
 } // namespace gmix
 
-#endif // !#ifndef GMSAM_EXPECTATION_MAXIMIZATION_STRATEGY_HPP
+#endif // !#ifndef GMIX_EXPECTATION_MAXIMIZATION_STRATEGY_HPP

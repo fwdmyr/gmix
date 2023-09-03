@@ -1,5 +1,5 @@
-#ifndef GMSAM_GAUSSIAN_MIXTURE_HPP
-#define GMSAM_GAUSSIAN_MIXTURE_HPP
+#ifndef GMIX_GAUSSIAN_MIXTURE_HPP
+#define GMIX_GAUSSIAN_MIXTURE_HPP
 
 #include "gaussian_component.hpp"
 #include "null_strategy.hpp"
@@ -163,4 +163,4 @@ std::ostream &operator<<(std::ostream &os,
 }
 
 } // namespace gmix
-#endif // !GMSAM_GAUSSIAN_MIXTURE_HPP
+#endif // !GMIX_GAUSSIAN_MIXTURE_HPP

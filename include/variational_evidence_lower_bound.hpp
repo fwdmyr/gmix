@@ -1,5 +1,5 @@
-#ifndef GMSAM_VARIATIONAL_EVIDENCE_LOWER_BOUND_HPP
-#define GMSAM_VARIATIONAL_EVIDENCE_LOWER_BOUND_HPP
+#ifndef GMIX_VARIATIONAL_EVIDENCE_LOWER_BOUND_HPP
+#define GMIX_VARIATIONAL_EVIDENCE_LOWER_BOUND_HPP
 
 #include "variational_bayesian_inference_strategy_impl.hpp"
 
@@ -112,4 +112,4 @@ double evaluate_variational_lower_bound(
 
 } // namespace gmix
 
-#endif // !GMSAM_VARIATIONAL_EVIDENCE_LOWER_BOUND_HPP
+#endif // !GMIX_VARIATIONAL_EVIDENCE_LOWER_BOUND_HPP

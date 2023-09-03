@@ -1,5 +1,5 @@
-#ifndef GMSAM_TYPE_TRAITS_HPP
-#define GMSAM_TYPE_TRAITS_HPP
+#ifndef GMIX_TYPE_TRAITS_HPP
+#define GMIX_TYPE_TRAITS_HPP
 
 #include <eigen3/Eigen/Dense>
 #include <tuple>
@@ -61,4 +61,4 @@ static constexpr auto is_column_vector_v = is_column_vector<MatrixT>::value;
 
 } // namespace gmix
 
-#endif // !GMSAM_TYPE_TRAITS_HPP
+#endif // !GMIX_TYPE_TRAITS_HPP

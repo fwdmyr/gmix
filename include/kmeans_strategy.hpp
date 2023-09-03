@@ -1,5 +1,5 @@
-#ifndef GMSAM_K_MEANS_STRATEGY_HPP
-#define GMSAM_K_MEANS_STRATEGY_HPP
+#ifndef GMIX_K_MEANS_STRATEGY_HPP
+#define GMIX_K_MEANS_STRATEGY_HPP
 
 #include "kmeans_strategy_impl.hpp"
 
@@ -82,4 +82,4 @@ void KMeansStrategy<Dim>::fit(std::vector<GaussianComponent<Dim>> &components,
 
 } // namespace gmix
 
-#endif // !GMSAM_K_MEANS_STRATEGY_HPP
+#endif // !GMIX_K_MEANS_STRATEGY_HPP

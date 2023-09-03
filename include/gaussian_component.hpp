@@ -1,5 +1,5 @@
-#ifndef GMSAM_GAUSSIAN_COMPONENT_HPP
-#define GMSAM_GAUSSIAN_COMPONENT_HPP
+#ifndef GMIX_GAUSSIAN_COMPONENT_HPP
+#define GMIX_GAUSSIAN_COMPONENT_HPP
 
 #include "common.hpp"
 #include <gtest/gtest.h>
@@ -107,4 +107,4 @@ std::ostream &operator<<(std::ostream &os,
 
 } // namespace gmix
 
-#endif // !GMSAM_GAUSSIAN_COMPONENT_HPP
+#endif // !GMIX_GAUSSIAN_COMPONENT_HPP

@@ -1,5 +1,5 @@
-#ifndef GMSAM_NULL_STRATEGY_HPP
-#define GMSAM_NULL_STRATEGY_HPP
+#ifndef GMIX_NULL_STRATEGY_HPP
+#define GMIX_NULL_STRATEGY_HPP
 
 namespace gmix {
 
@@ -9,4 +9,4 @@ protected:
 };
 
 } // namespace gmix
-#endif // !GMSAM_NULL_STRATEGY_HPP
+#endif // !GMIX_NULL_STRATEGY_HPP

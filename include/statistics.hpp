@@ -1,5 +1,5 @@
-#ifndef GMSAM_STATISTICS_HPP
-#define GMSAM_STATISTICS_HPP
+#ifndef GMIX_STATISTICS_HPP
+#define GMIX_STATISTICS_HPP
 
 #include "common.hpp"
 #include <iostream>
@@ -69,4 +69,4 @@ sample_covariance(const StaticRowsMatrix<Dim> &samples,
 
 } // namespace gmix
 
-#endif // !GMSAM_STATISTICS_HPP
+#endif // !GMIX_STATISTICS_HPP

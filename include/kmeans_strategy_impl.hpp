@@ -1,5 +1,5 @@
-#ifndef GMSAM_K_MEANS_STRATEGY_IMPL_HPP
-#define GMSAM_K_MEANS_STRATEGY_IMPL_HPP
+#ifndef GMIX_K_MEANS_STRATEGY_IMPL_HPP
+#define GMIX_K_MEANS_STRATEGY_IMPL_HPP
 
 #include "common.hpp"
 #include "gaussian_component.hpp"
@@ -147,4 +147,4 @@ template <int Dim>
 
 } // namespace gmix
 
-#endif // !GMSAM_K_MEANS_STRATEGY_IMPL_HPP
+#endif // !GMIX_K_MEANS_STRATEGY_IMPL_HPP
