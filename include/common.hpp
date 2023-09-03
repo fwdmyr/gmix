@@ -25,4 +25,5 @@ template <int Cols> using RowVector = Eigen::Matrix<double, 1, Cols>;
 using RowVectorX = Eigen::Matrix<double, 1, Eigen::Dynamic>;
 
 } // namespace gmix
+
 #endif // !GMSAM_COMMON_HPP

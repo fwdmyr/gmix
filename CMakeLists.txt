@@ -22,14 +22,17 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 set(HEADERS_LIST
   include/common.hpp
   include/gmix_traits.hpp
-  include/null_strategy.hpp
   include/statistics.hpp
   include/gaussian_component.hpp
   include/gaussian_mixture.hpp
-  include/base_strategy.hpp
+  include/null_strategy.hpp
   include/kmeans_strategy.hpp
+  include/kmeans_strategy_impl.hpp
   include/expectation_maximization_strategy.hpp
+  include/expectation_maximization_strategy_impl.hpp
   include/variational_bayesian_inference_strategy.hpp
+  include/variational_bayesian_inference_strategy_impl.hpp
+  include/variational_evidence_lower_bound.hpp
   )
 
 set(TARGET_NAME gmsam)
