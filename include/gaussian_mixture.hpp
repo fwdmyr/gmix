@@ -1,9 +1,9 @@
 #ifndef GMSAM_GAUSSIAN_MIXTURE_HPP
 #define GMSAM_GAUSSIAN_MIXTURE_HPP
 
-#include "common.hpp"
 #include "gaussian_component.hpp"
 #include "null_strategy.hpp"
+#include "statistics.hpp"
 #include <memory>
 #include <random>
 #include <vector>
@@ -48,7 +48,7 @@ public:
   [[nodiscard]] double operator()(gmix::ColVector<Dim>) const;
 
   [[nodiscard]] const GaussianComponent<Dim> &get_component(size_t idx) const {
-    return components_[idx];
+    return components_.at(idx);
   }
 
   [[nodiscard]] size_t get_size() const { return components_.size(); }
@@ -124,33 +124,6 @@ template <int Dim, template <int> typename FittingStrategy>
 void GaussianMixture<Dim, FittingStrategy>::fit(
     const StaticRowsMatrix<Dim> &samples) {
   FittingStrategy<Dim>::fit(components_, samples);
-}
-
-template <template <int> typename FittingStrategy, int Dim>
-[[nodiscard]] StaticRowsMatrix<Dim>
-draw_from_gaussian_mixture(const GaussianMixture<Dim, FittingStrategy> &gmm,
-                           size_t n_samples) {
-  static std::mt19937 gen{std::random_device{}()};
-  static std::normal_distribution<> nd;
-
-  std::vector<double> weights;
-  weights.reserve(gmm.get_size());
-  for (auto it = gmm.cbegin(); it < gmm.cend(); ++it)
-    weights.push_back(it->get_weight());
-  std::discrete_distribution<> dd(weights.begin(), weights.end());
-  auto samples = StaticRowsMatrix<Dim>::Zero(Dim, n_samples).eval();
-
-  for (size_t i = 0; i < n_samples; ++i) {
-    const auto &component = gmm.get_component(dd(gen));
-    Eigen::SelfAdjointEigenSolver<Matrix<Dim, Dim>> eigen_solver(
-        component.get_covariance());
-    const auto transform = eigen_solver.eigenvectors() *
-                           eigen_solver.eigenvalues().cwiseSqrt().asDiagonal();
-    samples.col(i) =
-        component.get_mean() +
-        transform * ColVector<Dim>{}.unaryExpr([](auto x) { return nd(gen); });
-  }
-  return samples;
 }
 
 } // namespace gmix

@@ -8,6 +8,36 @@
 
 namespace gmix {
 
+template <int Dim, template <int> typename FittingStrategy>
+class GaussianMixture;
+
+template <template <int> typename FittingStrategy, int Dim>
+[[nodiscard]] StaticRowsMatrix<Dim>
+draw_from_gaussian_mixture(const GaussianMixture<Dim, FittingStrategy> &gmm,
+                           size_t n_samples) {
+  static std::mt19937 gen{std::random_device{}()};
+  static std::normal_distribution<> nd;
+
+  std::vector<double> weights;
+  weights.reserve(gmm.get_size());
+  for (auto it = gmm.cbegin(); it < gmm.cend(); ++it)
+    weights.push_back(it->get_weight());
+  std::discrete_distribution<> dd(weights.begin(), weights.end());
+  auto samples = StaticRowsMatrix<Dim>::Zero(Dim, n_samples).eval();
+
+  for (size_t i = 0; i < n_samples; ++i) {
+    const auto &component = gmm.get_component(dd(gen));
+    Eigen::SelfAdjointEigenSolver<Matrix<Dim, Dim>> eigen_solver(
+        component.get_covariance());
+    const auto transform = eigen_solver.eigenvectors() *
+                           eigen_solver.eigenvalues().cwiseSqrt().asDiagonal();
+    samples.col(i) =
+        component.get_mean() +
+        transform * ColVector<Dim>{}.unaryExpr([](auto x) { return nd(gen); });
+  }
+  return samples;
+}
+
 namespace internal {
 
 template <int Dim>
