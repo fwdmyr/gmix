@@ -68,18 +68,17 @@ template <int Dim> class VariationalBayesianInferenceStrategy {
 public:
   using ParamType = VariationalBayesianInferenceParameters<Dim>;
 
-  explicit VariationalBayesianInferenceStrategy(ParamType &&parameters) noexcept
-      : parameters_(std::move(parameters)) {}
+  explicit VariationalBayesianInferenceStrategy(
+      ParamType &&parameters) noexcept;
 
   explicit VariationalBayesianInferenceStrategy(
-      const ParamType &parameters) noexcept
-      : parameters_(parameters) {}
-
-  virtual void fit(std::vector<GaussianComponent<Dim>> &,
-                   const StaticRowsMatrix<Dim> &) const;
+      const ParamType &parameters) noexcept;
 
   void initialize(std::vector<GaussianComponent<Dim>> &,
                   const StaticRowsMatrix<Dim> &) const;
+
+  virtual void fit(std::vector<GaussianComponent<Dim>> &,
+                   const StaticRowsMatrix<Dim> &) const;
 
 protected:
   VariationalBayesianInferenceStrategy() = default;
@@ -87,6 +86,16 @@ protected:
 private:
   ParamType parameters_{};
 };
+
+template <int Dim>
+VariationalBayesianInferenceStrategy<Dim>::VariationalBayesianInferenceStrategy(
+    ParamType &&parameters) noexcept
+    : parameters_(std::move(parameters)) {}
+
+template <int Dim>
+VariationalBayesianInferenceStrategy<Dim>::VariationalBayesianInferenceStrategy(
+    const ParamType &parameters) noexcept
+    : parameters_(parameters) {}
 
 template <int Dim>
 void VariationalBayesianInferenceStrategy<Dim>::initialize(

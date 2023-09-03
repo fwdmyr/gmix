@@ -14,10 +14,6 @@ template <int Dim, template <int> typename FittingStrategy = NullStrategy>
 class GaussianMixture : public FittingStrategy<Dim> {
 
 public:
-  using container_type = std::vector<GaussianComponent<Dim>>;
-  using iterator = typename container_type::iterator;
-  using const_iterator = typename container_type::const_iterator;
-
   explicit GaussianMixture() noexcept;
 
   explicit GaussianMixture(
@@ -34,53 +30,40 @@ public:
   GaussianMixture(std::initializer_list<GaussianComponent<Dim>>,
                   Parameters &&) noexcept;
 
-  void fit(const StaticRowsMatrix<Dim> &);
+  [[nodiscard]] const auto &get_component(size_t idx) const;
+
+  [[nodiscard]] const auto &get_components() const noexcept;
+
+  [[nodiscard]] auto &get_components() noexcept;
+
+  [[nodiscard]] auto get_size() const noexcept;
+
+  void add_component() noexcept;
+
+  void add_component(const GaussianComponent<Dim> &component) noexcept;
+
+  void add_component(GaussianComponent<Dim> &&component) noexcept;
+
+  void fit(const StaticRowsMatrix<Dim> &samples);
+
+  [[nodiscard]] auto evaluate(gmix::ColVector<Dim> &sample) const;
+
+  void reset() noexcept;
+
+  using container_type = std::vector<GaussianComponent<Dim>>;
+  using iterator = typename container_type::iterator;
+  using const_iterator = typename container_type::const_iterator;
 
   [[nodiscard]] inline iterator begin() noexcept { return components_.begin(); }
+
   [[nodiscard]] inline const_iterator cbegin() const noexcept {
     return components_.cbegin();
   }
+
   [[nodiscard]] inline iterator end() noexcept { return components_.end(); }
+
   [[nodiscard]] inline const_iterator cend() const noexcept {
     return components_.cend();
-  }
-
-  [[nodiscard]] double operator()(gmix::ColVector<Dim>) const;
-
-  [[nodiscard]] const GaussianComponent<Dim> &get_component(size_t idx) const {
-    return components_.at(idx);
-  }
-
-  [[nodiscard]] size_t get_size() const { return components_.size(); }
-
-  [[nodiscard]] const std::vector<GaussianComponent<Dim>> &
-  get_components() const {
-    return components_;
-  }
-
-  [[nodiscard]] std::vector<GaussianComponent<Dim>> &get_components() {
-    return components_;
-  }
-
-  void add_component() { components_.emplace_back(); }
-
-  void add_component(const GaussianComponent<Dim> &component) {
-    components_.push_back(component);
-  };
-
-  void add_component(GaussianComponent<Dim> &&component) {
-    components_.emplace_back(std::move(component));
-  }
-
-  void reset() { components_.resize(0); }
-
-  friend std::ostream &
-  operator<<(std::ostream &os,
-             const GaussianMixture<Dim, FittingStrategy> &gmm) {
-    os << "GaussianMixture<" << Dim << ">\n";
-    for (const auto &component : gmm.components_)
-      os << component << '\n';
-    return os;
   }
 
 private:
@@ -111,19 +94,72 @@ GaussianMixture<Dim, FittingStrategy>::GaussianMixture(
       components_{components} {}
 
 template <int Dim, template <int> typename FittingStrategy>
-double GaussianMixture<Dim, FittingStrategy>::operator()(
-    gmix::ColVector<Dim> sample) const {
-  return std::accumulate(
-      components_.begin(), components_.end(), 0.0,
-      [&x = std::as_const(sample)](auto sum, const auto &component) -> double {
-        return sum + component(x);
-      });
+const auto &
+GaussianMixture<Dim, FittingStrategy>::get_component(size_t idx) const {
+  return components_.at(idx);
+}
+
+template <int Dim, template <int> typename FittingStrategy>
+const auto &
+GaussianMixture<Dim, FittingStrategy>::get_components() const noexcept {
+  return components_;
+}
+
+template <int Dim, template <int> typename FittingStrategy>
+auto &GaussianMixture<Dim, FittingStrategy>::get_components() noexcept {
+  return components_;
+}
+
+template <int Dim, template <int> typename FittingStrategy>
+auto GaussianMixture<Dim, FittingStrategy>::get_size() const noexcept {
+  return components_.size();
+}
+
+template <int Dim, template <int> typename FittingStrategy>
+void GaussianMixture<Dim, FittingStrategy>::add_component() noexcept {
+  components_.emplace_back();
+}
+
+template <int Dim, template <int> typename FittingStrategy>
+void GaussianMixture<Dim, FittingStrategy>::add_component(
+    const GaussianComponent<Dim> &component) noexcept {
+  components_.push_back(component);
+};
+
+template <int Dim, template <int> typename FittingStrategy>
+void GaussianMixture<Dim, FittingStrategy>::add_component(
+    GaussianComponent<Dim> &&component) noexcept {
+  components_.emplace_back(std::move(component));
 }
 
 template <int Dim, template <int> typename FittingStrategy>
 void GaussianMixture<Dim, FittingStrategy>::fit(
     const StaticRowsMatrix<Dim> &samples) {
   FittingStrategy<Dim>::fit(components_, samples);
+}
+
+template <int Dim, template <int> typename FittingStrategy>
+auto GaussianMixture<Dim, FittingStrategy>::evaluate(
+    gmix::ColVector<Dim> &sample) const {
+  return std::accumulate(
+      components_.begin(), components_.end(), 0.0,
+      [&x = std::as_const(sample)](auto sum, const auto &component) -> double {
+        return sum + component.evaluate(x);
+      });
+}
+
+template <int Dim, template <int> typename FittingStrategy>
+void GaussianMixture<Dim, FittingStrategy>::reset() noexcept {
+  components_.resize(0);
+}
+
+template <int Dim, template <int> typename FittingStrategy>
+std::ostream &operator<<(std::ostream &os,
+                         const GaussianMixture<Dim, FittingStrategy> &gmm) {
+  os << "GaussianMixture<" << Dim << ">\n";
+  for (const auto &component : gmm.get_components())
+    os << component << '\n';
+  return os;
 }
 
 } // namespace gmix

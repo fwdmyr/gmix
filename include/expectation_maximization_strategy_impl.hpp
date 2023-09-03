@@ -21,7 +21,7 @@ evaluate_responsibilities(const std::vector<GaussianComponent<Dim>> &components,
         static_cast<ColVectorX>(ColVectorX::Zero(n_components, 1));
     for (size_t j = 0; j < n_components; ++j) {
       const auto &component = components[j];
-      responsibility(j) = component(sample);
+      responsibility(j) = component.evaluate(sample);
     }
     const auto responsibility_sum = responsibility.sum();
     log_likelihood += std::log(responsibility_sum);

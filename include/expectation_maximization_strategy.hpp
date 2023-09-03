@@ -16,17 +16,16 @@ template <int Dim> class ExpectationMaximizationStrategy {
 public:
   using ParamType = ExpectationMaximizationParameters<Dim>;
 
-  explicit ExpectationMaximizationStrategy(ParamType &&parameters) noexcept
-      : parameters_(std::move(parameters)) {}
+  explicit ExpectationMaximizationStrategy(
+      const ParamType &parameters) noexcept;
 
-  explicit ExpectationMaximizationStrategy(const ParamType &parameters) noexcept
-      : parameters_(parameters) {}
-
-  void fit(std::vector<GaussianComponent<Dim>> &,
-           const StaticRowsMatrix<Dim> &) const;
+  explicit ExpectationMaximizationStrategy(ParamType &&parameters) noexcept;
 
   void initialize(std::vector<GaussianComponent<Dim>> &,
                   const StaticRowsMatrix<Dim> &) const;
+
+  void fit(std::vector<GaussianComponent<Dim>> &,
+           const StaticRowsMatrix<Dim> &) const;
 
 protected:
   ExpectationMaximizationStrategy() = default;
@@ -34,6 +33,16 @@ protected:
 private:
   ParamType parameters_{};
 };
+
+template <int Dim>
+ExpectationMaximizationStrategy<Dim>::ExpectationMaximizationStrategy(
+    const ParamType &parameters) noexcept
+    : parameters_{parameters} {}
+
+template <int Dim>
+ExpectationMaximizationStrategy<Dim>::ExpectationMaximizationStrategy(
+    ParamType &&parameters) noexcept
+    : parameters_{std::move(parameters)} {}
 
 template <int Dim>
 void ExpectationMaximizationStrategy<Dim>::initialize(

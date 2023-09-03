@@ -16,11 +16,9 @@ template <int Dim> class KMeansStrategy {
 public:
   using ParamType = KMeansParameters<Dim>;
 
-  explicit KMeansStrategy(ParamType &&parameters) noexcept
-      : parameters_(std::move(parameters)) {}
+  explicit KMeansStrategy(ParamType &&parameters) noexcept;
 
-  explicit KMeansStrategy(const ParamType &parameters) noexcept
-      : parameters_(parameters) {}
+  explicit KMeansStrategy(const ParamType &parameters) noexcept;
 
   void fit(std::vector<GaussianComponent<Dim>> &,
            const StaticRowsMatrix<Dim> &) const;
@@ -34,6 +32,14 @@ protected:
 private:
   ParamType parameters_{};
 };
+
+template <int Dim>
+KMeansStrategy<Dim>::KMeansStrategy(ParamType &&parameters) noexcept
+    : parameters_(std::move(parameters)) {}
+
+template <int Dim>
+KMeansStrategy<Dim>::KMeansStrategy(const ParamType &parameters) noexcept
+    : parameters_(parameters) {}
 
 template <int Dim>
 void KMeansStrategy<Dim>::initialize(

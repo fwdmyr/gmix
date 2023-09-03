@@ -22,7 +22,7 @@ gmix::ColVector<2> GaussianComponentFixture::sample_{};
 TEST_F(
     GaussianComponentFixture,
     FunctionCallOperator_GivenInitialSetOfParameters_ExpectCorrectProbability) {
-  const auto probability = component_(sample_);
+  const auto probability = component_.evaluate(sample_);
 
   EXPECT_NEAR(probability, 0.02207882591462017, test::DETERMINISTIC_TOLERANCE);
 }
@@ -36,7 +36,8 @@ TEST_F(GaussianComponentFixture,
   const auto new_component =
       gmix::GaussianComponent<2>{new_weight, new_mean, new_covariance};
 
-  EXPECT_TRUE(test::is_near(new_component(sample_), component_(sample_),
+  EXPECT_TRUE(test::is_near(new_component.evaluate(sample_),
+                            component_.evaluate(sample_),
                             test::DETERMINISTIC_TOLERANCE));
 }
 
