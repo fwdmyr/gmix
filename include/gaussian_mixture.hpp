@@ -57,8 +57,10 @@ public:
 
   void reset() noexcept;
 
-  template <template <int> typename OtherFittingPolicy>
-  void swap(GaussianMixture<Dim, OtherFittingPolicy> &other) noexcept;
+  template <int N, template <int> typename FittingPolicyLhs,
+            template <int> typename FittingPolicyRhs>
+  friend void swap(GaussianMixture<N, FittingPolicyLhs> &lhs,
+                   GaussianMixture<N, FittingPolicyRhs> &rhs) noexcept;
 
   using container_type = std::vector<GaussianComponent<Dim>>;
   using iterator = typename container_type::iterator;
@@ -109,7 +111,7 @@ GaussianMixture<Dim, FittingPolicy> &
 GaussianMixture<Dim, FittingPolicy>::operator=(
     const GaussianMixture<Dim, OtherFittingPolicy> &other) {
   auto tmp = GaussianMixture<Dim, OtherFittingPolicy>{other};
-  swap(tmp);
+  swap(*this, tmp);
   return *this;
 }
 
@@ -118,7 +120,7 @@ template <template <int> typename OtherFittingPolicy>
 GaussianMixture<Dim, FittingPolicy> &
 GaussianMixture<Dim, FittingPolicy>::operator=(
     GaussianMixture<Dim, OtherFittingPolicy> &&other) {
-  swap(other);
+  swap(*this, other);
   return *this;
 }
 
@@ -182,11 +184,11 @@ void GaussianMixture<Dim, FittingPolicy>::reset() noexcept {
   components_.resize(0);
 }
 
-template <int Dim, template <int> typename FittingPolicy>
-template <template <int> typename OtherFittingPolicy>
-void GaussianMixture<Dim, FittingPolicy>::swap(
-    GaussianMixture<Dim, OtherFittingPolicy> &other) noexcept {
-  std::swap(components_, other.components_);
+template <int N, template <int> typename FittingPolicyLhs,
+          template <int> typename FittingPolicyRhs>
+void swap(GaussianMixture<N, FittingPolicyLhs> &lhs,
+          GaussianMixture<N, FittingPolicyRhs> &rhs) noexcept {
+  std::swap(lhs.components_, rhs.components_);
 }
 
 template <int Dim, template <int> typename FittingPolicy>

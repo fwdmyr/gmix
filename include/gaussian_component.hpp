@@ -37,8 +37,6 @@ public:
 
   [[nodiscard]] auto evaluate(const ColVector<Dim> &x) const;
 
-  void swap(GaussianComponent &other) noexcept;
-
 private:
   mutable std::optional<double> cache_{std::nullopt};
   double weight_{0.0};
@@ -95,13 +93,6 @@ auto GaussianComponent<Dim>::evaluate(const ColVector<Dim> &x) const {
   }
   return weight_ * (*cache_) *
          std::exp(-0.5 * (llt_.matrixL().solve(x - mean_)).squaredNorm());
-}
-
-template <int Dim>
-void GaussianComponent<Dim>::swap(GaussianComponent<Dim> &other) noexcept {
-  std::swap(weight_, other.weight_);
-  std::swap(mean_, other.mean_);
-  std::swap(covariance_, other.covariance_);
 }
 
 template <int Dim>
